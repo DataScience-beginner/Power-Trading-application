@@ -24,13 +24,8 @@ RUN cd frontend-react && \
     npm run build && \
     cd ..
 
-# Initialize database with mock data on first run
-RUN python init_database.py && \
-    python generate_mock_reports.py && \
-    python upload_mock_reports.py || true
-
 # Expose port
 EXPOSE 8000
 
-# Start server
+# Start server (database will initialize on startup)
 CMD uvicorn api.main:app --host 0.0.0.0 --port ${PORT:-8000}
