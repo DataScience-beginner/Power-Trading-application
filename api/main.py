@@ -63,14 +63,22 @@ async def startup_event():
     
     # Load mock data if database is empty
     try:
+        from database.config import SessionLocal
         from database.services import get_all_clients
-        clients = get_all_clients()
-        if len(clients) == 0:
-            print("📊 Database is empty, loading mock data...")
-            import subprocess
-            subprocess.run(["python", "generate_mock_reports.py"], check=False)
-            subprocess.run(["python", "upload_mock_reports.py"], check=False)
-            print("✅ Mock data loaded")
+        
+        db = SessionLocal()
+        try:
+            clients = get_all_clients(db)
+            if len(clients) == 0:
+                print("📊 Database is empty, loading mock data...")
+                import subprocess
+                subprocess.run(["python", "generate_mock_reports.py"], check=False)
+                subprocess.run(["python", "upload_mock_reports.py"], check=False)
+                print("✅ Mock data loaded")
+            else:
+                print(f"✅ Database has {len(clients)} clients already")
+        finally:
+            db.close()
     except Exception as e:
         print(f"⚠️  Mock data load failed: {e}")
         print("   You can upload files manually via the UI")

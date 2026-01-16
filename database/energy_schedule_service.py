@@ -12,7 +12,7 @@ import shutil
 import openpyxl
 from openpyxl import load_workbook
 
-from database.models import DailyFile, Transaction, TimeslotData, EnergyScheduleDaily, EnergyScheduleHourly
+from database.models import DailyFile, Transaction, EnergyScheduleDaily, EnergyScheduleHourly
 from database.config import get_db
 
 class EnergyScheduleCalculator:
