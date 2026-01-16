@@ -234,15 +234,50 @@ class SCHTemplateParser:
                     except Exception as e:
                         print(f"  WARNING: Could not extract portfolio: {e}")
         
-        # Extract entity_id from filename if available
-        if file_path:
+        # Try to extract entity_id from Excel content first
+        # Look for "Member ID" or similar patterns in first 20 rows
+        for row_idx in range(min(20, len(df))):
+            for col_idx in range(min(10, len(df.columns))):
+                cell_val = df.iloc[row_idx, col_idx]
+                if pd.notna(cell_val):
+                    cell_str = str(cell_val).lower()
+                    
+                    # Look for Member ID pattern
+                    if 'member' in cell_str and 'id' in cell_str:
+                        try:
+                            id_val = df.iloc[row_idx, col_idx + 1]
+                            if pd.notna(id_val):
+                                metadata['entity_id'] = str(id_val).strip()
+                                print(f"  Found entity_id from Excel: {metadata['entity_id']}")
+                                break
+                        except:
+                            pass
+        
+        # If still not found, try to extract from filename (last resort)
+        if 'entity_id' not in metadata and file_path:
             filename = Path(file_path).stem
-            parts = filename.split('_')
-            if len(parts) >= 2:
-                metadata['entity_id'] = parts[1]
-                if len(parts) >= 3:
-                    if 'portfolio_code' not in metadata:
-                        metadata['portfolio_code'] = parts[2]
+            # Look for pattern NPT#### in filename
+            match = re.search(r'(NPT\d+)', filename)
+            if match:
+                metadata['entity_id'] = match.group(1)
+                print(f"  Extracted entity_id from filename pattern: {metadata['entity_id']}")
+            else:
+                # Fallback to using participant name hash
+                if 'entity_name' in metadata:
+                    # Create a consistent ID from entity name
+                    import hashlib
+                    hash_val = hashlib.md5(metadata['entity_name'].encode()).hexdigest()[:8]
+                    metadata['entity_id'] = f"SCH_{hash_val}"
+                    print(f"  Generated entity_id from entity_name: {metadata['entity_id']}")
+        
+        # Extract portfolio_code from filename if not already set
+        if 'portfolio_code' not in metadata and file_path:
+            filename = Path(file_path).stem
+            # Look for NPT####_XX# pattern
+            match = re.search(r'(NPT\d+_[A-Z]+\d+)', filename)
+            if match:
+                metadata['portfolio_code'] = match.group(1)
+                print(f"  Extracted portfolio_code from filename: {metadata['portfolio_code']}")
         
         return metadata
     
