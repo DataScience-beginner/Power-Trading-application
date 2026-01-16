@@ -1,0 +1,302 @@
+{
+  "schema_name": "universal_trading_data",
+  "schema_version": "1.0.0",
+  "description": "Universal schema for power trading data from IEX and other exchanges",
+  "last_updated": "2026-01-14",
+  
+  "metadata": {
+    "client_id": {
+      "type": "uuid",
+      "required": true,
+      "description": "Unique client identifier in our system"
+    },
+    "trading_date": {
+      "type": "date",
+      "format": "YYYY-MM-DD",
+      "required": true,
+      "description": "Date when trading occurred"
+    },
+    "delivery_date": {
+      "type": "date",
+      "format": "YYYY-MM-DD",
+      "required": true,
+      "description": "Date when power will be delivered"
+    },
+    "entity_id": {
+      "type": "string",
+      "max_length": 50,
+      "required": true,
+      "description": "IEX Entity ID (e.g., A2AR0NPT0000)",
+      "example": "A2AR0NPT0000"
+    },
+    "entity_name": {
+      "type": "string",
+      "max_length": 255,
+      "required": true,
+      "description": "Trading entity name",
+      "example": "NEFA Power Trading Private Limited"
+    },
+    "portfolio_code": {
+      "type": "string",
+      "max_length": 50,
+      "required": true,
+      "description": "Portfolio identifier code",
+      "example": "S1KA0NPT0027"
+    },
+    "portfolio_name": {
+      "type": "string",
+      "max_length": 255,
+      "required": false,
+      "description": "Portfolio display name",
+      "example": "Mellbro_Sugars_Private_Limited"
+    },
+    "report_type": {
+      "type": "string",
+      "enum": ["DAM", "TAM", "RTM", "G-DAM"],
+      "required": true,
+      "description": "Type of market/report",
+      "example": "G-DAM"
+    }
+  },
+  
+  "buy_transactions": {
+    "description": "Power purchase transactions (15-minute intervals)",
+    "type": "array",
+    "items": {
+      "time_block_start": {
+        "type": "datetime",
+        "format": "YYYY-MM-DD HH:MM:SS",
+        "required": true,
+        "description": "Start time of 15-minute block",
+        "example": "2026-01-13 00:00:00"
+      },
+      "time_block_end": {
+        "type": "datetime",
+        "format": "YYYY-MM-DD HH:MM:SS",
+        "required": true,
+        "description": "End time of 15-minute block",
+        "example": "2026-01-13 00:15:00"
+      },
+      "quantity_mw": {
+        "type": "float",
+        "unit": "MW",
+        "required": true,
+        "min": 0,
+        "description": "Power quantity purchased in MW"
+      },
+      "rate_per_mwh": {
+        "type": "float",
+        "unit": "INR/MWh",
+        "required": true,
+        "min": 0,
+        "description": "Price per MWh in Indian Rupees"
+      },
+      "amount": {
+        "type": "float",
+        "unit": "INR",
+        "required": true,
+        "description": "Total amount = quantity × rate"
+      }
+    }
+  },
+  
+  "sell_transactions": {
+    "description": "Power sale transactions (15-minute intervals)",
+    "type": "array",
+    "items": {
+      "time_block_start": {
+        "type": "datetime",
+        "format": "YYYY-MM-DD HH:MM:SS",
+        "required": true,
+        "description": "Start time of 15-minute block"
+      },
+      "time_block_end": {
+        "type": "datetime",
+        "format": "YYYY-MM-DD HH:MM:SS",
+        "required": true,
+        "description": "End time of 15-minute block"
+      },
+      "solar_quantity_mw": {
+        "type": "float",
+        "unit": "MW",
+        "required": false,
+        "default": 0,
+        "description": "Solar power sold in MW"
+      },
+      "non_solar_quantity_mw": {
+        "type": "float",
+        "unit": "MW",
+        "required": false,
+        "default": 0,
+        "description": "Non-solar power sold in MW (negative value indicates sale)"
+      },
+      "hydro_quantity_mw": {
+        "type": "float",
+        "unit": "MW",
+        "required": false,
+        "default": 0,
+        "description": "Hydro power sold in MW"
+      },
+      "total_quantity_mw": {
+        "type": "float",
+        "unit": "MW",
+        "required": true,
+        "description": "Total power sold = solar + non_solar + hydro"
+      },
+      "rate_per_mwh": {
+        "type": "float",
+        "unit": "INR/MWh",
+        "required": true,
+        "min": 0,
+        "description": "Price per MWh"
+      },
+      "amount": {
+        "type": "float",
+        "unit": "INR",
+        "required": true,
+        "description": "Total amount = quantity × rate"
+      }
+    }
+  },
+  
+  "charges": {
+    "description": "All trading-related charges and fees",
+    "nldc_application_fee": {
+      "type": "float",
+      "unit": "INR",
+      "default": 0,
+      "description": "NLDC Application Fee"
+    },
+    "ctu_transmission_charges": {
+      "type": "float",
+      "unit": "INR",
+      "default": 0,
+      "description": "Central Transmission Utility charges"
+    },
+    "nldc_scheduling_charges_buy": {
+      "type": "float",
+      "unit": "INR",
+      "default": 0,
+      "description": "NLDC Scheduling & Operating Charges for purchases"
+    },
+    "nldc_scheduling_charges_sell": {
+      "type": "float",
+      "unit": "INR",
+      "default": 0,
+      "description": "NLDC Scheduling & Operating Charges for sales"
+    },
+    "stu_transmission_charges": {
+      "type": "float",
+      "unit": "INR",
+      "default": 0,
+      "description": "State Transmission Utility charges"
+    },
+    "distribution_charges": {
+      "type": "float",
+      "unit": "INR",
+      "default": 0,
+      "description": "Distribution charges"
+    },
+    "sldc_scheduling_charges": {
+      "type": "float",
+      "unit": "INR",
+      "default": 0,
+      "description": "State Load Dispatch Center charges"
+    },
+    "aldc_scheduling_charges": {
+      "type": "float",
+      "unit": "INR",
+      "default": 0,
+      "description": "Area Load Dispatch Center charges"
+    },
+    "other_charges": {
+      "type": "float",
+      "unit": "INR",
+      "default": 0,
+      "description": "Any other miscellaneous charges"
+    },
+    "fees": {
+      "type": "float",
+      "unit": "INR",
+      "default": 0,
+      "description": "General fees"
+    },
+    "igst": {
+      "type": "float",
+      "unit": "INR",
+      "default": 0,
+      "description": "Integrated Goods and Services Tax"
+    },
+    "sgst": {
+      "type": "float",
+      "unit": "INR",
+      "default": 0,
+      "description": "State Goods and Services Tax"
+    },
+    "cgst": {
+      "type": "float",
+      "unit": "INR",
+      "default": 0,
+      "description": "Central Goods and Services Tax"
+    },
+    "utgst": {
+      "type": "float",
+      "unit": "INR",
+      "default": 0,
+      "description": "Union Territory Goods and Services Tax"
+    },
+    "total_charges": {
+      "type": "float",
+      "unit": "INR",
+      "required": true,
+      "description": "Sum of all charges"
+    }
+  },
+  
+  "summary": {
+    "description": "Summary statistics for the trading day",
+    "total_buy_quantity_mwh": {
+      "type": "float",
+      "unit": "MWh",
+      "description": "Total power purchased in MWh"
+    },
+    "total_buy_amount": {
+      "type": "float",
+      "unit": "INR",
+      "description": "Total amount spent on purchases"
+    },
+    "total_sell_quantity_mwh": {
+      "type": "float",
+      "unit": "MWh",
+      "description": "Total power sold in MWh"
+    },
+    "total_sell_amount": {
+      "type": "float",
+      "unit": "INR",
+      "description": "Total revenue from sales"
+    },
+    "net_position_mwh": {
+      "type": "float",
+      "unit": "MWh",
+      "description": "Net position = Buy - Sell (positive = net buyer)"
+    },
+    "net_amount": {
+      "type": "float",
+      "unit": "INR",
+      "description": "Net amount = Revenue - Costs - Charges"
+    },
+    "funds_payin_payout": {
+      "type": "float",
+      "unit": "INR",
+      "description": "Funds Payin(-) / Payout(+)"
+    }
+  },
+  
+  "validation_rules": {
+    "time_blocks": "Must have exactly 96 time blocks (24 hours × 4 blocks per hour)",
+    "quantity_positive": "All quantities must be non-negative",
+    "amount_calculation": "Amount must equal quantity × rate_per_mwh",
+    "date_sequence": "Delivery date must be after trading date",
+    "total_charges_sum": "total_charges must equal sum of all individual charges"
+  }
+}
