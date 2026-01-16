@@ -123,6 +123,55 @@ async def health_check():
         "service": "Power Trading API"
     }
 
+@app.post("/api/admin/reset-database")
+async def reset_database(db: Session = Depends(get_db)):
+    """
+    ADMIN ENDPOINT: Reset database by dropping all data
+    WARNING: This deletes ALL clients, portfolios, files, transactions, and calculations!
+    Use this to start fresh when you need to re-upload corrected data.
+    """
+    from database.models import (
+        Client, Portfolio, DailyFile, Transaction,
+        EnergyScheduleMonth, EnergyScheduleDay, MonthlyCalculation
+    )
+    
+    try:
+        # Count records before deletion
+        clients_count = db.query(Client).count()
+        portfolios_count = db.query(Portfolio).count()
+        files_count = db.query(DailyFile).count()
+        transactions_count = db.query(Transaction).count()
+        
+        # Delete in reverse dependency order
+        db.query(Transaction).delete()
+        db.query(MonthlyCalculation).delete()
+        db.query(EnergyScheduleDay).delete()
+        db.query(EnergyScheduleMonth).delete()
+        db.query(DailyFile).delete()
+        db.query(Portfolio).delete()
+        db.query(Client).delete()
+        
+        db.commit()
+        
+        return {
+            "status": "success",
+            "message": "Database reset complete",
+            "deleted": {
+                "clients": clients_count,
+                "portfolios": portfolios_count,
+                "daily_files": files_count,
+                "transactions": transactions_count
+            },
+            "timestamp": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Database reset failed: {str(e)}"
+        )
+
 @app.post("/api/upload")
 async def upload_file(
     file: UploadFile = File(...),
