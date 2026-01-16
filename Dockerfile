@@ -40,12 +40,16 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8000/api/health || exit 1
 
 # Create startup script
-RUN echo '#!/bin/bash\n\
-python init_database.py\n\
-python generate_mock_reports.py\n\
-python upload_mock_reports.py\n\
-uvicorn api.main:app --host 0.0.0.0 --port ${PORT:-8000}\n\
-' > /app/start.sh && chmod +x /app/start.sh
+COPY <<EOF /app/start.sh
+#!/bin/bash
+set -e
+python init_database.py
+python generate_mock_reports.py
+python upload_mock_reports.py
+exec uvicorn api.main:app --host 0.0.0.0 --port \${PORT:-8000}
+EOF
+
+RUN chmod +x /app/start.sh
 
 # Use startup script
-CMD ["/bin/bash", "/app/start.sh"]
+CMD ["/app/start.sh"]
