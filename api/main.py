@@ -1179,23 +1179,24 @@ async def get_energy_schedule_status(
         from database.models import Base
         from sqlalchemy import Table, MetaData
         
-        # Check if table exists
-        metadata = MetaData()
-        metadata.reflect(bind=db.bind)
-        
-        if 'energy_schedule_daily' not in metadata.tables:
-            return {
-                "success": True,
-                "count": 0,
-                "schedules": [],
-                "message": "Energy schedule table not yet populated"
-            }
+        # Check if table exists (use actual table name: energyscheduleday)
+        from database.models import EnergyScheduleDay
         
         # Query energy schedules
-        query = db.execute(
-            "SELECT * FROM energy_schedule_daily ORDER BY calculation_date DESC LIMIT 30"
-        )
-        schedules = [dict(row) for row in query]
+        query = db.query(EnergyScheduleDay).order_by(EnergyScheduleDay.calculation_date.desc()).limit(30)
+        schedules_objs = query.all()
+        
+        schedules = [{
+            "id": s.id,
+            "portfolio_id": s.portfolio_id,
+            "calculation_date": str(s.calculation_date),
+            "scheduled_mwh": float(s.scheduled_mwh) if s.scheduled_mwh else 0.0,
+            "consumption_after_losses_mwh": float(s.consumption_after_losses_mwh) if s.consumption_after_losses_mwh else 0.0,
+            "gdam_cost": float(s.gdam_cost) if s.gdam_cost else 0.0,
+            "dam_cost": float(s.dam_cost) if s.dam_cost else 0.0,
+            "rtm_cost": float(s.rtm_cost) if s.rtm_cost else 0.0,
+            "ctu_loss_percentage": float(s.ctu_loss_percentage) if s.ctu_loss_percentage else 0.0
+        } for s in schedules_objs]
         
         return {
             "success": True,
