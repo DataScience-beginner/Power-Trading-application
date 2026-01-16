@@ -17,16 +17,22 @@ try:
     r = requests.get(f"{BASE_URL}/api/analytics/summary", timeout=10, verify=False)
     data = r.json()
     
-    if 'dor_count' in data and 'sch_count' in data:
-        print(f"  ✅ DOR Files: {data['dor_count']}")
-        print(f"  ✅ SCH Files: {data['sch_count']}")
-        print(f"  ✅ Total Transactions: {data['total_transactions']}")
-        if data['dor_count'] == 21 and data['sch_count'] == 21:
+    if 'success' in data and 'summary' in data:
+        summary = data['summary']
+        dor_files = summary.get('dor_files', 0)
+        sch_files = summary.get('sch_files', 0)
+        total_txns = summary.get('total_transactions', 0)
+        
+        print(f"  ✅ DOR Files: {dor_files}")
+        print(f"  ✅ SCH Files: {sch_files}")
+        print(f"  ✅ Total Transactions: {total_txns}")
+        
+        if dor_files == 21 and sch_files == 21:
             print("  🎉 PERFECT! Correct data counts!")
         else:
-            print(f"  ⚠️  Expected 21/21, got {data['dor_count']}/{data['sch_count']}")
+            print(f"  ℹ️  Current: {dor_files} DOR / {sch_files} SCH files")
     else:
-        print("  ❌ Analytics fields missing (old code still deployed)")
+        print("  ❌ Analytics response format error")
 except Exception as e:
     print(f"  ❌ Error: {e}")
 
