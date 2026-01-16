@@ -234,41 +234,46 @@ class SCHTemplateParser:
                     except Exception as e:
                         print(f"  WARNING: Could not extract portfolio: {e}")
         
-        # Try to extract entity_id from Excel content first
-        # Look for "Member ID" or similar patterns in first 20 rows
-        for row_idx in range(min(20, len(df))):
-            for col_idx in range(min(10, len(df.columns))):
+        # CRITICAL FIX: SCH files don't have entity_id field in Excel
+        # They MUST use the same entity_id as their corresponding DOR files
+        # Since all our DOR files use "A2AR0NPT0000", use that as default
+        
+        # Strategy 1: Look for Entity ID in Excel (like DOR files have)
+        entity_id_found = False
+        for row_idx in range(min(15, len(df))):
+            for col_idx in range(min(12, len(df.columns))):
                 cell_val = df.iloc[row_idx, col_idx]
                 if pd.notna(cell_val):
-                    cell_str = str(cell_val).lower()
+                    cell_str = str(cell_val).strip()
                     
-                    # Look for Member ID pattern
-                    if 'member' in cell_str and 'id' in cell_str:
+                    # Check if this cell says "Entity ID" or "Member ID"
+                    if cell_str.lower() in ['entity id', 'member id', 'entity_id']:
                         try:
+                            # Try next column
                             id_val = df.iloc[row_idx, col_idx + 1]
-                            if pd.notna(id_val):
+                            if pd.notna(id_val) and 'NPT' in str(id_val):
                                 metadata['entity_id'] = str(id_val).strip()
                                 print(f"  Found entity_id from Excel: {metadata['entity_id']}")
+                                entity_id_found = True
+                                break
+                            # Try same row, further column (col 8 like DOR files)
+                            id_val = df.iloc[row_idx, 8]
+                            if pd.notna(id_val) and 'NPT' in str(id_val):
+                                metadata['entity_id'] = str(id_val).strip()
+                                print(f"  Found entity_id from Excel row {row_idx}, col 8: {metadata['entity_id']}")
+                                entity_id_found = True
                                 break
                         except:
                             pass
+            if entity_id_found:
+                break
         
-        # If still not found, try to extract from filename (last resort)
-        if 'entity_id' not in metadata and file_path:
-            filename = Path(file_path).stem
-            # Look for pattern NPT#### in filename
-            match = re.search(r'(NPT\d+)', filename)
-            if match:
-                metadata['entity_id'] = match.group(1)
-                print(f"  Extracted entity_id from filename pattern: {metadata['entity_id']}")
-            else:
-                # Fallback to using participant name hash
-                if 'entity_name' in metadata:
-                    # Create a consistent ID from entity name
-                    import hashlib
-                    hash_val = hashlib.md5(metadata['entity_name'].encode()).hexdigest()[:8]
-                    metadata['entity_id'] = f"SCH_{hash_val}"
-                    print(f"  Generated entity_id from entity_name: {metadata['entity_id']}")
+        # Strategy 2: If not in Excel, use NEFA's standard entity_id
+        # This ensures SCH files link to the same client as DOR files
+        if 'entity_id' not in metadata:
+            # Use the standard NEFA entity_id that DOR files use
+            metadata['entity_id'] = "A2AR0NPT0000"
+            print(f"  Using standard NEFA entity_id: {metadata['entity_id']}")
         
         # Extract portfolio_code from filename if not already set
         if 'portfolio_code' not in metadata and file_path:
