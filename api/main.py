@@ -1,6 +1,7 @@
 """
 FastAPI Backend for Power Trading Application
 Enterprise-level API with file upload and data retrieval
+Version: 1.0.1
 """
 
 from fastapi import FastAPI, File, UploadFile, HTTPException, Depends, Body
