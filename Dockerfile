@@ -1,39 +1,27 @@
-# Multi-stage build for Power Trading Application
-FROM node:18-alpine AS frontend-builder
-
-WORKDIR /app/frontend
-COPY frontend-react/package*.json ./
-RUN npm install
-COPY frontend-react/ ./
-RUN npm run build
-
-# Python backend with built frontend
+# Python backend
 FROM python:3.11-slim
-
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Copy backend files
+# Install dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY api/ ./api/
-COPY database/ ./database/
-COPY parsers/ ./parsers/
-COPY schemas/ ./schemas/
-COPY init_database.py .
-COPY generate_mock_reports.py .
-COPY upload_mock_reports.py .
+# Copy all application files
+COPY . .
 
-# Copy built frontend
-COPY --from=frontend-builder /app/frontend/dist ./frontend-react/dist
+# Build frontend inside the same container
+RUN apt-get update && apt-get install -y nodejs npm && \
+    cd frontend-react && \
+    npm install && \
+    npm run build && \
+    cd .. && \
+    apt-get remove -y nodejs npm && \
+    apt-get autoremove -y && \
+    rm -rf /var/lib/apt/lists/*
 
 # Expose port
 EXPOSE 8000
 
-# Start server directly (database will auto-create on first request)
-CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Start server
+CMD uvicorn api.main:app --host 0.0.0.0 --port ${PORT:-8000}
