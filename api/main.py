@@ -1183,16 +1183,16 @@ async def get_energy_schedule_status(
         # Check if table exists (use actual table name: energyscheduleday)
         from database.models import EnergyScheduleDay
         
-        # Query energy schedules
-        query = db.query(EnergyScheduleDay).order_by(EnergyScheduleDay.calculation_date.desc()).limit(30)
+        # Query energy schedules (using trading_date, not calculation_date)
+        query = db.query(EnergyScheduleDay).order_by(EnergyScheduleDay.trading_date.desc()).limit(30)
         schedules_objs = query.all()
         
         schedules = [{
             "id": s.id,
-            "portfolio_id": s.portfolio_id,
-            "calculation_date": str(s.calculation_date),
-            "scheduled_mwh": float(s.scheduled_mwh) if s.scheduled_mwh else 0.0,
-            "consumption_after_losses_mwh": float(s.consumption_after_losses_mwh) if s.consumption_after_losses_mwh else 0.0,
+            "month_sheet_id": s.month_sheet_id,
+            "trading_date": str(s.trading_date),
+            "scheduled_mwh": float(s.gdam_scheduled_quantity_mwh or 0) + float(s.dam_scheduled_quantity_mwh or 0) + float(s.rtm_scheduled_quantity_mwh or 0),
+            "consumption_after_losses_mwh": float(s.sch_consumption_after_losses_mwh or 0),
             "gdam_cost": float(s.gdam_cost) if s.gdam_cost else 0.0,
             "dam_cost": float(s.dam_cost) if s.dam_cost else 0.0,
             "rtm_cost": float(s.rtm_cost) if s.rtm_cost else 0.0,
