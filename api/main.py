@@ -843,10 +843,15 @@ async def get_all_transactions(
         if report_type:
             query = query.filter(DailyFile.report_type.like(f"{report_type}%"))
         
-        transactions = query.order_by(Transaction.date.desc(), Transaction.time_slot).limit(1000).all()
+        # Get total count before limiting
+        total_count = query.count()
+        
+        # Limit to 10000 for performance (configurable via query param later)
+        transactions = query.order_by(Transaction.date.desc(), Transaction.time_slot).limit(10000).all()
         
         return {
             "success": True,
+            "total_count": total_count,
             "count": len(transactions),
             "transactions": [
                 {

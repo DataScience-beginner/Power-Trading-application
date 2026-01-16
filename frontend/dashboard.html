@@ -1187,6 +1187,39 @@
                 const endDate = document.getElementById('endDate').value;
 
                 let url = '/api/analytics/summary?';
+                if (portfolio) url += `portfolio_code=${portfolio}&`;
+                if (startDate) url += `start_date=${startDate}&`;
+                if (endDate) url += `end_date=${endDate}&`;
+
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.success && data.summary) {
+                    const summary = data.summary;
+                    
+                    // Update stat cards with correct IDs
+                    document.getElementById('dorCount').textContent = summary.dor_files || 0;
+                    document.getElementById('schCount').textContent = summary.sch_files || 0;
+                    document.getElementById('totalTransactions').textContent = summary.total_transactions || 0;
+                    document.getElementById('netAmount').textContent = `₹${(summary.net_amount || 0).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                    
+                    // Update buy/sell counts if available
+                    const buyCount = summary.buy_transactions || 0;
+                    const sellCount = summary.sell_transactions || 0;
+                    
+                    console.log('Stats updated:', {
+                        dorFiles: summary.dor_files,
+                        schFiles: summary.sch_files,
+                        totalTransactions: summary.total_transactions,
+                        buyCount,
+                        sellCount
+                    });
+                }
+            } catch (error) {
+                console.error('Error updating stats:', error);
+            }
+        }
+
         async function updateCharts() {
             await createDORvsSCHChart();
             await createBuySellChart();

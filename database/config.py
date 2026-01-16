@@ -9,6 +9,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Get database URL from environment (Railway sets this for PostgreSQL)
 # Falls back to SQLite for local development
