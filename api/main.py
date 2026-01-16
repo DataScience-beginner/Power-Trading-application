@@ -123,6 +123,71 @@ async def health_check():
         "service": "Power Trading API"
     }
 
+@app.post("/api/data/bulk-upload")
+async def bulk_upload_data(
+    data: Dict[str, Any] = Body(...),
+    db: Session = Depends(get_db)
+):
+    """
+    Bulk upload trading data as JSON (bypasses Excel parsing)
+    Expects format matching parsed data structure
+    """
+    try:
+        from database import services
+        
+        entity_id = data.get("entity_id")
+        portfolio_code = data.get("portfolio_code")
+        trading_date = datetime.fromisoformat(data.get("trading_date")).date()
+        report_type = data.get("report_type")
+        transactions = data.get("transactions", [])
+        
+        # Get or create client
+        client = services.get_or_create_client(
+            db,
+            entity_id=entity_id,
+            entity_name=data.get("entity_name", "Unknown")
+        )
+        
+        # Get or create portfolio
+        portfolio = services.get_or_create_portfolio(
+            db,
+            client_id=client.id,
+            portfolio_code=portfolio_code,
+            portfolio_name=data.get("portfolio_name", portfolio_code)
+        )
+        
+        # Create daily file
+        daily_file = services.save_daily_file(
+            db,
+            portfolio_id=portfolio.id,
+            trading_date=trading_date,
+            report_type=report_type,
+            sub_category=data.get("sub_category", "DAM"),
+            delivery_date=trading_date,
+            filename=f"{report_type}_{trading_date}_{portfolio_code}.json",
+            file_size=len(str(data)),
+            parsed_data=data
+        )
+        
+        # Save transactions
+        saved_count = services.save_transactions(db, daily_file.id, transactions)
+        
+        return {
+            "success": True,
+            "message": f"Uploaded {report_type} with {saved_count} transactions",
+            "file_id": daily_file.id,
+            "client_id": client.id,
+            "portfolio_id": portfolio.id
+        }
+        
+    except Exception as e:
+        import traceback
+        print(f"❌ Bulk upload error: {traceback.format_exc()}")
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
 @app.post("/api/admin/reset-database")
 async def reset_database(db: Session = Depends(get_db)):
     """
