@@ -63,16 +63,21 @@ async def startup_event():
 
 @app.get("/")
 async def root():
-    """Root endpoint - serves the analytics dashboard"""
+    """Root endpoint - serves the React app"""
+    react_index = Path(__file__).parent.parent / "frontend-react" / "dist" / "index.html"
+    if react_index.exists():
+        return FileResponse(react_index)
+    
+    # Fallback to old dashboard
     dashboard_file = frontend_dir / "dashboard.html"
     if dashboard_file.exists():
         return FileResponse(dashboard_file)
+    
     return {
         "message": "Power Trading Analytics Dashboard",
         "version": "1.0.0",
         "endpoints": {
-            "dashboard": "/",
-            "parser": "/parser",
+            "health": "/api/health",
             "upload": "/api/upload",
             "analytics": "/api/analytics/summary",
             "docs": "/docs"
