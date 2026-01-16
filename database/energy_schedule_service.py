@@ -12,7 +12,7 @@ import shutil
 import openpyxl
 from openpyxl import load_workbook
 
-from database.models import DailyFile, Transaction, EnergyScheduleDaily, EnergyScheduleHourly
+from database.models import DailyFile, Transaction, EnergyScheduleDay, EnergyScheduleMonth
 from database.config import get_db
 
 class EnergyScheduleCalculator:
@@ -385,7 +385,7 @@ class EnergyScheduleCalculator:
         """
         try:
             # Create daily summary record
-            daily_record = EnergyScheduleDaily(
+            daily_record = EnergyScheduleDay(
                 calculation_date=calculation_date,
                 year=calculation_date.year,
                 month=calculation_date.month,
