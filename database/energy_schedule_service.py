@@ -62,9 +62,9 @@ class EnergyScheduleCalculator:
             )
         ).all()
         
-        # Extract market types
-        dor_markets = sorted(set([f.market_type for f in dor_files]))
-        sch_markets = sorted(set([f.market_type for f in sch_files]))
+        # Extract market types (sub_category = GDAM, DAM, RTM)
+        dor_markets = sorted(set([f.sub_category for f in dor_files]))
+        sch_markets = sorted(set([f.sub_category for f in sch_files]))
         
         # Count matching files
         dor_count = len(dor_files)
@@ -100,7 +100,7 @@ class EnergyScheduleCalculator:
             "dor_files": [
                 {
                     "id": f.id,
-                    "market_type": f.market_type,
+                    "market_type": f.sub_category,
                     "report_type": f.report_type,
                     "filename": f.original_filename
                 }
@@ -109,7 +109,7 @@ class EnergyScheduleCalculator:
             "sch_files": [
                 {
                     "id": f.id,
-                    "market_type": f.market_type,
+                    "market_type": f.sub_category,
                     "report_type": f.report_type,
                     "filename": f.original_filename
                 }

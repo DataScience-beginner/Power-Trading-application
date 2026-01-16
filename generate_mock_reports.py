@@ -11,8 +11,8 @@ import os
 import random
 
 # Constants
-START_DATE = datetime(2026, 1, 13)
-NUM_DAYS = 10
+START_DATE = datetime(2026, 1, 1)  # Start from Jan 1
+NUM_DAYS = 30  # Generate full month
 OUTPUT_DIR = "/workspaces/Power-Trading-application/Data/mock_reports"
 CLIENT_CODE = "NPT0027_KA0"
 CLIENT_NAME = "Mellbro_Sugars_Pvt"
