@@ -12,13 +12,24 @@ import os
 
 # Get database URL from environment (Railway sets this for PostgreSQL)
 # Falls back to SQLite for local development
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    f"sqlite:///{os.path.join(os.path.dirname(__file__), '..', 'power_trading.db')}"
-)
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+# If no DATABASE_URL, check for Railway's individual PostgreSQL variables
+if not DATABASE_URL:
+    pg_host = os.getenv("PGHOST")
+    pg_user = os.getenv("PGUSER", os.getenv("PGUSERNAME"))
+    pg_password = os.getenv("PGPASSWORD")
+    pg_database = os.getenv("PGDATABASE")
+    pg_port = os.getenv("PGPORT", "5432")
+    
+    if all([pg_host, pg_user, pg_password, pg_database]):
+        DATABASE_URL = f"postgresql://{pg_user}:{pg_password}@{pg_host}:{pg_port}/{pg_database}"
+    else:
+        # Fallback to SQLite for local development
+        DATABASE_URL = f"sqlite:///{os.path.join(os.path.dirname(__file__), '..', 'power_trading.db')}"
 
 # Fix for Railway PostgreSQL URL (uses postgres:// instead of postgresql://)
-if DATABASE_URL.startswith("postgres://"):
+if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
 print(f"🗄️  Database: {'PostgreSQL (Production)' if 'postgresql' in DATABASE_URL else 'SQLite (Development)'}")
@@ -63,4 +74,4 @@ def init_db():
     """
     from database.models import Client, Portfolio, DailyFile, Transaction, MonthlyCalculation
     Base.metadata.create_all(bind=engine)
-    print(f"✅ Database initialized: {DATABASE_FILE}")
+    print(f"✅ Database initialized successfully")
