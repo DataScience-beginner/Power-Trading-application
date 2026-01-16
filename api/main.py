@@ -991,6 +991,72 @@ async def get_dor_vs_sch_comparison(
         raise HTTPException(status_code=500, detail=f"Error fetching DOR vs SCH comparison: {str(e)}")
 
 
+@app.get("/api/energy-schedule/days")
+async def get_energy_schedule_days(
+    portfolio_id: Optional[int] = None,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+    complete_only: bool = False,
+    db: Session = Depends(get_db)
+):
+    """
+    Get energy schedule days with calculations
+    
+    Returns list of daily energy schedule records with CTU losses, savings, costs
+    """
+    try:
+        from database.models import EnergyScheduleDay, EnergyScheduleMonth
+        
+        query = db.query(EnergyScheduleDay).join(EnergyScheduleMonth)
+        
+        if portfolio_id:
+            query = query.filter(EnergyScheduleMonth.portfolio_id == portfolio_id)
+        
+        if complete_only:
+            query = query.filter(EnergyScheduleDay.is_complete == 1)
+        
+        if start_date:
+            start = datetime.strptime(start_date, '%Y-%m-%d').date()
+            query = query.filter(EnergyScheduleDay.trading_date >= start)
+        
+        if end_date:
+            end = datetime.strptime(end_date, '%Y-%m-%d').date()
+            query = query.filter(EnergyScheduleDay.trading_date <= end)
+        
+        days = query.order_by(EnergyScheduleDay.trading_date).all()
+        
+        result = []
+        for day in days:
+            result.append({
+                "id": day.id,
+                "trading_date": str(day.trading_date),
+                "is_complete": bool(day.is_complete),
+                "has_gdam": bool(day.has_gdam_data),
+                "has_dam": bool(day.has_dam_data),
+                "has_rtm": bool(day.has_rtm_data),
+                "has_sch": bool(day.has_sch_data),
+                "total_scheduled_mwh": round(day.total_scheduled_mwh, 2) if day.total_scheduled_mwh else 0,
+                "ctu_losses_mwh": round(day.ctu_losses_mwh, 2) if day.ctu_losses_mwh else 0,
+                "ctu_losses_percent": round(day.ctu_losses_percent, 2) if day.ctu_losses_percent else 0,
+                "energy_savings_mwh": round(day.energy_savings_mwh, 2) if day.energy_savings_mwh else 0,
+                "total_cost": round(day.total_cost, 2) if day.total_cost else 0,
+                "total_consumption_mwh": round(day.total_consumption_after_losses_mwh, 2) if day.total_consumption_after_losses_mwh else 0
+            })
+        
+        return {
+            "success": True,
+            "count": len(result),
+            "days": result
+        }
+        
+    except Exception as e:
+        import traceback
+        print(traceback.format_exc())
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
 @app.post("/api/calculate/energy-schedule")
 async def calculate_energy_schedule(
     request_data: Dict[str, Any] = Body(...),
