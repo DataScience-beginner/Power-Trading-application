@@ -35,21 +35,5 @@ COPY --from=frontend-builder /app/frontend/dist ./frontend-react/dist
 # Expose port
 EXPOSE 8000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8000/api/health || exit 1
-
-# Create startup script
-COPY <<EOF /app/start.sh
-#!/bin/bash
-set -e
-python init_database.py
-python generate_mock_reports.py
-python upload_mock_reports.py
-exec uvicorn api.main:app --host 0.0.0.0 --port \${PORT:-8000}
-EOF
-
-RUN chmod +x /app/start.sh
-
-# Use startup script
-CMD ["/app/start.sh"]
+# Start server directly (database will auto-create on first request)
+CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]
