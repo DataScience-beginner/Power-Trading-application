@@ -38,9 +38,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mount static files
+# Mount static files - check multiple possible locations
 frontend_dir = Path(__file__).parent.parent / "frontend"
-if frontend_dir.exists():
+frontend_react_dist = Path(__file__).parent.parent / "frontend-react" / "dist"
+
+if frontend_react_dist.exists():
+    # Production: serve React build
+    app.mount("/assets", StaticFiles(directory=str(frontend_react_dist / "assets")), name="assets")
+elif frontend_dir.exists() and (frontend_dir / "static").exists():
+    # Legacy: serve old frontend static files
     app.mount("/static", StaticFiles(directory=str(frontend_dir / "static")), name="static")
 
 # Data storage
