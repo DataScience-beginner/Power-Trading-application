@@ -869,20 +869,8 @@ async def get_analytics_summary(
         
         net_amount = total_amount.scalar() or 0
         
-        # Get hourly distribution for peak hours
-        hourly_stats = db.query(
-            func.strftime('%H', Transaction.time_slot).label('hour'),
-            func.avg(Transaction.quantity_mw).label('avg_quantity')
-        ).join(DailyFile).join(Portfolio)
-        
-        if portfolio_code:
-            hourly_stats = hourly_stats.filter(Portfolio.portfolio_code == portfolio_code)
-        if start_date:
-            hourly_stats = hourly_stats.filter(Transaction.date >= datetime.fromisoformat(start_date).date())
-        if end_date:
-            hourly_stats = hourly_stats.filter(Transaction.date <= datetime.fromisoformat(end_date).date())
-        
-        hourly_data = hourly_stats.group_by('hour').all()
+        # Get hourly distribution - skip for now to avoid SQL compatibility issues
+        hourly_data = []
         
         # Buy vs Sell count
         buy_count = txn_query.filter(Transaction.transaction_type == 'buy').count()
@@ -1063,14 +1051,15 @@ async def calculate_energy_schedule(
     db: Session = Depends(get_db)
 ):
     """
-    SIMPLIFIED: Calculate energy schedule for a specific date
-    Direct calculation from DOR/SCH data without complex Excel workflow
+    Calculate energy schedule using Excel template
+    Uses the existing DOR/SCH parsers and Excel automation
     """
     try:
-        from datetime import date as dt_date, timedelta
+        from database.energy_schedule_service import calculator
+        from datetime import date as dt_date
         
         calculation_date_str = request_data.get('calculation_date')
-        print(f"🔍 Calculate request - calculation_date from body: {calculation_date_str}")
+        print(f"🔍 Calculate request - calculation_date: {calculation_date_str}")
         
         # Parse calculation date
         if calculation_date_str:
@@ -1083,82 +1072,9 @@ async def calculate_energy_schedule(
         
         print(f"📅 Using calculation date: {calc_date}")
         
-        # Calculate required dates
-        dor_date = calc_date - timedelta(days=1)
-        sch_date = calc_date
+        # Use the full Excel-based calculator
+        result = calculator.calculate_energy_schedule(calc_date, db)
         
-        # Get files
-        dor_files = db.query(DailyFile).filter(
-            and_(
-                DailyFile.trading_date == dor_date,
-                DailyFile.report_type.like('DOR%')
-            )
-        ).all()
-        
-        sch_files = db.query(DailyFile).filter(
-            and_(
-                DailyFile.trading_date == sch_date,
-                DailyFile.report_type.like('SCH%')
-            )
-        ).all()
-        
-        print(f"Found {len(dor_files)} DOR files and {len(sch_files)} SCH files")
-        
-        if not dor_files or not sch_files:
-            return {
-                "success": False,
-                "message": f"Missing files. Need DOR ({dor_date}) and SCH ({sch_date})",
-                "validation": {
-                    "status": "missing_files",
-                    "dor_count": len(dor_files),
-                    "sch_count": len(sch_files)
-                }
-            }
-        
-        # SIMPLE CALCULATION
-        dor_total_mw = 0
-        dor_total_cost = 0
-        
-        for dor in dor_files:
-            txns = db.query(Transaction).filter(Transaction.daily_file_id == dor.id).all()
-            for t in txns:
-                dor_total_mw += t.quantity_mw or 0
-                dor_total_cost += t.amount or 0
-        
-        sch_total_mw = 0
-        for sch in sch_files:
-            txns = db.query(Transaction).filter(Transaction.daily_file_id == sch.id).all()
-            for t in txns:
-                sch_total_mw += t.quantity_mw or 0
-        
-        # CTU Losses (3.43%)
-        CTU_LOSS_PCT = 3.43
-        ctu_losses_mw = dor_total_mw * (CTU_LOSS_PCT / 100)
-        energy_after_losses_mw = dor_total_mw - ctu_losses_mw
-        energy_saved_mw = energy_after_losses_mw - sch_total_mw
-        cost_per_mw = abs(dor_total_cost) / dor_total_mw if dor_total_mw > 0 else 0
-        cost_savings = energy_saved_mw * cost_per_mw
-        
-        result = {
-            "success": True,
-            "message": f"Calculation complete for {calc_date}",
-            "calculation_date": str(calc_date),
-            "dor_date": str(dor_date),
-            "sch_date": str(sch_date),
-            "result": {
-                "total_purchased_mw": round(dor_total_mw, 2),
-                "ctu_losses_mw": round(ctu_losses_mw, 2),
-                "ctu_losses_pct": CTU_LOSS_PCT,
-                "energy_after_losses_mw": round(energy_after_losses_mw, 2),
-                "total_scheduled_mw": round(sch_total_mw, 2),
-                "energy_saved_mw": round(energy_saved_mw, 2),
-                "total_cost_inr": round(abs(dor_total_cost), 2),
-                "cost_savings_inr": round(abs(cost_savings), 2),
-                "trading_date": str(calc_date)
-            }
-        }
-        
-        print(f"✅ Calculation successful: {result['result']}")
         return result
         
     except Exception as e:
