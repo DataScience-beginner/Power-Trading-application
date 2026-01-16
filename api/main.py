@@ -993,7 +993,7 @@ async def get_dor_vs_sch_comparison(
 
 @app.post("/api/calculate/energy-schedule")
 async def calculate_energy_schedule(
-    calculation_date: Optional[str] = None,
+    request_data: Dict[str, Any] = Body(...),
     db: Session = Depends(get_db)
 ):
     """
@@ -1008,7 +1008,7 @@ async def calculate_energy_schedule(
     6. Return summary to user
     
     Args:
-        calculation_date: Date for calculation (defaults to today) - can be query param or in body
+        request_data: JSON body with calculation_date and optional client_id
         
     Returns:
         Calculation results with energy savings and costs
@@ -1017,7 +1017,8 @@ async def calculate_energy_schedule(
         from database.energy_schedule_service import calculator
         from datetime import date as dt_date
         
-        print(f"🔍 Calculate request - calculation_date parameter: {calculation_date}")
+        calculation_date = request_data.get('calculation_date')
+        print(f"🔍 Calculate request - calculation_date from body: {calculation_date}")
         
         # Parse calculation date
         if calculation_date:
