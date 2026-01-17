@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Power Trading Energy Schedule Analytics">
     <title>Energy Schedule - Power Trading</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
@@ -274,14 +275,27 @@
                 const response = await fetch(`${API_BASE}/api/energy-schedule/days`);
                 const data = await response.json();
                 
-                if (!data.success) {
-                    showError('Failed to load energy schedule data');
+                console.log('API Response:', data); // Debug
+                
+                // Handle response - check if it has days array
+                let daysArray = [];
+                if (data.days && Array.isArray(data.days)) {
+                    daysArray = data.days;
+                } else if (Array.isArray(data)) {
+                    daysArray = data;
+                } else {
+                    showError('Invalid response format from server');
                     return;
                 }
                 
-                displayData(data.days);
-                updateSummaryCards(data.days);
-                updateCharts(data.days);
+                if (daysArray.length === 0) {
+                    showError('No energy schedule data available. Please upload DOR and SCH files.');
+                    return;
+                }
+                
+                displayData(daysArray);
+                updateSummaryCards(daysArray);
+                updateCharts(daysArray);
                 
             } catch (error) {
                 console.error('Error loading data:', error);
@@ -319,13 +333,13 @@
                         ${days.map(day => `
                             <tr>
                                 <td><strong>${formatDate(day.trading_date)}</strong></td>
-                                <td>${day.total_scheduled_mwh.toFixed(2)}</td>
-                                <td>${day.total_consumption_after_losses_mwh.toFixed(2)}</td>
-                                <td><strong style="color: #ef4444">${day.ctu_losses_percent.toFixed(2)}%</strong></td>
-                                <td>₹${day.gdam_cost.toFixed(2)}</td>
-                                <td>₹${day.dam_cost.toFixed(2)}</td>
-                                <td>₹${day.rtm_cost.toFixed(2)}</td>
-                                <td><strong>₹${day.total_cost.toFixed(2)}</strong></td>
+                                <td>${(day.total_scheduled_mwh || 0).toFixed(2)}</td>
+                                <td>${(day.total_consumption_after_losses_mwh || 0).toFixed(2)}</td>
+                                <td><strong style="color: #ef4444">${(day.ctu_losses_percent || 0).toFixed(2)}%</strong></td>
+                                <td>₹${(day.gdam_cost || 0).toFixed(2)}</td>
+                                <td>₹${(day.dam_cost || 0).toFixed(2)}</td>
+                                <td>₹${(day.rtm_cost || 0).toFixed(2)}</td>
+                                <td><strong>₹${(day.total_cost || 0).toFixed(2)}</strong></td>
                                 <td>
                                     <span class="${day.is_complete ? 'status-complete' : 'status-partial'}">
                                         ${day.is_complete ? '✅ Complete' : '⚠️ Partial'}
@@ -341,12 +355,18 @@
         }
 
         function updateSummaryCards(days) {
-            if (!days || days.length === 0) return;
+            if (!days || days.length === 0) {
+                document.getElementById('totalScheduled').textContent = '0.00';
+                document.getElementById('totalConsumption').textContent = '0.00';
+                document.getElementById('avgLoss').textContent = '0.00';
+                document.getElementById('totalCost').textContent = '₹0.00';
+                return;
+            }
 
-            const totalScheduled = days.reduce((sum, d) => sum + d.total_scheduled_mwh, 0);
-            const totalConsumption = days.reduce((sum, d) => sum + d.total_consumption_after_losses_mwh, 0);
-            const avgLoss = days.reduce((sum, d) => sum + d.ctu_losses_percent, 0) / days.length;
-            const totalCost = days.reduce((sum, d) => sum + d.total_cost, 0);
+            const totalScheduled = days.reduce((sum, d) => sum + (d.total_scheduled_mwh || 0), 0);
+            const totalConsumption = days.reduce((sum, d) => sum + (d.total_consumption_after_losses_mwh || 0), 0);
+            const avgLoss = days.reduce((sum, d) => sum + (d.ctu_losses_percent || 0), 0) / days.length;
+            const totalCost = days.reduce((sum, d) => sum + (d.total_cost || 0), 0);
 
             document.getElementById('totalScheduled').textContent = totalScheduled.toFixed(2);
             document.getElementById('totalConsumption').textContent = totalConsumption.toFixed(2);
@@ -358,10 +378,10 @@
             if (!days || days.length === 0) return;
 
             const labels = days.map(d => formatDate(d.trading_date));
-            const lossData = days.map(d => d.ctu_losses_percent);
-            const gdamCost = days.map(d => d.gdam_cost);
-            const damCost = days.map(d => d.dam_cost);
-            const rtmCost = days.map(d => d.rtm_cost);
+            const lossData = days.map(d => d.ctu_losses_percent || 0);
+            const gdamCost = days.map(d => d.gdam_cost || 0);
+            const damCost = days.map(d => d.dam_cost || 0);
+            const rtmCost = days.map(d => d.rtm_cost || 0);
 
             // CTU Losses Chart
             const lossCtx = document.getElementById('lossChart').getContext('2d');
