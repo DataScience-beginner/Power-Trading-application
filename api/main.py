@@ -115,6 +115,14 @@ async def parser_ui():
         return FileResponse(html_file)
     return {"message": "Parser UI not found"}
 
+@app.get("/energy-schedule")
+async def energy_schedule_page():
+    """Energy Schedule Dashboard - daily CTU losses and cost analysis"""
+    energy_schedule_file = frontend_dir / "energy_schedule.html"
+    if energy_schedule_file.exists():
+        return FileResponse(energy_schedule_file)
+    return {"message": "Energy Schedule page not found"}
+
 @app.get("/api/health")
 async def health_check():
     """Health check endpoint"""
@@ -1314,22 +1322,30 @@ async def get_energy_schedule_days_by_date(
                 "id": entry.id,
                 "trading_date": entry.trading_date.isoformat(),
                 "portfolio_id": entry.month_sheet.portfolio_id,
-                "total_scheduled_mwh": entry.total_scheduled_mwh,
-                "ctu_losses_percent": entry.ctu_losses_percent,
-                "ctu_losses_mwh": entry.ctu_losses_mwh,
-                "energy_savings_mwh": entry.energy_savings_mwh,
-                "total_nldc_fees": entry.total_nldc_fee,  # Note: DB field is singular
-                "total_ctu_charges": entry.total_ctu_charges,
-                "total_cost": entry.total_cost,
-                "has_gdam_data": bool(entry.has_gdam_data),  # Convert to boolean
+                "total_scheduled_mwh": float(entry.total_scheduled_mwh or 0),
+                "total_consumption_after_losses_mwh": float(entry.total_consumption_after_losses_mwh or 0),
+                "ctu_losses_percent": float(entry.ctu_losses_percent or 0),
+                "ctu_losses_mwh": float(entry.ctu_losses_mwh or 0),
+                "gdam_cost": float(entry.gdam_cost or 0),
+                "dam_cost": float(entry.dam_cost or 0),
+                "rtm_cost": float(entry.rtm_cost or 0),
+                "total_cost": float(entry.total_cost or 0),
+                "energy_savings_mwh": float(entry.energy_savings_mwh or 0),
+                "total_nldc_fee": float(entry.total_nldc_fee or 0),
+                "total_ctu_charges": float(entry.total_ctu_charges or 0),
+                "has_gdam_data": bool(entry.has_gdam_data),
                 "has_dam_data": bool(entry.has_dam_data),
                 "has_rtm_data": bool(entry.has_rtm_data),
                 "has_sch_data": bool(entry.has_sch_data),
-                "is_calculated": bool(entry.is_complete),  # DB field is is_complete, frontend expects is_calculated
+                "is_complete": bool(entry.is_complete),
                 "calculated_at": entry.calculated_at.isoformat() if entry.calculated_at else None
             })
         
-        return result
+        return {
+            "success": True,
+            "count": len(result),
+            "days": result
+        }
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching daily entries: {str(e)}")
