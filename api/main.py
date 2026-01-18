@@ -25,6 +25,8 @@ from database.config import get_db, init_db
 from database import services as db_services
 from backend.ai.weather_fetcher import WeatherFetcher
 from backend.ai.power_model import PowerForecastModel
+from backend.ai.historical_data_fetcher import HistoricalDataFetcher
+from backend.ai.eda_module import WeatherEDA
 
 app = FastAPI(
     title="Power Trading Data API",
@@ -1930,6 +1932,8 @@ async def download_energy_schedule_pdf(
 
 weather_fetcher = WeatherFetcher()
 power_model = PowerForecastModel()
+historical_fetcher = HistoricalDataFetcher()
+eda_analyzer = WeatherEDA()
 
 @app.get("/api/ai/weather/{client_id}")
 async def get_weather_forecast(
@@ -2012,6 +2016,109 @@ async def forecast_power_generation(
             status_code=500,
             detail=f"Error generating power forecast: {str(e)}"
         )
+
+
+@app.get("/api/ai/inspect-weather/{client_id}")
+async def inspect_weather_data(
+    client_id: str,
+    lat: float,
+    lon: float,
+    days_ahead: int = 7
+):
+    """
+    EDA: Inspect weather data before forecasting
+    Returns detailed weather stats and data quality checks
+    """
+    try:
+        weather_data = weather_fetcher.get_weather_data(lat, lon, days_ahead)
+        historical = weather_data.get("historical_summary", {})
+        daily = weather_data.get("daily_forecast", [])
+        
+        # Calculate statistics
+        ghi_values = [d.get("ghi_wh_m2", 0) for d in daily]
+        temp_values = [d.get("temp_c", 0) for d in daily]
+        precip_values = [d.get("precip_mm", 0) for d in daily]
+        cloud_risks = [d.get("cloud_risk", 0) for d in daily]
+        
+        stats = {
+            "ghi_stats": {
+                "min": round(min(ghi_values) if ghi_values else 0, 2),
+                "max": round(max(ghi_values) if ghi_values else 0, 2),
+                "avg": round(sum(ghi_values) / len(ghi_values) if ghi_values else 0, 2)
+            },
+            "temp_stats": {
+                "min": round(min(temp_values) if temp_values else 0, 1),
+                "max": round(max(temp_values) if temp_values else 0, 1),
+                "avg": round(sum(temp_values) / len(temp_values) if temp_values else 0, 1)
+            },
+            "precip_stats": {
+                "total": round(sum(precip_values), 1),
+                "rainy_days": sum(1 for p in precip_values if p > 1)
+            },
+            "cloud_risk_stats": {
+                "avg": round(sum(cloud_risks) / len(cloud_risks) if cloud_risks else 0, 2),
+                "high_risk_days": sum(1 for c in cloud_risks if c > 0.6)
+            }
+        }
+        
+        quality_checks = {
+            "all_dates_present": len(daily) == days_ahead,
+            "data_completeness": f"{len(daily)}/{days_ahead} days"
+        }
+        
+        return JSONResponse(content={
+            "success": True,
+            "client_id": client_id,
+            "location": {"lat": lat, "lon": lon},
+            "historical_summary": historical,
+            "statistics": stats,
+            "quality_checks": quality_checks,
+            "daily_forecast": daily
+        })
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
+
+
+@app.get("/api/ai/historical-data/{client_id}")
+async def get_historical_data(
+    client_id: str,
+    lat: float,
+    lon: float,
+    years: int = 10
+):
+    """
+    Step 1: Fetch 10 years of historical weather data with progress logs
+    Shows raw data in table format + caches for consistency
+    """
+    try:
+        result = historical_fetcher.get_historical_data(lat, lon, years)
+        return JSONResponse(content={
+            "success": True,
+            "client_id": client_id,
+            **result
+        })
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
+
+
+@app.post("/api/ai/eda-analysis/{client_id}")
+async def perform_eda(
+    client_id: str,
+    raw_data: List[Dict] = Body(...)
+):
+    """
+    Step 2: Perform EDA on historical data to find patterns
+    Analyzes monthly/seasonal trends, correlations, insights
+    """
+    try:
+        analysis = eda_analyzer.analyze(raw_data)
+        return JSONResponse(content={
+            "success": True,
+            "client_id": client_id,
+            "eda_results": analysis
+        })
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
 
 
 if __name__ == "__main__":
