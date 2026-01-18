@@ -25,6 +25,8 @@ import {
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { usePowerForecast } from './usePowerForecast';
 import AiForecastResults from './AiForecastResults';
+import LocationPicker from './LocationPicker';
+import EnhancedEDACharts from './EnhancedEDACharts';
 
 export default function AIBidOptimizer() {
   // Form state
@@ -162,6 +164,17 @@ export default function AIBidOptimizer() {
                 placeholder="e.g., chennai_solar"
               />
             </Grid>
+            <Grid item xs={12}>
+              <LocationPicker
+                onLocationSelect={(newLat, newLon, name) => {
+                  setLat(newLat);
+                  setLon(newLon);
+                  if (name) setClientId(name.toLowerCase().replace(/\s+/g, '_'));
+                }}
+                currentLat={lat}
+                currentLon={lon}
+              />
+            </Grid>
             <Grid item xs={12} md={3}>
               <TextField
                 fullWidth
@@ -273,6 +286,28 @@ export default function AIBidOptimizer() {
                 '🆕 Fresh data fetched and cached'
               }
             </Typography>
+
+            {/* Data Source Verification */}
+            <Alert severity="info" sx={{ mb: 2 }}>
+              <Typography variant="body2" gutterBottom>
+                <strong>Data Source:</strong> Open-Meteo Archive API
+              </Typography>
+              <Typography variant="caption">
+                Verify data at: <a 
+                  href={`https://open-meteo.com/en/docs/historical-weather-api#latitude=${lat}&longitude=${lon}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: '#1976d2' }}
+                >
+                  Open-Meteo Historical Weather
+                </a>
+              </Typography>
+              <br />
+              <Typography variant="caption" color="text.secondary">
+                Location: {lat.toFixed(4)}°N, {lon.toFixed(4)}°E | 
+                Period: {historicalData.summary_stats?.date_range || 'Last 10 years'}
+              </Typography>
+            </Alert>
             
             {/* Summary Stats */}
             <Grid container spacing={2} sx={{ mb: 2 }}>
@@ -324,8 +359,8 @@ export default function AIBidOptimizer() {
         </Card>
       )}
 
-      {/* EDA Results */}
-      {edaResults && (
+      {/* Enhanced EDA Results */}
+      {edaResults && historicalData && (
         <Card sx={{ mb: 3, bgcolor: '#fff3e0' }}>
           <CardContent>
             <Typography variant="h6" gutterBottom>
@@ -344,7 +379,7 @@ export default function AIBidOptimizer() {
             
             {/* Data Quality */}
             <Typography variant="subtitle2" gutterBottom>Data Quality:</Typography>
-            <Grid container spacing={1}>
+            <Grid container spacing={1} sx={{ mb: 3 }}>
               <Grid item xs={6} md={3}>
                 <Chip label={`Total: ${edaResults.data_quality?.total_records} records`} size="small" />
               </Grid>
@@ -352,6 +387,12 @@ export default function AIBidOptimizer() {
                 <Chip label={`Completeness: ${edaResults.data_quality?.data_completeness}`} size="small" color="success" />
               </Grid>
             </Grid>
+
+            {/* Enhanced Charts with YoY/QoQ */}
+            <EnhancedEDACharts 
+              rawData={historicalData.raw_data} 
+              summaryStats={historicalData.summary_stats}
+            />
           </CardContent>
         </Card>
       )}
@@ -360,6 +401,15 @@ export default function AIBidOptimizer() {
       {edaResults && (
         <Card sx={{ mb: 3 }}>
           <CardContent>
+            {error && (
+              <Alert severity="error" sx={{ mb: 2 }}>
+                <Typography variant="body2"><strong>Forecast Error:</strong></Typography>
+                <Typography variant="caption">{error}</Typography>
+                <Typography variant="caption" sx={{ display: 'block', mt: 1 }}>
+                  Check browser console (F12) for detailed error logs
+                </Typography>
+              </Alert>
+            )}
             <Button
               variant="contained"
               color="primary"
@@ -368,8 +418,14 @@ export default function AIBidOptimizer() {
               fullWidth
               size="large"
             >
-              {loading ? <CircularProgress size={24} /> : '⚡ STEP 3: Generate AI Forecast (with trained patterns)'}
+              {loading ? <CircularProgress size={24} sx={{ mr: 1 }} /> : '⚡'} 
+              STEP 3: Generate AI Forecast (with trained patterns)
             </Button>
+            {loading && (
+              <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block', textAlign: 'center' }}>
+                Fetching weather forecast and running AI model...
+              </Typography>
+            )}
           </CardContent>
         </Card>
       )}

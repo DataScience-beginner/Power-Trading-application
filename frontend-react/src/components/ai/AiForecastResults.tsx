@@ -18,6 +18,7 @@ import {
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import BoltIcon from '@mui/icons-material/Bolt';
 import CloudIcon from '@mui/icons-material/Cloud';
+import DownloadIcon from '@mui/icons-material/Download';
 
 export default function AiForecastResults({ forecast, clientId }) {
   if (!forecast) return null;
@@ -25,6 +26,50 @@ export default function AiForecastResults({ forecast, clientId }) {
   const handleUseBid = () => {
     // TODO: Integrate with existing BidForm component
     alert(`Recommended Bid: ${forecast.recommended_bid} kWh\nTotal Week: ${forecast.total_week_kwh} kWh`);
+  };
+
+  const handleExportForecastCSV = () => {
+    if (!forecast.daily_forecast) return;
+
+    const headers = [
+      'Date',
+      'Expected kWh',
+      'P10 (Pessimistic)',
+      'P50 (Median)',
+      'P90 (Optimistic)',
+      'Cloud Risk Score',
+      'GHI (Wh/m²)',
+      'Temperature (°C)'
+    ];
+
+    const rows = forecast.daily_forecast.map((day: any) => [
+      day.date,
+      day.expected_kwh,
+      day.p10,
+      day.p50,
+      day.p90,
+      day.cloud_risk_score,
+      day.ghi_wh_m2 || 'N/A',
+      day.temp_c || 'N/A'
+    ]);
+
+    // Add summary row
+    rows.push([]);
+    rows.push(['SUMMARY', '', '', '', '', '', '', '']);
+    rows.push(['Total Week kWh', forecast.total_week_kwh, '', '', '', '', '', '']);
+    rows.push(['Recommended Bid (P10)', forecast.recommended_bid, '', '', '', '', '', '']);
+    rows.push(['Confidence Level', forecast.confidence, '', '', '', '', '', '']);
+    rows.push(['Farm Type', forecast.farm_type, '', '', '', '', '', '']);
+    rows.push(['Capacity (kW)', forecast.capacity_kw, '', '', '', '', '', '']);
+
+    const csv = [headers, ...rows].map(row => row.join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `power_forecast_${clientId}_${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
   };
 
   return (
@@ -89,15 +134,24 @@ export default function AiForecastResults({ forecast, clientId }) {
       </Grid>
 
       {/* Use Recommended Bid Button */}
-      <Box sx={{ mb: 3 }}>
+      <Box sx={{ mb: 3, display: 'flex', gap: 2 }}>
         <Button
           variant="contained"
           color="success"
           size="large"
           onClick={handleUseBid}
-          fullWidth
+          sx={{ flex: 1 }}
         >
           ✅ Use Recommended Bid ({forecast.recommended_bid?.toLocaleString()} kWh)
+        </Button>
+        <Button
+          variant="outlined"
+          color="primary"
+          size="large"
+          onClick={handleExportForecastCSV}
+          startIcon={<DownloadIcon />}
+        >
+          Export CSV
         </Button>
       </Box>
 

@@ -100,7 +100,7 @@ class HistoricalDataFetcher:
             summary = {
                 "total_days": len(df),
                 "avg_ghi": float(df["ghi_wh_m2"].mean()),
-                "avg_temp": float((df["temp_max_c"] + df["temp_min_c"]) / 2).mean(),
+                "avg_temp": float(((df["temp_max_c"] + df["temp_min_c"]) / 2).mean()),
                 "total_precip": float(df["precip_mm"].sum()),
                 "rainy_days": int((df["precip_mm"] > 1).sum()),
                 "avg_wind": float(df["wind_speed_ms"].mean()),
