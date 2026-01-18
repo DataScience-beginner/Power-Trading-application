@@ -280,63 +280,55 @@ export default function EnhancedEDACharts({ rawData, summaryStats }: EnhancedEDA
 
         {/* Chart */}
         <ResponsiveContainer width="100%" height={400}>
-          {chartType === 'line' && (
-            <LineChart data={processedData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis 
-                dataKey={viewMode === 'yoy' ? 'month' : viewMode === 'qoq' ? 'quarter' : viewMode === 'time-series' ? 'displayDate' : 'date'}
-                angle={viewMode === 'time-series' ? -45 : 0}
-                textAnchor={viewMode === 'time-series' ? 'end' : 'middle'}
-                height={viewMode === 'time-series' ? 80 : 60}
-                interval={viewMode === 'time-series' ? 'preserveStartEnd' : 0}
-              />
-              <YAxis label={{ value: metricLabels[selectedMetric], angle: -90, position: 'insideLeft' }} />
-              <Tooltip />
-              <Legend />
-              {viewMode === 'yoy' ? (
-                // Multiple lines for each year
-                <>
-                  {Object.keys(processedData[0] || {}).filter(k => k.endsWith('_ghi') && selectedMetric === 'ghi_wh_m2').map((key, idx) => (
-                    <Line key={key} type="monotone" dataKey={key} stroke={`hsl(${idx * 60}, 70%, 50%)`} name={key.split('_')[0]} />
-                  ))}
-                </>
-              ) : (
+          <>
+            {chartType === 'line' && (
+              <LineChart data={processedData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis 
+                  dataKey={viewMode === 'yoy' ? 'month' : viewMode === 'qoq' ? 'quarter' : viewMode === 'time-series' ? 'displayDate' : 'date'}
+                  angle={viewMode === 'time-series' ? -45 : 0}
+                  textAnchor={viewMode === 'time-series' ? 'end' : 'middle'}
+                  height={viewMode === 'time-series' ? 80 : 60}
+                />
+                <YAxis label={{ value: metricLabels[selectedMetric], angle: -90, position: 'insideLeft' }} />
+                <Tooltip />
+                <Legend />
                 <Line type="monotone" dataKey={selectedMetric} stroke="#8884d8" strokeWidth={2} dot={{ r: 3 }} />
-              )}
-            </LineChart>
-          )}
-          
-          {chartType === 'bar' && (
-            <BarChart data={processedData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis 
-                dataKey={viewMode === 'yoy' ? 'month' : viewMode === 'qoq' ? 'quarter' : viewMode === 'time-series' ? 'displayDate' : 'date'}
-                angle={viewMode === 'time-series' ? -45 : 0}
-                textAnchor={viewMode === 'time-series' ? 'end' : 'middle'}
-                height={viewMode === 'time-series' ? 80 : 60}
-              />
-              <YAxis label={{ value: metricLabels[selectedMetric], angle: -90, position: 'insideLeft' }} />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey={selectedMetric} fill="#82ca9d" />
-            </BarChart>
-          )}
+              </LineChart>
+            )}
+            
+            {chartType === 'bar' && (
+              <BarChart data={processedData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis 
+                  dataKey={viewMode === 'yoy' ? 'month' : viewMode === 'qoq' ? 'quarter' : viewMode === 'time-series' ? 'displayDate' : 'date'}
+                  angle={viewMode === 'time-series' ? -45 : 0}
+                  textAnchor={viewMode === 'time-series' ? 'end' : 'middle'}
+                  height={viewMode === 'time-series' ? 80 : 60}
+                />
+                <YAxis label={{ value: metricLabels[selectedMetric], angle: -90, position: 'insideLeft' }} />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey={selectedMetric} fill="#82ca9d" />
+              </BarChart>
+            )}
 
-          {chartType === 'area' && (
-            <AreaChart data={processedData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis 
-                dataKey={viewMode === 'yoy' ? 'month' : viewMode === 'qoq' ? 'quarter' : viewMode === 'time-series' ? 'displayDate' : 'date'}
-                angle={viewMode === 'time-series' ? -45 : 0}
-                textAnchor={viewMode === 'time-series' ? 'end' : 'middle'}
-                height={viewMode === 'time-series' ? 80 : 60}
-              />
-              <YAxis label={{ value: metricLabels[selectedMetric], angle: -90, position: 'insideLeft' }} />
-              <Tooltip />
-              <Legend />
-              <Area type="monotone" dataKey={selectedMetric} stroke="#8884d8" fill="#8884d8" fillOpacity={0.3} />
-            </AreaChart>
-          )}
+            {chartType === 'area' && (
+              <AreaChart data={processedData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis 
+                  dataKey={viewMode === 'yoy' ? 'month' : viewMode === 'qoq' ? 'quarter' : viewMode === 'time-series' ? 'displayDate' : 'date'}
+                  angle={viewMode === 'time-series' ? -45 : 0}
+                  textAnchor={viewMode === 'time-series' ? 'end' : 'middle'}
+                  height={viewMode === 'time-series' ? 80 : 60}
+                />
+                <YAxis label={{ value: metricLabels[selectedMetric], angle: -90, position: 'insideLeft' }} />
+                <Tooltip />
+                <Legend />
+                <Area type="monotone" dataKey={selectedMetric} stroke="#8884d8" fill="#8884d8" fillOpacity={0.3} />
+              </AreaChart>
+            )}
+          </>
         </ResponsiveContainer>
 
         {/* QoQ Growth Indicators */}
