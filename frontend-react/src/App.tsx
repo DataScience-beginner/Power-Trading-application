@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard';
 import EnergySchedule from './pages/EnergySchedule';
 import Analytics from './pages/Analytics';
 import Reports from './pages/Reports';
+import AIPredict from './pages/AIPredict';
 import FileUploadDialog from './components/FileUploadDialog';
 import CalculateEnergyScheduleDialog from './components/CalculateEnergyScheduleDialog';
 import { useAppDispatch } from './hooks/useAppStore';
@@ -30,7 +31,7 @@ const App: FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [calculateDialogOpen, setCalculateDialogOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState<'dashboard' | 'energySchedule' | 'analytics' | 'reports'>('dashboard');
+  const [currentPage, setCurrentPage] = useState<'dashboard' | 'energySchedule' | 'analytics' | 'reports' | 'aiPredict'>('dashboard');
   const dispatch = useAppDispatch();
 
   const handleMenuClick = () => {
@@ -83,6 +84,7 @@ const App: FC = () => {
           {currentPage === 'energySchedule' && <EnergySchedule />}
           {currentPage === 'analytics' && <Analytics />}
           {currentPage === 'reports' && <Reports />}
+          {currentPage === 'aiPredict' && <AIPredict />}
         </Box>
       </Box>
       <FileUploadDialog

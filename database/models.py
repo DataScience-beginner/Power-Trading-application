@@ -55,6 +55,12 @@ class Client(Base):
     entity_id = Column(String, unique=True, index=True)  # e.g., "NPT0019"
     entity_name = Column(String, index=True)              # e.g., "Grasim Industries Limited"
     
+    # AI Forecasting fields (TASK 3)
+    lat = Column(Float, nullable=True, default=12.97)     # Latitude (default: Chennai)
+    lon = Column(Float, nullable=True, default=80.22)     # Longitude (default: Chennai)
+    capacity_kw = Column(Integer, nullable=True, default=5000)  # Farm capacity in kW
+    farm_type = Column(String, nullable=True, default="solar")  # "solar" or "wind"
+    
     # Timestamps
     created_at = Column(DateTime, default=datetime.now)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)

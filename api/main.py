@@ -23,6 +23,8 @@ from parsers.DOR_Parser import GDAMTemplateParser
 from parsers.SCH_Parser import SCHTemplateParser
 from database.config import get_db, init_db
 from database import services as db_services
+from backend.ai.weather_fetcher import WeatherFetcher
+from backend.ai.power_model import PowerForecastModel
 
 app = FastAPI(
     title="Power Trading Data API",
@@ -1920,6 +1922,96 @@ async def download_energy_schedule_pdf(
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error generating PDF: {str(e)}")
+
+
+# ===========================
+# AI POWER FORECASTING ENDPOINTS
+# ===========================
+
+weather_fetcher = WeatherFetcher()
+power_model = PowerForecastModel()
+
+@app.get("/api/ai/weather/{client_id}")
+async def get_weather_forecast(
+    client_id: str,
+    lat: float,
+    lon: float,
+    days_ahead: int = 7
+):
+    """
+    Get weather data for AI power forecasting
+    
+    Args:
+        client_id: Client identifier
+        lat: Latitude (e.g., 12.97 for Chennai)
+        lon: Longitude (e.g., 80.22 for Chennai)
+        days_ahead: Number of forecast days (default 7)
+        
+    Returns:
+        Weather data with historical summary and daily forecast
+    """
+    try:
+        weather_data = weather_fetcher.get_weather_data(lat, lon, days_ahead)
+        
+        return JSONResponse(content={
+            "success": True,
+            "client_id": client_id,
+            "data": weather_data
+        })
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error fetching weather data: {str(e)}"
+        )
+
+
+@app.post("/api/ai/forecast-power/{client_id}")
+async def forecast_power_generation(
+    client_id: str,
+    lat: float = Body(...),
+    lon: float = Body(...),
+    capacity_kw: float = Body(5000),
+    farm_type: str = Body("solar"),
+    days_ahead: int = Body(7)
+):
+    """
+    AI-powered power generation forecast
+    
+    Args:
+        client_id: Client identifier
+        lat: Latitude
+        lon: Longitude
+        capacity_kw: Farm capacity in kW (default 5000)
+        farm_type: "solar" or "wind" (default "solar")
+        days_ahead: Forecast days (default 7)
+        
+    Returns:
+        Power forecast with p10/p50/p90 confidence intervals and recommended bid
+    """
+    try:
+        # Get weather data
+        weather_data = weather_fetcher.get_weather_data(lat, lon, days_ahead)
+        daily_weather = weather_data.get("daily_forecast", [])
+        
+        # Run power forecast model
+        forecast = power_model.forecast_power(
+            daily_weather=daily_weather,
+            capacity_kw=capacity_kw,
+            farm_type=farm_type
+        )
+        
+        return JSONResponse(content={
+            "success": True,
+            "client_id": client_id,
+            "forecast": forecast,
+            "weather_summary": weather_data.get("historical_summary"),
+            "location": {"lat": lat, "lon": lon}
+        })
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error generating power forecast: {str(e)}"
+        )
 
 
 if __name__ == "__main__":
