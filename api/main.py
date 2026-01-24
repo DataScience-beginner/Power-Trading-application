@@ -19,6 +19,13 @@ import sys
 # Add project root to path
 sys.path.append(str(Path(__file__).parent.parent))
 
+# JWT and Auth imports
+from jose import JWTError, jwt
+from passlib.context import CryptContext
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from pydantic import BaseModel
+from datetime import timedelta
+
 from parsers.DOR_Parser import GDAMTemplateParser
 from parsers.SCH_Parser import SCHTemplateParser
 from database.config import get_db, init_db
@@ -57,6 +64,80 @@ elif frontend_dir.exists() and (frontend_dir / "static").exists():
 # Data storage
 OUTPUT_DIR = Path(__file__).parent.parent / "output"
 OUTPUT_DIR.mkdir(exist_ok=True)
+
+# JWT Config
+SECRET_KEY = "your-very-secret-key"  # Change this in production!
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 1 day
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/admin/login")
+
+# Dummy admin user (replace with DB lookup in production)
+fake_admin = {
+    "username": "admin",
+    "hashed_password": pwd_context.hash("admin123")  # Change this!
+}
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class TokenData(BaseModel):
+    username: str | None = None
+
+def verify_password(plain_password, hashed_password):
+    return pwd_context.verify(plain_password, hashed_password)
+
+def authenticate_admin(username: str, password: str):
+    if username == fake_admin["username"] and verify_password(password, fake_admin["hashed_password"]):
+        return {"username": username}
+    return None
+
+def create_access_token(data: dict, expires_delta: timedelta | None = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(minutes=15)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+async def get_current_admin(token: str = Depends(oauth2_scheme)):
+    credentials_exception = HTTPException(
+        status_code=401,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+        if username is None:
+            raise credentials_exception
+        token_data = TokenData(username=username)
+    except JWTError:
+        raise credentials_exception
+    if token_data.username != fake_admin["username"]:
+        raise credentials_exception
+    return {"username": token_data.username}
+
+# Admin login endpoint
+@app.post("/api/admin/login", response_model=Token)
+async def admin_login(form_data: OAuth2PasswordRequestForm = Depends()):
+    user = authenticate_admin(form_data.username, form_data.password)
+    if not user:
+        raise HTTPException(status_code=401, detail="Incorrect username or password")
+    access_token = create_access_token(
+        data={"sub": user["username"]},
+        expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
+
+# Protected endpoint to verify JWT auth
+@app.get("/api/admin/me")
+async def read_admin_me(current_admin: dict = Depends(get_current_admin)):
+    return {"username": current_admin["username"]}
 
 # Initialize database on startup
 @app.on_event("startup")
