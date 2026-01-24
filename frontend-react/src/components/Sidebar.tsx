@@ -12,9 +12,8 @@ import {
   Typography,
   Box,
 } from '@mui/material';
-import StorageIcon from '@mui/icons-material/Storage';
 import {
-import { Dashboard as DashboardIcon, TrendingUp as TrendingUpIcon, Assessment as AssessmentIcon, Folder as FolderIcon, ExpandLess, ExpandMore, Business as BusinessIcon, CalendarMonth as CalendarIcon, Psychology as PsychologyIcon } from '@mui/icons-material';
+  Storage as StorageIcon,
   Dashboard as DashboardIcon,
   TrendingUp as TrendingUpIcon,
   Assessment as AssessmentIcon,
@@ -23,7 +22,7 @@ import { Dashboard as DashboardIcon, TrendingUp as TrendingUpIcon, Assessment as
   ExpandMore,
   Business as BusinessIcon,
   CalendarMonth as CalendarIcon,
-  Psychology as PsychologyIcon,
+  Psychology as PsychologyIcon
 } from '@mui/icons-material';
 import { useAppDispatch, useAppSelector } from '../hooks/useAppStore';
 import { fetchClients } from '../store/dashboardSlice';
