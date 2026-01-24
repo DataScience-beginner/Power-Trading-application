@@ -21,9 +21,52 @@ import sys
 # Add project root to path
 sys.path.append(str(Path(__file__).parent.parent))
 
+
+
 # --- Admin Database Tree Endpoints ---
 app = FastAPI()
 from sqlalchemy import inspect, text
+
+# ...existing code...
+
+# Place admin endpoints after get_current_admin definition
+
+# ...existing code...
+
+# JWT and Auth imports
+
+# JWT and Auth imports
+from jose import JWTError, jwt
+from passlib.context import CryptContext
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from pydantic import BaseModel
+from datetime import timedelta
+
+# JWT Config
+SECRET_KEY = "your-very-secret-key"  # Change this in production!
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 1 day
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/admin/login")
+
+async def get_current_admin(token: str = Depends(oauth2_scheme)):
+    credentials_exception = HTTPException(
+        status_code=401,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+        if username is None:
+            raise credentials_exception
+        token_data = TokenData(username=username)
+    except JWTError:
+        raise credentials_exception
+    if token_data.username != ADMIN_USERNAME:
+        raise credentials_exception
+    return {"username": token_data.username}
 
 # List all tables in the database (admin only)
 @app.get("/api/admin/tables")
