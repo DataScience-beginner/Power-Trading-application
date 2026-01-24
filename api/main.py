@@ -1,3 +1,23 @@
+# --- Admin Database Tree Endpoints ---
+from sqlalchemy import inspect, text
+
+# List all tables in the database (admin only)
+@app.get("/api/admin/tables")
+async def list_tables(db: Session = Depends(get_db), current_admin: dict = Depends(get_current_admin)):
+    inspector = inspect(db.bind)
+    return {"tables": inspector.get_table_names()}
+
+# Get all rows from a table (admin only, paginated)
+@app.get("/api/admin/table/{table_name}")
+async def get_table_data(table_name: str, db: Session = Depends(get_db), current_admin: dict = Depends(get_current_admin), limit: int = 100, offset: int = 0):
+    # Basic SQL injection protection
+    if not table_name.isidentifier():
+        raise HTTPException(status_code=400, detail="Invalid table name")
+    sql = text(f"SELECT * FROM {table_name} LIMIT :limit OFFSET :offset")
+    result = db.execute(sql, {"limit": limit, "offset": offset})
+    columns = result.keys()
+    rows = [dict(zip(columns, row)) for row in result.fetchall()]
+    return {"columns": columns, "rows": rows}
 """
 FastAPI Backend for Power Trading Application
 Enterprise-level API with file upload and data retrieval

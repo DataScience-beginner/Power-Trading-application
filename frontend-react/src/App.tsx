@@ -8,6 +8,8 @@ import EnergySchedule from './pages/EnergySchedule';
 import Analytics from './pages/Analytics';
 import Reports from './pages/Reports';
 import AIPredict from './pages/AIPredict';
+import AdminDatabase from './pages/AdminDatabase';
+import AdminLogin from './pages/AdminLogin';
 import FileUploadDialog from './components/FileUploadDialog';
 import CalculateEnergyScheduleDialog from './components/CalculateEnergyScheduleDialog';
 import { useAppDispatch } from './hooks/useAppStore';
@@ -31,7 +33,7 @@ const App: FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [calculateDialogOpen, setCalculateDialogOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState<'dashboard' | 'energySchedule' | 'analytics' | 'reports' | 'aiPredict'>('dashboard');
+  const [currentPage, setCurrentPage] = useState<'dashboard' | 'energySchedule' | 'analytics' | 'reports' | 'aiPredict' | 'adminDatabase'>('dashboard');
   const dispatch = useAppDispatch();
 
   const handleMenuClick = () => {
@@ -53,6 +55,9 @@ const App: FC = () => {
     dispatch(fetchTransactions(filter));
     dispatch(fetchAnalytics(filter));
   };
+
+  // Simple auth check for admin
+  const isAdmin = Boolean(localStorage.getItem('admin_jwt') || sessionStorage.getItem('admin_jwt'));
 
   return (
     <ThemeProvider theme={theme}>
@@ -85,6 +90,7 @@ const App: FC = () => {
           {currentPage === 'analytics' && <Analytics />}
           {currentPage === 'reports' && <Reports />}
           {currentPage === 'aiPredict' && <AIPredict />}
+          {currentPage === 'adminDatabase' && (isAdmin ? <AdminDatabase /> : <AdminLogin onLogin={() => setCurrentPage('adminDatabase')} />)}
         </Box>
       </Box>
       <FileUploadDialog

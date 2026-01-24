@@ -12,7 +12,9 @@ import {
   Typography,
   Box,
 } from '@mui/material';
+import StorageIcon from '@mui/icons-material/Storage';
 import {
+import { Dashboard as DashboardIcon, TrendingUp as TrendingUpIcon, Assessment as AssessmentIcon, Folder as FolderIcon, ExpandLess, ExpandMore, Business as BusinessIcon, CalendarMonth as CalendarIcon, Psychology as PsychologyIcon } from '@mui/icons-material';
   Dashboard as DashboardIcon,
   TrendingUp as TrendingUpIcon,
   Assessment as AssessmentIcon,
@@ -27,7 +29,7 @@ import { useAppDispatch, useAppSelector } from '../hooks/useAppStore';
 import { fetchClients } from '../store/dashboardSlice';
 
 const drawerWidth = 260;
-
+  const isAdmin = Boolean(localStorage.getItem('admin_jwt') || sessionStorage.getItem('admin_jwt'));
 interface SidebarProps {
   open: boolean;
   onPortfolioSelect: (portfolio: string) => void;
@@ -36,6 +38,8 @@ interface SidebarProps {
 }
 
 const Sidebar: FC<SidebarProps> = ({ open, onPortfolioSelect, currentPage, onPageChange }) => {
+  // Only show admin menu if JWT is present
+  const isAdmin = Boolean(localStorage.getItem('admin_jwt') || sessionStorage.getItem('admin_jwt'));
   const dispatch = useAppDispatch();
   const { clients } = useAppSelector((state) => state.dashboard);
   const [openClients, setOpenClients] = useState(true);
@@ -137,6 +141,21 @@ const Sidebar: FC<SidebarProps> = ({ open, onPortfolioSelect, currentPage, onPag
             </ListItemButton>
           </ListItem>
         </List>
+        {isAdmin && (
+          <List>
+            <ListItem disablePadding>
+              <ListItemButton
+                selected={currentPage === 'adminDatabase'}
+                onClick={() => onPageChange('adminDatabase')}
+              >
+                <ListItemIcon>
+                  <StorageIcon color={currentPage === 'adminDatabase' ? 'primary' : 'inherit'} />
+                </ListItemIcon>
+                <ListItemText primary="Admin Database" />
+              </ListItemButton>
+            </ListItem>
+          </List>
+        )}
 
         <Divider />
 
