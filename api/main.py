@@ -73,11 +73,10 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 1 day
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/admin/login")
 
-# Dummy admin user (replace with DB lookup in production)
-fake_admin = {
-    "username": "admin",
-    "hashed_password": pwd_context.hash("admin123")  # Change this!
-}
+
+# Demo admin credentials (replace with DB lookup and hashing in production)
+ADMIN_USERNAME = "admin"
+ADMIN_PASSWORD = "admin123"  # Change this in production!
 
 class Token(BaseModel):
     access_token: str
@@ -90,7 +89,7 @@ def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
 def authenticate_admin(username: str, password: str):
-    if username == fake_admin["username"] and verify_password(password, fake_admin["hashed_password"]):
+    if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
         return {"username": username}
     return None
 
@@ -118,7 +117,7 @@ async def get_current_admin(token: str = Depends(oauth2_scheme)):
         token_data = TokenData(username=username)
     except JWTError:
         raise credentials_exception
-    if token_data.username != fake_admin["username"]:
+    if token_data.username != ADMIN_USERNAME:
         raise credentials_exception
     return {"username": token_data.username}
 
