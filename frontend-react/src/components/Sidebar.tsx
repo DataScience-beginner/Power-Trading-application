@@ -32,8 +32,8 @@ const drawerWidth = 260;
 interface SidebarProps {
   open: boolean;
   onPortfolioSelect: (portfolio: string) => void;
-  currentPage: 'dashboard' | 'energySchedule' | 'analytics' | 'reports' | 'aiPredict';
-  onPageChange: (page: 'dashboard' | 'energySchedule' | 'analytics' | 'reports' | 'aiPredict') => void;
+  currentPage: 'dashboard' | 'energySchedule' | 'analytics' | 'reports' | 'aiPredict' | 'adminDatabase';
+  onPageChange: (page: 'dashboard' | 'energySchedule' | 'analytics' | 'reports' | 'aiPredict' | 'adminDatabase') => void;
 }
 
 const Sidebar: FC<SidebarProps> = ({ open, onPortfolioSelect, currentPage, onPageChange }) => {
