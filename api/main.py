@@ -6,6 +6,7 @@ Version: 1.0.1
 """
 
 from fastapi import FastAPI, File, UploadFile, HTTPException, Depends, Body
+from database.config import get_db
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
