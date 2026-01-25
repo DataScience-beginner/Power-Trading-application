@@ -1,31 +1,21 @@
-# Python backend
-FROM python:3.11-slim
+# Use an official Python runtime as a parent image
+FROM python:3.12-slim
 
-# Install system dependencies including LibreOffice for .xls conversion
-RUN apt-get update && apt-get install -y \
-    nodejs \
-    npm \
-    libreoffice \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
-
+# Set the working directory in the container
 WORKDIR /app
 
-# Install Python dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Copy the current directory contents into the container at /app
+COPY . /app
 
-# Copy all application files
-COPY . .
+# Install any needed packages specified in requirements.txt
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
-# Build frontend
-RUN cd frontend-react && \
-    npm install && \
-    npm run build && \
-    cd ..
-
-# Expose port
+# Make port 8000 available to the world outside this container
 EXPOSE 8000
 
-# Start server (database will initialize on startup)
-CMD uvicorn api.main:app --host 0.0.0.0 --port ${PORT:-8000}
+# Define environment variable
+ENV PYTHONUNBUFFERED=1
+
+# Run the application
+CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -1,0 +1,27 @@
+{
+  "metadata": {
+    "market_type": "DAM",
+    "file_name": "IEX130126DOR_NPT0019_TN0_Grasim_Industries_Limited.xlsx",
+    "parsed_at": "2026-01-16T05:20:00.874859",
+    "trading_date": "2026-01-13",
+    "portfolio_code": "NPT0019_TN0",
+    "entity_name": "Grasim Industries Limited"
+  },
+  "summary": {
+    "nldc_application_fee": -4.91,
+    "ctu_transmission_charges": {
+      "total": -805.73,
+      "injection_rate_per_mw_timeblock": 5000.0,
+      "drawal_rate_per_mw_timeblock": 0.0
+    },
+    "total_cost": -6396.66,
+    "scheduled_quantity": 0.0,
+    "other_charges": {
+      "nldc_scheduling_operating_sell": 0.0,
+      "stu_transmission_charges": -398.99,
+      "sldc_scheduling_charges": -215.62,
+      "fees": -33.0
+    }
+  },
+  "rate_info": {}
+}

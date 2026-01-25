@@ -1,0 +1,922 @@
+{
+  "schema_version": "1.0.0",
+  "template_id": "GDAM_IEX_V1",
+  "client_id": "default-client",
+  "metadata": {
+    "report_type": "DOR-GDAM",
+    "main_category": "DOR",
+    "sub_category": "GDAM",
+    "trading_date": "2026-01-12",
+    "delivery_date": "2026-01-13",
+    "entity_id": "A2AR0NPT0001",
+    "entity_name": "Tata Power Company Limited",
+    "portfolio_code": "S1MH0NPT0001",
+    "portfolio_name": "Tata_Power_Mumbai",
+    "remarks": "- NLDC Application Fee = ` 5,000.00 / (No of Successful Portfolios - 974 ). | - Injection CTU Transmission Charges = ` 0.00/ Rs./MW/Timeblock | - Drawal CTU Transmission Charges = ` 139.73/ Rs./MW/Timeblock | - NLDC Scheduling & Operating Charges - Buy = `1.00 x (Total Traded Buy Qty in MWh)\nNLDC Scheduling & Operating Charges - Sell = ` 1.00 x (Total Traded Sell Qty in MWh)\n* Max Charges applied | - State Transmission/Distribution Charges and Scheduling and Operating Charges are as per the Rate specified in Standing Clearance."
+  },
+  "buy_transactions": [
+    {
+      "date": "2026-01-13",
+      "time_slot": "00:00 - 00:15",
+      "time_block_start": "2026-01-13T00:00:00",
+      "time_block_end": "2026-01-13T00:15:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3066.8,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "00:15 - 00:30",
+      "time_block_start": "2026-01-13T00:15:00",
+      "time_block_end": "2026-01-13T00:30:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3568.73,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "00:30 - 00:45",
+      "time_block_start": "2026-01-13T00:30:00",
+      "time_block_end": "2026-01-13T00:45:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3861.62,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "00:45 - 01:00",
+      "time_block_start": "2026-01-13T00:45:00",
+      "time_block_end": "2026-01-13T01:00:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3692.7,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "01:00 - 01:15",
+      "time_block_start": "2026-01-13T01:00:00",
+      "time_block_end": "2026-01-13T01:15:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3871.87,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "01:15 - 01:30",
+      "time_block_start": "2026-01-13T01:15:00",
+      "time_block_end": "2026-01-13T01:30:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3102.89,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "01:30 - 01:45",
+      "time_block_start": "2026-01-13T01:30:00",
+      "time_block_end": "2026-01-13T01:45:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3823.95,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "01:45 - 02:00",
+      "time_block_start": "2026-01-13T01:45:00",
+      "time_block_end": "2026-01-13T02:00:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3909.33,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "02:00 - 02:15",
+      "time_block_start": "2026-01-13T02:00:00",
+      "time_block_end": "2026-01-13T02:15:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3320.89,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "02:15 - 02:30",
+      "time_block_start": "2026-01-13T02:15:00",
+      "time_block_end": "2026-01-13T02:30:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3235.85,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "02:30 - 02:45",
+      "time_block_start": "2026-01-13T02:30:00",
+      "time_block_end": "2026-01-13T02:45:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3442.91,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "02:45 - 03:00",
+      "time_block_start": "2026-01-13T02:45:00",
+      "time_block_end": "2026-01-13T03:00:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3367.64,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "03:00 - 03:15",
+      "time_block_start": "2026-01-13T03:00:00",
+      "time_block_end": "2026-01-13T03:15:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3856.98,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "03:15 - 03:30",
+      "time_block_start": "2026-01-13T03:15:00",
+      "time_block_end": "2026-01-13T03:30:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3827.04,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "03:30 - 03:45",
+      "time_block_start": "2026-01-13T03:30:00",
+      "time_block_end": "2026-01-13T03:45:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3646.65,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "03:45 - 04:00",
+      "time_block_start": "2026-01-13T03:45:00",
+      "time_block_end": "2026-01-13T04:00:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3802.04,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "04:00 - 04:15",
+      "time_block_start": "2026-01-13T04:00:00",
+      "time_block_end": "2026-01-13T04:15:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3294.03,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "04:15 - 04:30",
+      "time_block_start": "2026-01-13T04:15:00",
+      "time_block_end": "2026-01-13T04:30:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3910.35,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "04:30 - 04:45",
+      "time_block_start": "2026-01-13T04:30:00",
+      "time_block_end": "2026-01-13T04:45:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3890.0,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "04:45 - 05:00",
+      "time_block_start": "2026-01-13T04:45:00",
+      "time_block_end": "2026-01-13T05:00:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3692.23,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "05:00 - 05:15",
+      "time_block_start": "2026-01-13T05:00:00",
+      "time_block_end": "2026-01-13T05:15:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3203.54,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "05:15 - 05:30",
+      "time_block_start": "2026-01-13T05:15:00",
+      "time_block_end": "2026-01-13T05:30:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3768.42,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "05:30 - 05:45",
+      "time_block_start": "2026-01-13T05:30:00",
+      "time_block_end": "2026-01-13T05:45:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3849.42,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "05:45 - 06:00",
+      "time_block_start": "2026-01-13T05:45:00",
+      "time_block_end": "2026-01-13T06:00:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3393.09,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "06:00 - 06:15",
+      "time_block_start": "2026-01-13T06:00:00",
+      "time_block_end": "2026-01-13T06:15:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 4879.04,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "06:15 - 06:30",
+      "time_block_start": "2026-01-13T06:15:00",
+      "time_block_end": "2026-01-13T06:30:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 4153.15,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "06:30 - 06:45",
+      "time_block_start": "2026-01-13T06:30:00",
+      "time_block_end": "2026-01-13T06:45:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 4331.42,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "06:45 - 07:00",
+      "time_block_start": "2026-01-13T06:45:00",
+      "time_block_end": "2026-01-13T07:00:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 4945.95,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "07:00 - 07:15",
+      "time_block_start": "2026-01-13T07:00:00",
+      "time_block_end": "2026-01-13T07:15:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 10000.0,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "07:15 - 07:30",
+      "time_block_start": "2026-01-13T07:15:00",
+      "time_block_end": "2026-01-13T07:30:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 10000.0,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "07:30 - 07:45",
+      "time_block_start": "2026-01-13T07:30:00",
+      "time_block_end": "2026-01-13T07:45:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 10000.0,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "07:45 - 08:00",
+      "time_block_start": "2026-01-13T07:45:00",
+      "time_block_end": "2026-01-13T08:00:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 10000.0,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "08:00 - 08:15",
+      "time_block_start": "2026-01-13T08:00:00",
+      "time_block_end": "2026-01-13T08:15:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 10000.0,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "08:15 - 08:30",
+      "time_block_start": "2026-01-13T08:15:00",
+      "time_block_end": "2026-01-13T08:30:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 10000.0,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "08:30 - 08:45",
+      "time_block_start": "2026-01-13T08:30:00",
+      "time_block_end": "2026-01-13T08:45:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 10195.31,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "08:45 - 09:00",
+      "time_block_start": "2026-01-13T08:45:00",
+      "time_block_end": "2026-01-13T09:00:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 9290.52,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "09:00 - 09:15",
+      "time_block_start": "2026-01-13T09:00:00",
+      "time_block_end": "2026-01-13T09:15:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 7089.5,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "09:15 - 09:30",
+      "time_block_start": "2026-01-13T09:15:00",
+      "time_block_end": "2026-01-13T09:30:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 6185.85,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "09:30 - 09:45",
+      "time_block_start": "2026-01-13T09:30:00",
+      "time_block_end": "2026-01-13T09:45:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 6714.77,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "09:45 - 10:00",
+      "time_block_start": "2026-01-13T09:45:00",
+      "time_block_end": "2026-01-13T10:00:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 7137.84,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "10:00 - 10:15",
+      "time_block_start": "2026-01-13T10:00:00",
+      "time_block_end": "2026-01-13T10:15:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 4393.7,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "10:15 - 10:30",
+      "time_block_start": "2026-01-13T10:15:00",
+      "time_block_end": "2026-01-13T10:30:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 5922.45,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "10:30 - 10:45",
+      "time_block_start": "2026-01-13T10:30:00",
+      "time_block_end": "2026-01-13T10:45:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 5184.8,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "10:45 - 11:00",
+      "time_block_start": "2026-01-13T10:45:00",
+      "time_block_end": "2026-01-13T11:00:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 4280.07,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "11:00 - 11:15",
+      "time_block_start": "2026-01-13T11:00:00",
+      "time_block_end": "2026-01-13T11:15:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 4540.79,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "11:15 - 11:30",
+      "time_block_start": "2026-01-13T11:15:00",
+      "time_block_end": "2026-01-13T11:30:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3702.71,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "11:30 - 11:45",
+      "time_block_start": "2026-01-13T11:30:00",
+      "time_block_end": "2026-01-13T11:45:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3794.09,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "11:45 - 12:00",
+      "time_block_start": "2026-01-13T11:45:00",
+      "time_block_end": "2026-01-13T12:00:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3884.24,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "12:00 - 12:15",
+      "time_block_start": "2026-01-13T12:00:00",
+      "time_block_end": "2026-01-13T12:15:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3550.31,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "12:15 - 12:30",
+      "time_block_start": "2026-01-13T12:15:00",
+      "time_block_end": "2026-01-13T12:30:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3642.6,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "12:30 - 12:45",
+      "time_block_start": "2026-01-13T12:30:00",
+      "time_block_end": "2026-01-13T12:45:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3812.12,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "12:45 - 13:00",
+      "time_block_start": "2026-01-13T12:45:00",
+      "time_block_end": "2026-01-13T13:00:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3372.86,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "13:00 - 13:15",
+      "time_block_start": "2026-01-13T13:00:00",
+      "time_block_end": "2026-01-13T13:15:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 2655.83,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "13:15 - 13:30",
+      "time_block_start": "2026-01-13T13:15:00",
+      "time_block_end": "2026-01-13T13:30:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 2508.17,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "13:30 - 13:45",
+      "time_block_start": "2026-01-13T13:30:00",
+      "time_block_end": "2026-01-13T13:45:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 2692.7,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "13:45 - 14:00",
+      "time_block_start": "2026-01-13T13:45:00",
+      "time_block_end": "2026-01-13T14:00:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 2656.6,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "14:00 - 14:15",
+      "time_block_start": "2026-01-13T14:00:00",
+      "time_block_end": "2026-01-13T14:15:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3101.26,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "14:15 - 14:30",
+      "time_block_start": "2026-01-13T14:15:00",
+      "time_block_end": "2026-01-13T14:30:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3699.35,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "14:30 - 14:45",
+      "time_block_start": "2026-01-13T14:30:00",
+      "time_block_end": "2026-01-13T14:45:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3235.91,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "14:45 - 15:00",
+      "time_block_start": "2026-01-13T14:45:00",
+      "time_block_end": "2026-01-13T15:00:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3396.88,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "15:00 - 15:15",
+      "time_block_start": "2026-01-13T15:00:00",
+      "time_block_end": "2026-01-13T15:15:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3662.93,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "15:15 - 15:30",
+      "time_block_start": "2026-01-13T15:15:00",
+      "time_block_end": "2026-01-13T15:30:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3217.45,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "15:30 - 15:45",
+      "time_block_start": "2026-01-13T15:30:00",
+      "time_block_end": "2026-01-13T15:45:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3658.67,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "15:45 - 16:00",
+      "time_block_start": "2026-01-13T15:45:00",
+      "time_block_end": "2026-01-13T16:00:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 4275.6,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "16:00 - 16:15",
+      "time_block_start": "2026-01-13T16:00:00",
+      "time_block_end": "2026-01-13T16:15:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 4275.05,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "16:15 - 16:30",
+      "time_block_start": "2026-01-13T16:15:00",
+      "time_block_end": "2026-01-13T16:30:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 4209.88,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "16:30 - 16:45",
+      "time_block_start": "2026-01-13T16:30:00",
+      "time_block_end": "2026-01-13T16:45:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 4752.48,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "16:45 - 17:00",
+      "time_block_start": "2026-01-13T16:45:00",
+      "time_block_end": "2026-01-13T17:00:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 4288.59,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "17:00 - 17:15",
+      "time_block_start": "2026-01-13T17:00:00",
+      "time_block_end": "2026-01-13T17:15:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 9138.27,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "17:15 - 17:30",
+      "time_block_start": "2026-01-13T17:15:00",
+      "time_block_end": "2026-01-13T17:30:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 10000.0,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "17:30 - 17:45",
+      "time_block_start": "2026-01-13T17:30:00",
+      "time_block_end": "2026-01-13T17:45:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 10000.0,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "17:45 - 18:00",
+      "time_block_start": "2026-01-13T17:45:00",
+      "time_block_end": "2026-01-13T18:00:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 10000.0,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "18:00 - 18:15",
+      "time_block_start": "2026-01-13T18:00:00",
+      "time_block_end": "2026-01-13T18:15:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 10000.0,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "18:15 - 18:30",
+      "time_block_start": "2026-01-13T18:15:00",
+      "time_block_end": "2026-01-13T18:30:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 10000.0,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "18:30 - 18:45",
+      "time_block_start": "2026-01-13T18:30:00",
+      "time_block_end": "2026-01-13T18:45:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 10000.0,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "18:45 - 19:00",
+      "time_block_start": "2026-01-13T18:45:00",
+      "time_block_end": "2026-01-13T19:00:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 10000.0,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "19:00 - 19:15",
+      "time_block_start": "2026-01-13T19:00:00",
+      "time_block_end": "2026-01-13T19:15:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 10000.0,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "19:15 - 19:30",
+      "time_block_start": "2026-01-13T19:15:00",
+      "time_block_end": "2026-01-13T19:30:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 10000.0,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "19:30 - 19:45",
+      "time_block_start": "2026-01-13T19:30:00",
+      "time_block_end": "2026-01-13T19:45:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 10000.0,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "19:45 - 20:00",
+      "time_block_start": "2026-01-13T19:45:00",
+      "time_block_end": "2026-01-13T20:00:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 10000.0,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "20:00 - 20:15",
+      "time_block_start": "2026-01-13T20:00:00",
+      "time_block_end": "2026-01-13T20:15:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 6611.78,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "20:15 - 20:30",
+      "time_block_start": "2026-01-13T20:15:00",
+      "time_block_end": "2026-01-13T20:30:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 5040.68,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "20:30 - 20:45",
+      "time_block_start": "2026-01-13T20:30:00",
+      "time_block_end": "2026-01-13T20:45:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 6164.06,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "20:45 - 21:00",
+      "time_block_start": "2026-01-13T20:45:00",
+      "time_block_end": "2026-01-13T21:00:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 4910.76,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "21:00 - 21:15",
+      "time_block_start": "2026-01-13T21:00:00",
+      "time_block_end": "2026-01-13T21:15:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 5499.53,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "21:15 - 21:30",
+      "time_block_start": "2026-01-13T21:15:00",
+      "time_block_end": "2026-01-13T21:30:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 5082.81,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "21:30 - 21:45",
+      "time_block_start": "2026-01-13T21:30:00",
+      "time_block_end": "2026-01-13T21:45:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 5673.36,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "21:45 - 22:00",
+      "time_block_start": "2026-01-13T21:45:00",
+      "time_block_end": "2026-01-13T22:00:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 5367.39,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "22:00 - 22:15",
+      "time_block_start": "2026-01-13T22:00:00",
+      "time_block_end": "2026-01-13T22:15:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3968.05,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "22:15 - 22:30",
+      "time_block_start": "2026-01-13T22:15:00",
+      "time_block_end": "2026-01-13T22:30:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 4231.58,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "22:30 - 22:45",
+      "time_block_start": "2026-01-13T22:30:00",
+      "time_block_end": "2026-01-13T22:45:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 4298.79,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "22:45 - 23:00",
+      "time_block_start": "2026-01-13T22:45:00",
+      "time_block_end": "2026-01-13T23:00:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3697.91,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "23:00 - 23:15",
+      "time_block_start": "2026-01-13T23:00:00",
+      "time_block_end": "2026-01-13T23:15:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3511.76,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "23:15 - 23:30",
+      "time_block_start": "2026-01-13T23:15:00",
+      "time_block_end": "2026-01-13T23:30:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3513.16,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "23:30 - 23:45",
+      "time_block_start": "2026-01-13T23:30:00",
+      "time_block_end": "2026-01-13T23:45:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3453.04,
+      "amount": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "time_slot": "23:45 - 24:00",
+      "time_block_start": "2026-01-13T23:45:00",
+      "time_block_end": "2026-01-14T00:00:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3875.78,
+      "amount": 0.0
+    }
+  ],
+  "sell_transactions": [],
+  "charges": {
+    "funds_payin_payout": 1709204.2894,
+    "nldc_application_fee": -5.13,
+    "ctu_transmission_charges": 0.0,
+    "nldc_scheduling_charges_buy": 0.0,
+    "nldc_scheduling_charges_sell": -200.0,
+    "stu_transmission_charges": -25920.0,
+    "distribution_charges": 0.0,
+    "sldc_scheduling_charges": -1000.0,
+    "aldc_scheduling_charges": 0.0,
+    "other_charges": 0.0,
+    "fees": -6480.0,
+    "igst": -1166.4,
+    "sgst": 0.0,
+    "cgst": 0.0,
+    "utgst": 0.0,
+    "total_charges": 1674432.7594,
+    "formulas": {
+      "nldc_application_fee": "NLDC Application Fee = ` 5,000.00 / (No of Successful Portfolios 974 ).",
+      "ctu_transmission_charges": "Drawal CTU Transmission Charges = ` 139.73/ Rs./MW/Timeblock",
+      "nldc_scheduling_charges_buy": "NLDC Scheduling & Operating Charges Buy = `1.00 x (Total Traded Buy Qty in MWh)\nNLDC Scheduling & Operating Charges Sell = ` 1.00 x (Total Traded Sell Qty in MWh)\n* Max Charges applied",
+      "nldc_scheduling_charges_sell": "",
+      "stu_transmission_charges": "State Transmission/Distribution Charges and Scheduling and Operating Charges are as per the Rate specified in Standing Clearance.",
+      "sldc_scheduling_charges": "State Transmission/Distribution Charges and Scheduling and Operating Charges are as per the Rate specified in Standing Clearance."
+    }
+  },
+  "summary": {
+    "total_buy_transactions": 96,
+    "total_sell_transactions": 0,
+    "total_buy_quantity_mwh": 0.0,
+    "total_buy_amount": 0.0,
+    "total_sell_quantity_mwh": 0.0,
+    "total_sell_amount": 0,
+    "net_position_mwh": 0.0,
+    "net_amount": -1674432.7594,
+    "funds_payin_payout": 1709204.2894
+  },
+  "parsed_at": "2026-01-16T17:56:04.877150"
+}

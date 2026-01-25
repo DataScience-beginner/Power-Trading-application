@@ -1,0 +1,27 @@
+{
+  "metadata": {
+    "market_type": "GDAM",
+    "file_name": "GDAM_IEX120126DOR_NPT0027_KA0_Mellbro_Sugars_Pvt.xlsx",
+    "parsed_at": "2026-01-16T05:19:39.069386",
+    "trading_date": "2026-01-12",
+    "portfolio_code": "NPT0027_KA0",
+    "entity_name": "Mellbro Sugars Pvt"
+  },
+  "summary": {
+    "nldc_application_fee": -5.13,
+    "ctu_transmission_charges": {
+      "total": 0.0,
+      "injection_rate_per_mw_timeblock": 5000.0,
+      "drawal_rate_per_mw_timeblock": 0.0
+    },
+    "total_cost": 1674432.7594,
+    "scheduled_quantity": 0.0,
+    "other_charges": {
+      "nldc_scheduling_operating_sell": -200.0,
+      "stu_transmission_charges": -25920.0,
+      "sldc_scheduling_charges": -1000.0,
+      "fees": -6480.0
+    }
+  },
+  "rate_info": {}
+}

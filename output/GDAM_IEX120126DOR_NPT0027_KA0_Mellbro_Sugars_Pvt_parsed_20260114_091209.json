@@ -1,0 +1,1141 @@
+{
+  "schema_version": "1.0.0",
+  "template_id": "GDAM_IEX_V1",
+  "client_id": "default-client",
+  "metadata": {
+    "trading_date": "2026-01-12",
+    "delivery_date": "2026-01-13",
+    "entity_id": "A2AR0NPT0000",
+    "entity_name": "NEFA Power Trading Private Limited",
+    "portfolio_code": "S1KA0NPT0027",
+    "portfolio_name": "Mellbro_Sugars_Private_Limited",
+    "report_type": "G-DAM"
+  },
+  "buy_transactions": [
+    {
+      "time_block_start": "2026-01-13T00:00:00",
+      "time_block_end": "2026-01-13T00:15:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3500.12,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T00:15:00",
+      "time_block_end": "2026-01-13T00:30:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3500.13,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T00:30:00",
+      "time_block_end": "2026-01-13T00:45:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3500.14,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T00:45:00",
+      "time_block_end": "2026-01-13T01:00:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3500.18,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T01:00:00",
+      "time_block_end": "2026-01-13T01:15:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3471.88,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T01:15:00",
+      "time_block_end": "2026-01-13T01:30:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3491.13,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T01:30:00",
+      "time_block_end": "2026-01-13T01:45:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3491.06,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T01:45:00",
+      "time_block_end": "2026-01-13T02:00:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3471.96,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T02:00:00",
+      "time_block_end": "2026-01-13T02:15:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3491.49,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T02:15:00",
+      "time_block_end": "2026-01-13T02:30:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3491.36,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T02:30:00",
+      "time_block_end": "2026-01-13T02:45:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3491.7,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T02:45:00",
+      "time_block_end": "2026-01-13T03:00:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3491.49,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T03:00:00",
+      "time_block_end": "2026-01-13T03:15:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3491.51,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T03:15:00",
+      "time_block_end": "2026-01-13T03:30:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3491.54,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T03:30:00",
+      "time_block_end": "2026-01-13T03:45:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3491.42,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T03:45:00",
+      "time_block_end": "2026-01-13T04:00:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3491.43,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T04:00:00",
+      "time_block_end": "2026-01-13T04:15:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3500.32,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T04:15:00",
+      "time_block_end": "2026-01-13T04:30:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3500.32,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T04:30:00",
+      "time_block_end": "2026-01-13T04:45:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3500.35,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T04:45:00",
+      "time_block_end": "2026-01-13T05:00:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3500.35,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T05:00:00",
+      "time_block_end": "2026-01-13T05:15:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3500.26,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T05:15:00",
+      "time_block_end": "2026-01-13T05:30:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3500.28,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T05:30:00",
+      "time_block_end": "2026-01-13T05:45:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3500.51,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T05:45:00",
+      "time_block_end": "2026-01-13T06:00:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3600.05,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T06:00:00",
+      "time_block_end": "2026-01-13T06:15:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 4347.9,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T06:15:00",
+      "time_block_end": "2026-01-13T06:30:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 4850.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T06:30:00",
+      "time_block_end": "2026-01-13T06:45:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 5000.49,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T06:45:00",
+      "time_block_end": "2026-01-13T07:00:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 5000.82,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T07:00:00",
+      "time_block_end": "2026-01-13T07:15:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 10000.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T07:15:00",
+      "time_block_end": "2026-01-13T07:30:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 10000.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T07:30:00",
+      "time_block_end": "2026-01-13T07:45:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 10000.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T07:45:00",
+      "time_block_end": "2026-01-13T08:00:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 10000.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T08:00:00",
+      "time_block_end": "2026-01-13T08:15:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 10000.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T08:15:00",
+      "time_block_end": "2026-01-13T08:30:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 10000.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T08:30:00",
+      "time_block_end": "2026-01-13T08:45:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 9998.89,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T08:45:00",
+      "time_block_end": "2026-01-13T09:00:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 9998.15,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T09:00:00",
+      "time_block_end": "2026-01-13T09:15:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 6500.25,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T09:15:00",
+      "time_block_end": "2026-01-13T09:30:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 6500.12,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T09:30:00",
+      "time_block_end": "2026-01-13T09:45:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 6500.08,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T09:45:00",
+      "time_block_end": "2026-01-13T10:00:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 6500.24,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T10:00:00",
+      "time_block_end": "2026-01-13T10:15:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 5160.25,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T10:15:00",
+      "time_block_end": "2026-01-13T10:30:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 5400.13,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T10:30:00",
+      "time_block_end": "2026-01-13T10:45:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 4630.17,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T10:45:00",
+      "time_block_end": "2026-01-13T11:00:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 4250.51,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T11:00:00",
+      "time_block_end": "2026-01-13T11:15:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 4010.17,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T11:15:00",
+      "time_block_end": "2026-01-13T11:30:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3920.53,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T11:30:00",
+      "time_block_end": "2026-01-13T11:45:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3730.86,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T11:45:00",
+      "time_block_end": "2026-01-13T12:00:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": 3629.24,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T00:00:00",
+      "time_block_end": "2026-01-13T00:15:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": -13.5,
+      "amount": 3500.12
+    },
+    {
+      "time_block_start": "2026-01-13T00:15:00",
+      "time_block_end": "2026-01-13T00:30:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": -13.5,
+      "amount": 3500.13
+    },
+    {
+      "time_block_start": "2026-01-13T00:30:00",
+      "time_block_end": "2026-01-13T00:45:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": -13.5,
+      "amount": 3500.14
+    },
+    {
+      "time_block_start": "2026-01-13T00:45:00",
+      "time_block_end": "2026-01-13T01:00:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": -13.5,
+      "amount": 3500.18
+    },
+    {
+      "time_block_start": "2026-01-13T01:00:00",
+      "time_block_end": "2026-01-13T01:15:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": -13.5,
+      "amount": 3471.88
+    },
+    {
+      "time_block_start": "2026-01-13T01:15:00",
+      "time_block_end": "2026-01-13T01:30:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": -13.5,
+      "amount": 3491.13
+    },
+    {
+      "time_block_start": "2026-01-13T01:30:00",
+      "time_block_end": "2026-01-13T01:45:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": -13.5,
+      "amount": 3491.06
+    },
+    {
+      "time_block_start": "2026-01-13T01:45:00",
+      "time_block_end": "2026-01-13T02:00:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": -13.5,
+      "amount": 3471.96
+    },
+    {
+      "time_block_start": "2026-01-13T02:00:00",
+      "time_block_end": "2026-01-13T02:15:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": -13.5,
+      "amount": 3491.49
+    },
+    {
+      "time_block_start": "2026-01-13T02:15:00",
+      "time_block_end": "2026-01-13T02:30:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": -13.5,
+      "amount": 3491.36
+    },
+    {
+      "time_block_start": "2026-01-13T02:30:00",
+      "time_block_end": "2026-01-13T02:45:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": -13.5,
+      "amount": 3491.7
+    },
+    {
+      "time_block_start": "2026-01-13T02:45:00",
+      "time_block_end": "2026-01-13T03:00:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": -13.5,
+      "amount": 3491.49
+    },
+    {
+      "time_block_start": "2026-01-13T03:00:00",
+      "time_block_end": "2026-01-13T03:15:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": -13.5,
+      "amount": 3491.51
+    },
+    {
+      "time_block_start": "2026-01-13T03:15:00",
+      "time_block_end": "2026-01-13T03:30:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": -13.5,
+      "amount": 3491.54
+    },
+    {
+      "time_block_start": "2026-01-13T03:30:00",
+      "time_block_end": "2026-01-13T03:45:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": -13.5,
+      "amount": 3491.42
+    },
+    {
+      "time_block_start": "2026-01-13T03:45:00",
+      "time_block_end": "2026-01-13T04:00:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": -13.5,
+      "amount": 3491.43
+    },
+    {
+      "time_block_start": "2026-01-13T04:00:00",
+      "time_block_end": "2026-01-13T04:15:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": -13.5,
+      "amount": 3500.32
+    },
+    {
+      "time_block_start": "2026-01-13T04:15:00",
+      "time_block_end": "2026-01-13T04:30:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": -13.5,
+      "amount": 3500.32
+    },
+    {
+      "time_block_start": "2026-01-13T04:30:00",
+      "time_block_end": "2026-01-13T04:45:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": -13.5,
+      "amount": 3500.35
+    },
+    {
+      "time_block_start": "2026-01-13T04:45:00",
+      "time_block_end": "2026-01-13T05:00:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": -13.5,
+      "amount": 3500.35
+    },
+    {
+      "time_block_start": "2026-01-13T05:00:00",
+      "time_block_end": "2026-01-13T05:15:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": -13.5,
+      "amount": 3500.26
+    },
+    {
+      "time_block_start": "2026-01-13T05:15:00",
+      "time_block_end": "2026-01-13T05:30:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": -13.5,
+      "amount": 3500.28
+    },
+    {
+      "time_block_start": "2026-01-13T05:30:00",
+      "time_block_end": "2026-01-13T05:45:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": -13.5,
+      "amount": 3500.51
+    },
+    {
+      "time_block_start": "2026-01-13T05:45:00",
+      "time_block_end": "2026-01-13T06:00:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": -13.5,
+      "amount": 3600.05
+    },
+    {
+      "time_block_start": "2026-01-13T06:00:00",
+      "time_block_end": "2026-01-13T06:15:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": -13.5,
+      "amount": 4347.9
+    },
+    {
+      "time_block_start": "2026-01-13T06:15:00",
+      "time_block_end": "2026-01-13T06:30:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": -13.5,
+      "amount": 4850.0
+    },
+    {
+      "time_block_start": "2026-01-13T06:30:00",
+      "time_block_end": "2026-01-13T06:45:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": -13.5,
+      "amount": 5000.49
+    },
+    {
+      "time_block_start": "2026-01-13T06:45:00",
+      "time_block_end": "2026-01-13T07:00:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": -13.5,
+      "amount": 5000.82
+    },
+    {
+      "time_block_start": "2026-01-13T07:00:00",
+      "time_block_end": "2026-01-13T07:15:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": -13.5,
+      "amount": 10000.0
+    },
+    {
+      "time_block_start": "2026-01-13T07:15:00",
+      "time_block_end": "2026-01-13T07:30:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": -13.5,
+      "amount": 10000.0
+    },
+    {
+      "time_block_start": "2026-01-13T07:30:00",
+      "time_block_end": "2026-01-13T07:45:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": -13.5,
+      "amount": 10000.0
+    },
+    {
+      "time_block_start": "2026-01-13T07:45:00",
+      "time_block_end": "2026-01-13T08:00:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": -13.5,
+      "amount": 10000.0
+    },
+    {
+      "time_block_start": "2026-01-13T08:00:00",
+      "time_block_end": "2026-01-13T08:15:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": -13.5,
+      "amount": 10000.0
+    },
+    {
+      "time_block_start": "2026-01-13T08:15:00",
+      "time_block_end": "2026-01-13T08:30:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": -13.5,
+      "amount": 10000.0
+    },
+    {
+      "time_block_start": "2026-01-13T08:30:00",
+      "time_block_end": "2026-01-13T08:45:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": -13.5,
+      "amount": 9998.89
+    },
+    {
+      "time_block_start": "2026-01-13T08:45:00",
+      "time_block_end": "2026-01-13T09:00:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": -13.5,
+      "amount": 9998.15
+    },
+    {
+      "time_block_start": "2026-01-13T09:00:00",
+      "time_block_end": "2026-01-13T09:15:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": -13.5,
+      "amount": 6500.25
+    },
+    {
+      "time_block_start": "2026-01-13T09:15:00",
+      "time_block_end": "2026-01-13T09:30:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": -13.5,
+      "amount": 6500.12
+    },
+    {
+      "time_block_start": "2026-01-13T09:30:00",
+      "time_block_end": "2026-01-13T09:45:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": -13.5,
+      "amount": 6500.08
+    },
+    {
+      "time_block_start": "2026-01-13T09:45:00",
+      "time_block_end": "2026-01-13T10:00:00",
+      "quantity_mw": 0.0,
+      "rate_per_mwh": -13.5,
+      "amount": 6500.24
+    }
+  ],
+  "sell_transactions": [
+    {
+      "time_block_start": "2026-01-13T00:00:00",
+      "time_block_end": "2026-01-13T00:15:00",
+      "solar_quantity_mw": 0.0,
+      "non_solar_quantity_mw": 13.5,
+      "hydro_quantity_mw": 3500.12,
+      "total_quantity_mw": 3513.62,
+      "rate_per_mwh": 0.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T00:15:00",
+      "time_block_end": "2026-01-13T00:30:00",
+      "solar_quantity_mw": 0.0,
+      "non_solar_quantity_mw": 13.5,
+      "hydro_quantity_mw": 3500.13,
+      "total_quantity_mw": 3513.63,
+      "rate_per_mwh": 0.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T00:30:00",
+      "time_block_end": "2026-01-13T00:45:00",
+      "solar_quantity_mw": 0.0,
+      "non_solar_quantity_mw": 13.5,
+      "hydro_quantity_mw": 3500.14,
+      "total_quantity_mw": 3513.64,
+      "rate_per_mwh": 0.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T00:45:00",
+      "time_block_end": "2026-01-13T01:00:00",
+      "solar_quantity_mw": 0.0,
+      "non_solar_quantity_mw": 13.5,
+      "hydro_quantity_mw": 3500.18,
+      "total_quantity_mw": 3513.68,
+      "rate_per_mwh": 0.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T01:00:00",
+      "time_block_end": "2026-01-13T01:15:00",
+      "solar_quantity_mw": 0.0,
+      "non_solar_quantity_mw": 13.5,
+      "hydro_quantity_mw": 3471.88,
+      "total_quantity_mw": 3485.38,
+      "rate_per_mwh": 0.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T01:15:00",
+      "time_block_end": "2026-01-13T01:30:00",
+      "solar_quantity_mw": 0.0,
+      "non_solar_quantity_mw": 13.5,
+      "hydro_quantity_mw": 3491.13,
+      "total_quantity_mw": 3504.63,
+      "rate_per_mwh": 0.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T01:30:00",
+      "time_block_end": "2026-01-13T01:45:00",
+      "solar_quantity_mw": 0.0,
+      "non_solar_quantity_mw": 13.5,
+      "hydro_quantity_mw": 3491.06,
+      "total_quantity_mw": 3504.56,
+      "rate_per_mwh": 0.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T01:45:00",
+      "time_block_end": "2026-01-13T02:00:00",
+      "solar_quantity_mw": 0.0,
+      "non_solar_quantity_mw": 13.5,
+      "hydro_quantity_mw": 3471.96,
+      "total_quantity_mw": 3485.46,
+      "rate_per_mwh": 0.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T02:00:00",
+      "time_block_end": "2026-01-13T02:15:00",
+      "solar_quantity_mw": 0.0,
+      "non_solar_quantity_mw": 13.5,
+      "hydro_quantity_mw": 3491.49,
+      "total_quantity_mw": 3504.99,
+      "rate_per_mwh": 0.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T02:15:00",
+      "time_block_end": "2026-01-13T02:30:00",
+      "solar_quantity_mw": 0.0,
+      "non_solar_quantity_mw": 13.5,
+      "hydro_quantity_mw": 3491.36,
+      "total_quantity_mw": 3504.86,
+      "rate_per_mwh": 0.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T02:30:00",
+      "time_block_end": "2026-01-13T02:45:00",
+      "solar_quantity_mw": 0.0,
+      "non_solar_quantity_mw": 13.5,
+      "hydro_quantity_mw": 3491.7,
+      "total_quantity_mw": 3505.2,
+      "rate_per_mwh": 0.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T02:45:00",
+      "time_block_end": "2026-01-13T03:00:00",
+      "solar_quantity_mw": 0.0,
+      "non_solar_quantity_mw": 13.5,
+      "hydro_quantity_mw": 3491.49,
+      "total_quantity_mw": 3504.99,
+      "rate_per_mwh": 0.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T03:00:00",
+      "time_block_end": "2026-01-13T03:15:00",
+      "solar_quantity_mw": 0.0,
+      "non_solar_quantity_mw": 13.5,
+      "hydro_quantity_mw": 3491.51,
+      "total_quantity_mw": 3505.01,
+      "rate_per_mwh": 0.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T03:15:00",
+      "time_block_end": "2026-01-13T03:30:00",
+      "solar_quantity_mw": 0.0,
+      "non_solar_quantity_mw": 13.5,
+      "hydro_quantity_mw": 3491.54,
+      "total_quantity_mw": 3505.04,
+      "rate_per_mwh": 0.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T03:30:00",
+      "time_block_end": "2026-01-13T03:45:00",
+      "solar_quantity_mw": 0.0,
+      "non_solar_quantity_mw": 13.5,
+      "hydro_quantity_mw": 3491.42,
+      "total_quantity_mw": 3504.92,
+      "rate_per_mwh": 0.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T03:45:00",
+      "time_block_end": "2026-01-13T04:00:00",
+      "solar_quantity_mw": 0.0,
+      "non_solar_quantity_mw": 13.5,
+      "hydro_quantity_mw": 3491.43,
+      "total_quantity_mw": 3504.93,
+      "rate_per_mwh": 0.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T04:00:00",
+      "time_block_end": "2026-01-13T04:15:00",
+      "solar_quantity_mw": 0.0,
+      "non_solar_quantity_mw": 13.5,
+      "hydro_quantity_mw": 3500.32,
+      "total_quantity_mw": 3513.82,
+      "rate_per_mwh": 0.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T04:15:00",
+      "time_block_end": "2026-01-13T04:30:00",
+      "solar_quantity_mw": 0.0,
+      "non_solar_quantity_mw": 13.5,
+      "hydro_quantity_mw": 3500.32,
+      "total_quantity_mw": 3513.82,
+      "rate_per_mwh": 0.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T04:30:00",
+      "time_block_end": "2026-01-13T04:45:00",
+      "solar_quantity_mw": 0.0,
+      "non_solar_quantity_mw": 13.5,
+      "hydro_quantity_mw": 3500.35,
+      "total_quantity_mw": 3513.85,
+      "rate_per_mwh": 0.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T04:45:00",
+      "time_block_end": "2026-01-13T05:00:00",
+      "solar_quantity_mw": 0.0,
+      "non_solar_quantity_mw": 13.5,
+      "hydro_quantity_mw": 3500.35,
+      "total_quantity_mw": 3513.85,
+      "rate_per_mwh": 0.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T05:00:00",
+      "time_block_end": "2026-01-13T05:15:00",
+      "solar_quantity_mw": 0.0,
+      "non_solar_quantity_mw": 13.5,
+      "hydro_quantity_mw": 3500.26,
+      "total_quantity_mw": 3513.76,
+      "rate_per_mwh": 0.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T05:15:00",
+      "time_block_end": "2026-01-13T05:30:00",
+      "solar_quantity_mw": 0.0,
+      "non_solar_quantity_mw": 13.5,
+      "hydro_quantity_mw": 3500.28,
+      "total_quantity_mw": 3513.78,
+      "rate_per_mwh": 0.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T05:30:00",
+      "time_block_end": "2026-01-13T05:45:00",
+      "solar_quantity_mw": 0.0,
+      "non_solar_quantity_mw": 13.5,
+      "hydro_quantity_mw": 3500.51,
+      "total_quantity_mw": 3514.01,
+      "rate_per_mwh": 0.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T05:45:00",
+      "time_block_end": "2026-01-13T06:00:00",
+      "solar_quantity_mw": 0.0,
+      "non_solar_quantity_mw": 13.5,
+      "hydro_quantity_mw": 3600.05,
+      "total_quantity_mw": 3613.55,
+      "rate_per_mwh": 0.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T06:00:00",
+      "time_block_end": "2026-01-13T06:15:00",
+      "solar_quantity_mw": 0.0,
+      "non_solar_quantity_mw": 13.5,
+      "hydro_quantity_mw": 4347.9,
+      "total_quantity_mw": 4361.4,
+      "rate_per_mwh": 0.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T06:15:00",
+      "time_block_end": "2026-01-13T06:30:00",
+      "solar_quantity_mw": 0.0,
+      "non_solar_quantity_mw": 13.5,
+      "hydro_quantity_mw": 4850.0,
+      "total_quantity_mw": 4863.5,
+      "rate_per_mwh": 0.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T06:30:00",
+      "time_block_end": "2026-01-13T06:45:00",
+      "solar_quantity_mw": 0.0,
+      "non_solar_quantity_mw": 13.5,
+      "hydro_quantity_mw": 5000.49,
+      "total_quantity_mw": 5013.99,
+      "rate_per_mwh": 0.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T06:45:00",
+      "time_block_end": "2026-01-13T07:00:00",
+      "solar_quantity_mw": 0.0,
+      "non_solar_quantity_mw": 13.5,
+      "hydro_quantity_mw": 5000.82,
+      "total_quantity_mw": 5014.32,
+      "rate_per_mwh": 0.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T07:00:00",
+      "time_block_end": "2026-01-13T07:15:00",
+      "solar_quantity_mw": 0.0,
+      "non_solar_quantity_mw": 13.5,
+      "hydro_quantity_mw": 10000.0,
+      "total_quantity_mw": 10013.5,
+      "rate_per_mwh": 0.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T07:15:00",
+      "time_block_end": "2026-01-13T07:30:00",
+      "solar_quantity_mw": 0.0,
+      "non_solar_quantity_mw": 13.5,
+      "hydro_quantity_mw": 10000.0,
+      "total_quantity_mw": 10013.5,
+      "rate_per_mwh": 0.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T07:30:00",
+      "time_block_end": "2026-01-13T07:45:00",
+      "solar_quantity_mw": 0.0,
+      "non_solar_quantity_mw": 13.5,
+      "hydro_quantity_mw": 10000.0,
+      "total_quantity_mw": 10013.5,
+      "rate_per_mwh": 0.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T07:45:00",
+      "time_block_end": "2026-01-13T08:00:00",
+      "solar_quantity_mw": 0.0,
+      "non_solar_quantity_mw": 13.5,
+      "hydro_quantity_mw": 10000.0,
+      "total_quantity_mw": 10013.5,
+      "rate_per_mwh": 0.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T08:00:00",
+      "time_block_end": "2026-01-13T08:15:00",
+      "solar_quantity_mw": 0.0,
+      "non_solar_quantity_mw": 13.5,
+      "hydro_quantity_mw": 10000.0,
+      "total_quantity_mw": 10013.5,
+      "rate_per_mwh": 0.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T08:15:00",
+      "time_block_end": "2026-01-13T08:30:00",
+      "solar_quantity_mw": 0.0,
+      "non_solar_quantity_mw": 13.5,
+      "hydro_quantity_mw": 10000.0,
+      "total_quantity_mw": 10013.5,
+      "rate_per_mwh": 0.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T08:30:00",
+      "time_block_end": "2026-01-13T08:45:00",
+      "solar_quantity_mw": 0.0,
+      "non_solar_quantity_mw": 13.5,
+      "hydro_quantity_mw": 9998.89,
+      "total_quantity_mw": 10012.39,
+      "rate_per_mwh": 0.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T08:45:00",
+      "time_block_end": "2026-01-13T09:00:00",
+      "solar_quantity_mw": 0.0,
+      "non_solar_quantity_mw": 13.5,
+      "hydro_quantity_mw": 9998.15,
+      "total_quantity_mw": 10011.65,
+      "rate_per_mwh": 0.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T09:00:00",
+      "time_block_end": "2026-01-13T09:15:00",
+      "solar_quantity_mw": 0.0,
+      "non_solar_quantity_mw": 13.5,
+      "hydro_quantity_mw": 6500.25,
+      "total_quantity_mw": 6513.75,
+      "rate_per_mwh": 0.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T09:15:00",
+      "time_block_end": "2026-01-13T09:30:00",
+      "solar_quantity_mw": 0.0,
+      "non_solar_quantity_mw": 13.5,
+      "hydro_quantity_mw": 6500.12,
+      "total_quantity_mw": 6513.62,
+      "rate_per_mwh": 0.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T09:30:00",
+      "time_block_end": "2026-01-13T09:45:00",
+      "solar_quantity_mw": 0.0,
+      "non_solar_quantity_mw": 13.5,
+      "hydro_quantity_mw": 6500.08,
+      "total_quantity_mw": 6513.58,
+      "rate_per_mwh": 0.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T09:45:00",
+      "time_block_end": "2026-01-13T10:00:00",
+      "solar_quantity_mw": 0.0,
+      "non_solar_quantity_mw": 13.5,
+      "hydro_quantity_mw": 6500.24,
+      "total_quantity_mw": 6513.74,
+      "rate_per_mwh": 0.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T10:00:00",
+      "time_block_end": "2026-01-13T10:15:00",
+      "solar_quantity_mw": 0.0,
+      "non_solar_quantity_mw": 13.5,
+      "hydro_quantity_mw": 5160.25,
+      "total_quantity_mw": 5173.75,
+      "rate_per_mwh": 0.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T10:15:00",
+      "time_block_end": "2026-01-13T10:30:00",
+      "solar_quantity_mw": 0.0,
+      "non_solar_quantity_mw": 13.5,
+      "hydro_quantity_mw": 5400.13,
+      "total_quantity_mw": 5413.63,
+      "rate_per_mwh": 0.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T10:30:00",
+      "time_block_end": "2026-01-13T10:45:00",
+      "solar_quantity_mw": 0.0,
+      "non_solar_quantity_mw": 13.5,
+      "hydro_quantity_mw": 4630.17,
+      "total_quantity_mw": 4643.67,
+      "rate_per_mwh": 0.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T10:45:00",
+      "time_block_end": "2026-01-13T11:00:00",
+      "solar_quantity_mw": 0.0,
+      "non_solar_quantity_mw": 13.5,
+      "hydro_quantity_mw": 4250.51,
+      "total_quantity_mw": 4264.01,
+      "rate_per_mwh": 0.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T11:00:00",
+      "time_block_end": "2026-01-13T11:15:00",
+      "solar_quantity_mw": 0.0,
+      "non_solar_quantity_mw": 13.5,
+      "hydro_quantity_mw": 4010.17,
+      "total_quantity_mw": 4023.67,
+      "rate_per_mwh": 0.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T11:15:00",
+      "time_block_end": "2026-01-13T11:30:00",
+      "solar_quantity_mw": 0.0,
+      "non_solar_quantity_mw": 13.5,
+      "hydro_quantity_mw": 3920.53,
+      "total_quantity_mw": 3934.03,
+      "rate_per_mwh": 0.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T11:30:00",
+      "time_block_end": "2026-01-13T11:45:00",
+      "solar_quantity_mw": 0.0,
+      "non_solar_quantity_mw": 13.5,
+      "hydro_quantity_mw": 3730.86,
+      "total_quantity_mw": 3744.36,
+      "rate_per_mwh": 0.0,
+      "amount": 0.0
+    },
+    {
+      "time_block_start": "2026-01-13T11:45:00",
+      "time_block_end": "2026-01-13T12:00:00",
+      "solar_quantity_mw": 0.0,
+      "non_solar_quantity_mw": 13.5,
+      "hydro_quantity_mw": 3629.24,
+      "total_quantity_mw": 3642.74,
+      "rate_per_mwh": 0.0,
+      "amount": 0.0
+    }
+  ],
+  "charges": {
+    "nldc_application_fee": 5.13,
+    "ctu_transmission_charges": 0.0,
+    "nldc_scheduling_charges_buy": 0.0,
+    "nldc_scheduling_charges_sell": 200.0,
+    "stu_transmission_charges": 25920.0,
+    "distribution_charges": 0.0,
+    "sldc_scheduling_charges": 1000.0,
+    "aldc_scheduling_charges": 0.0,
+    "other_charges": 0.0,
+    "fees": 6480.0,
+    "igst": 1166.4,
+    "sgst": 0.0,
+    "cgst": 0.0,
+    "utgst": 0.0,
+    "total_charges": 1674432.7594
+  },
+  "summary": {
+    "total_buy_quantity_mwh": 0.0,
+    "total_buy_amount": 209157.91999999998,
+    "total_sell_quantity_mwh": 61134.445,
+    "total_sell_amount": 0.0,
+    "net_position_mwh": -61134.445,
+    "net_amount": -1883590.6794,
+    "funds_payin_payout": -1883590.6794
+  },
+  "parsed_at": "2026-01-14T09:12:09.554179"
+}

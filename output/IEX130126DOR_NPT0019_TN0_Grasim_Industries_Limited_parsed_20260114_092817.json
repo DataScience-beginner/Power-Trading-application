@@ -1,0 +1,43 @@
+{
+  "schema_version": "1.0.0",
+  "template_id": "GDAM_IEX_V1",
+  "client_id": "default-client",
+  "metadata": {
+    "trading_date": "2026-01-13",
+    "delivery_date": "2026-01-14",
+    "entity_id": "A2AR0NPT0000",
+    "entity_name": "NEFA Power Trading Private Limited",
+    "portfolio_code": "S2TN0NPT0019",
+    "portfolio_name": "Grasim_Industries_Limited_HTSC_0177",
+    "report_type": "G-DAM"
+  },
+  "buy_transactions": [],
+  "sell_transactions": [],
+  "charges": {
+    "nldc_application_fee": 4.91,
+    "ctu_transmission_charges": 805.73,
+    "nldc_scheduling_charges_buy": 1.65,
+    "nldc_scheduling_charges_sell": 0.0,
+    "stu_transmission_charges": 398.99,
+    "distribution_charges": 0.0,
+    "sldc_scheduling_charges": 215.62,
+    "aldc_scheduling_charges": 0.0,
+    "other_charges": 0.0,
+    "fees": 33.0,
+    "igst": 5.94,
+    "sgst": 0.0,
+    "cgst": 0.0,
+    "utgst": 0.0,
+    "total_charges": 6396.66
+  },
+  "summary": {
+    "total_buy_quantity_mwh": 0.0,
+    "total_buy_amount": 0,
+    "total_sell_quantity_mwh": 0.0,
+    "total_sell_amount": 0,
+    "net_position_mwh": 0.0,
+    "net_amount": -6396.66,
+    "funds_payin_payout": -6396.66
+  },
+  "parsed_at": "2026-01-14T09:28:17.459201"
+}
