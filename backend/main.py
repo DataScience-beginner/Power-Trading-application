@@ -1,24 +1,30 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-import os
+from pathlib import Path
 
 app = FastAPI()
 
-# Use environment variables for CORS settings
-allowed_origins = os.getenv("ALLOWED_ORIGINS", "*").split(",")
+# Update allowed origins to include the frontend-react's URL
+allowed_origins = [
+    "http://localhost:3000", 
+    "http://127.0.0.1:3000",
+    "http://localhost:3001",  # Added for frontend-react
+    "http://127.0.0.1:3001"   # Added for frontend-react
+]
 
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins,  # Use environment variable for allowed origins
+    allow_origins=allowed_origins,  # Updated to include frontend-react
     allow_credentials=True,
-    allow_methods=["GET", "POST"],  # Restrict to necessary methods
-    allow_headers=["Authorization", "Content-Type"],  # Restrict to required headers
+    allow_methods=["*"],  # Allow all methods for now
+    allow_headers=["*"]  # Allow all headers for now
 )
 
-# Serve static files (e.g., favicon)
-app.mount("/static", StaticFiles(directory="backend/static"), name="static")
+# Update the static files directory to use an absolute path
+static_dir = Path(__file__).resolve().parent / "static"
+app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 @app.get("/")
 def read_root():
