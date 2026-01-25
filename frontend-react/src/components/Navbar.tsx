@@ -17,15 +17,18 @@ import {
   AccountCircle,
   UploadFile as UploadFileIcon,
   Calculate as CalculateIcon,
+  // admin icon
+  AdminPanelSettings as AdminPanelSettingsIcon,
 } from '@mui/icons-material';
 
 interface NavbarProps {
   onMenuClick: () => void;
   onUploadClick: () => void;
   onCalculateClick: () => void;
+  onAdminClick?: () => void;
 }
 
-const Navbar: FC<NavbarProps> = ({ onMenuClick, onUploadClick, onCalculateClick }) => {
+const Navbar: FC<NavbarProps> = ({ onMenuClick, onUploadClick, onCalculateClick, onAdminClick }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -71,6 +74,12 @@ const Navbar: FC<NavbarProps> = ({ onMenuClick, onUploadClick, onCalculateClick 
               <Badge badgeContent={0} color="error">
                 <NotificationsIcon />
               </Badge>
+            </IconButton>
+          </Tooltip>
+
+          <Tooltip title="Admin">
+            <IconButton color="inherit" onClick={() => onAdminClick && onAdminClick()}>
+              <AdminPanelSettingsIcon />
             </IconButton>
           </Tooltip>
 

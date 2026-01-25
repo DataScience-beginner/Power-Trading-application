@@ -145,7 +145,17 @@ const Sidebar: FC<SidebarProps> = ({ open, onPortfolioSelect, currentPage, onPag
             <ListItem disablePadding>
               <ListItemButton
                 selected={currentPage === 'adminDatabase'}
-                onClick={() => onPageChange('adminDatabase')}
+                onClick={() => {
+                  onPageChange('adminDatabase');
+                  try {
+                    // update URL so App can react to navigation if needed
+                    const url = new URL(window.location.href);
+                    url.searchParams.set('page', 'adminDatabase');
+                    window.history.pushState({}, '', url.toString());
+                  } catch (e) {
+                    // ignore
+                  }
+                }}
               >
                 <ListItemIcon>
                   <StorageIcon color={currentPage === 'adminDatabase' ? 'primary' : 'inherit'} />

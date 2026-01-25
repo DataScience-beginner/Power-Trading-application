@@ -352,3 +352,25 @@ def get_monthly_calculations(db: Session, portfolio_id: int, year: int, month: i
             MonthlyCalculation.month == month
         )
     ).order_by(MonthlyCalculation.day).all()
+
+
+def get_admin_summary(db: Session) -> Dict[str, Any]:
+    """
+    Fetch summary data for Admin Database insights.
+    """
+    clients_count = db.query(Client).count()
+    portfolios_count = db.query(Portfolio).count()
+    daily_files_count = db.query(DailyFile).count()
+    transactions_count = db.query(Transaction).count()
+
+    dor_files_count = db.query(DailyFile).filter(DailyFile.report_type.like("DOR%"), DailyFile.main_category == "GDAM").count()
+    sch_files_count = db.query(DailyFile).filter(DailyFile.report_type.like("SCH%"), DailyFile.main_category == "GDAM").count()
+
+    return {
+        "clients": clients_count,
+        "portfolios": portfolios_count,
+        "dailyFiles": daily_files_count,
+        "transactions": transactions_count,
+        "dorFiles": dor_files_count,
+        "schFiles": sch_files_count
+    }

@@ -24,7 +24,6 @@ sys.path.append(str(Path(__file__).parent.parent))
 
 
 # --- Admin Database Tree Endpoints ---
-app = FastAPI()
 from sqlalchemy import inspect, text
 
 # ...existing code...
@@ -67,24 +66,6 @@ async def get_current_admin(token: str = Depends(oauth2_scheme)):
     if token_data.username != ADMIN_USERNAME:
         raise credentials_exception
     return {"username": token_data.username}
-
-# List all tables in the database (admin only)
-@app.get("/api/admin/tables")
-async def list_tables(db: Session = Depends(get_db), current_admin: dict = Depends(get_current_admin)):
-    inspector = inspect(db.bind)
-    return {"tables": inspector.get_table_names()}
-
-# Get all rows from a table (admin only, paginated)
-@app.get("/api/admin/table/{table_name}")
-async def get_table_data(table_name: str, db: Session = Depends(get_db), current_admin: dict = Depends(get_current_admin), limit: int = 100, offset: int = 0):
-    # Basic SQL injection protection
-    if not table_name.isidentifier():
-        raise HTTPException(status_code=400, detail="Invalid table name")
-    sql = text(f"SELECT * FROM {table_name} LIMIT :limit OFFSET :offset")
-    result = db.execute(sql, {"limit": limit, "offset": offset})
-    columns = result.keys()
-    rows = [dict(zip(columns, row)) for row in result.fetchall()]
-    return {"columns": columns, "rows": rows}
 
 # JWT and Auth imports
 from jose import JWTError, jwt
@@ -139,6 +120,44 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 1 day
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/admin/login")
+
+# Admin endpoints: list tables and view table rows (protected by JWT)
+@app.get("/api/admin/tables")
+async def list_tables(db: Session = Depends(get_db), current_admin: dict = Depends(get_current_admin)):
+    inspector = inspect(db.bind)
+    return {"tables": inspector.get_table_names()}
+
+
+@app.get("/api/admin/table/{table_name}")
+async def get_table_data(table_name: str, db: Session = Depends(get_db), current_admin: dict = Depends(get_current_admin), limit: int = 100, offset: int = 0):
+    # Basic SQL injection protection
+    if not table_name.isidentifier():
+        raise HTTPException(status_code=400, detail="Invalid table name")
+    sql = text(f"SELECT * FROM {table_name} LIMIT :limit OFFSET :offset")
+    result = db.execute(sql, {"limit": limit, "offset": offset})
+    columns = result.keys()
+    raw_rows = result.fetchall()
+    # Convert rows to JSON-serializable values (dates, datetimes)
+    def serialize_value(v):
+        from datetime import datetime, date
+        if isinstance(v, datetime) or isinstance(v, date):
+            return v.isoformat()
+        try:
+            # simple types will pass
+            json.dumps(v)
+            return v
+        except Exception:
+            return str(v)
+
+    rows = []
+    for row in raw_rows:
+        d = {}
+        for k, v in zip(columns, row):
+            d[k] = serialize_value(v)
+        rows.append(d)
+
+    return {"columns": list(columns), "rows": rows}
+
 
 
 # Demo admin credentials (replace with DB lookup and hashing in production)

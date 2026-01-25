@@ -1711,6 +1711,19 @@ async def download_energy_schedule_pdf(
         raise HTTPException(status_code=500, detail=f"Error generating PDF: {str(e)}")
 
 
+@app.get("/api/admin/summary")
+async def get_admin_summary_endpoint(db: Session = Depends(get_db)):
+    """
+    API endpoint to fetch summary data for Admin Database insights.
+    """
+    try:
+        summary = db_services.get_admin_summary(db)
+        return {"success": True, "summary": summary}
+    except Exception as e:
+        print(f"Error fetching admin summary: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch admin summary.")
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)

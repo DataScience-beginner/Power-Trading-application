@@ -25,6 +25,8 @@ type MarketType = 'all' | 'GDAM' | 'DAM' | 'RTM';
 const Dashboard: FC = () => {
   const dispatch = useAppDispatch();
   const { summary, filter, loading, transactions } = useAppSelector((state) => state.dashboard);
+  const [startDate, setStartDate] = useState<string>(filter.startDate);
+  const [endDate, setEndDate] = useState<string>(filter.endDate);
   const [viewMode, setViewMode] = useState<ViewMode>('daily');
   const [reportType, setReportType] = useState<ReportType>('all');
   const [marketType, setMarketType] = useState<MarketType>('all');
@@ -33,6 +35,13 @@ const Dashboard: FC = () => {
     dispatch(fetchAnalytics({ startDate: filter.startDate, endDate: filter.endDate }));
     dispatch(fetchTransactions(filter));
   }, [dispatch, filter]);
+
+  // Update store filter when local date inputs change
+  useEffect(() => {
+    if (startDate !== filter.startDate || endDate !== filter.endDate) {
+      dispatch({ type: 'dashboard/setFilter', payload: { startDate, endDate } });
+    }
+  }, [startDate, endDate, dispatch, filter.startDate, filter.endDate]);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-IN', {
@@ -51,17 +60,18 @@ const Dashboard: FC = () => {
     return clientMatch && reportMatch && marketMatch;
   });
 
-  // Calculate filtered summary
+  // Combine server-side summary (if available) with local filtered transactions
+  const serverSummary = summary || null;
   const filteredSummary = {
-    dor_files: filteredTransactions.filter(t => t.report_type?.includes('DOR')).length,
-    sch_files: filteredTransactions.filter(t => t.report_type?.includes('SCH')).length,
+    dor_files: serverSummary ? serverSummary.dor_files : filteredTransactions.filter(t => t.report_type?.includes('DOR')).length,
+    sch_files: serverSummary ? serverSummary.sch_files : filteredTransactions.filter(t => t.report_type?.includes('SCH')).length,
     gdam_count: filteredTransactions.filter(t => t.report_type?.includes('GDAM')).length,
     dam_count: filteredTransactions.filter(t => t.report_type?.includes('DAM')).length,
     rtm_count: filteredTransactions.filter(t => t.report_type?.includes('RTM')).length,
-    total_transactions: filteredTransactions.length,
-    buy_transactions: filteredTransactions.filter(t => t.type === 'BUY').length,
-    sell_transactions: filteredTransactions.filter(t => t.type === 'SELL').length,
-    net_amount: filteredTransactions.reduce((sum, t) => {
+    total_transactions: serverSummary ? serverSummary.total_transactions : filteredTransactions.length,
+    buy_transactions: serverSummary ? serverSummary.buy_transactions : filteredTransactions.filter(t => t.type === 'BUY').length,
+    sell_transactions: serverSummary ? serverSummary.sell_transactions : filteredTransactions.filter(t => t.type === 'SELL').length,
+    net_amount: serverSummary ? serverSummary.net_amount : filteredTransactions.reduce((sum, t) => {
       const amount = (t.quantity || 0) * (t.rate || 0);
       return t.type === 'BUY' ? sum - amount : sum + amount;
     }, 0),
@@ -115,6 +125,32 @@ const Dashboard: FC = () => {
               <MenuItem value="RTM">RTM</MenuItem>
             </Select>
           </FormControl>
+          
+          {/* Date range inputs */}
+          <FormControl size="small">
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              style={{ height: 36, borderRadius: 4, border: '1px solid rgba(0,0,0,0.23)', padding: '4px 8px' }}
+            />
+          </FormControl>
+          <FormControl size="small">
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              style={{ height: 36, borderRadius: 4, border: '1px solid rgba(0,0,0,0.23)', padding: '4px 8px' }}
+            />
+
+          </FormControl>
+
+          {/* Preset ranges */}
+          <Stack direction="row" spacing={1}>
+            <Chip label="Last 7d" size="small" onClick={() => { setEndDate(new Date().toISOString().split('T')[0]); setStartDate(new Date(Date.now() - 7*24*60*60*1000).toISOString().split('T')[0]); }} clickable />
+            <Chip label="Last 30d" size="small" onClick={() => { setEndDate(new Date().toISOString().split('T')[0]); setStartDate(new Date(Date.now() - 30*24*60*60*1000).toISOString().split('T')[0]); }} clickable />
+            <Chip label="MTD" size="small" onClick={() => { const now = new Date(); setEndDate(now.toISOString().split('T')[0]); setStartDate(new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0]); }} clickable />
+          </Stack>
         </Stack>
       </Box>
 

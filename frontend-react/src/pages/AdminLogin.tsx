@@ -25,8 +25,12 @@ const AdminLogin: React.FC<{ onLogin?: () => void }> = ({ onLogin }) => {
       if (!res.ok) throw new Error('Invalid credentials');
       const data = await res.json();
       localStorage.setItem('admin_jwt', data.access_token);
-      if (onLogin) onLogin();
-      window.location.href = '/'; // Redirect to home or admin page
+      if (onLogin) {
+        onLogin();
+      } else {
+        // fallback redirect for older flows
+        window.location.href = '/';
+      }
     } catch (err: any) {
       setError(err.message || 'Login failed');
     } finally {

@@ -1,4 +1,4 @@
-import { useState, FC } from 'react';
+import { useState, FC, useEffect } from 'react';
 import { Box, CssBaseline, Toolbar } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import Navbar from './components/Navbar';
@@ -14,6 +14,7 @@ import FileUploadDialog from './components/FileUploadDialog';
 import CalculateEnergyScheduleDialog from './components/CalculateEnergyScheduleDialog';
 import { useAppDispatch } from './hooks/useAppStore';
 import { fetchTransactions, fetchAnalytics, setFilter } from './store/dashboardSlice';
+import NewDashboard from './pages/NewDashboard';
 
 const theme = createTheme({
   palette: {
@@ -33,8 +34,27 @@ const App: FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [calculateDialogOpen, setCalculateDialogOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState<'dashboard' | 'energySchedule' | 'analytics' | 'reports' | 'aiPredict' | 'adminDatabase'>('dashboard');
+  const [currentPage, setCurrentPage] = useState<'dashboard' | 'energySchedule' | 'analytics' | 'reports' | 'aiPredict' | 'adminDatabase' | 'newDashboard'>('dashboard');
   const dispatch = useAppDispatch();
+
+  // react to URL query `?page=` so clicks that update history trigger navigation
+  useEffect(() => {
+    const applyPageFromUrl = () => {
+      try {
+        const url = new URL(window.location.href);
+        const p = url.searchParams.get('page');
+        if (p && p !== currentPage) {
+          // validate allowed pages
+          const allowed = ['dashboard','energySchedule','analytics','reports','aiPredict','adminDatabase', 'newDashboard'];
+          if (allowed.includes(p)) setCurrentPage(p as any);
+        }
+      } catch (e) {}
+    };
+
+    applyPageFromUrl();
+    window.addEventListener('popstate', applyPageFromUrl);
+    return () => window.removeEventListener('popstate', applyPageFromUrl);
+  }, [currentPage]);
 
   const handleMenuClick = () => {
     setSidebarOpen(!sidebarOpen);
@@ -67,6 +87,7 @@ const App: FC = () => {
           onMenuClick={handleMenuClick}
           onUploadClick={() => setUploadDialogOpen(true)}
           onCalculateClick={() => setCalculateDialogOpen(true)}
+          onAdminClick={() => setCurrentPage('adminDatabase')}
         />
         <Sidebar 
           open={sidebarOpen} 
@@ -91,6 +112,7 @@ const App: FC = () => {
           {currentPage === 'reports' && <Reports />}
           {currentPage === 'aiPredict' && <AIPredict />}
           {currentPage === 'adminDatabase' && (isAdmin ? <AdminDatabase /> : <AdminLogin onLogin={() => setCurrentPage('adminDatabase')} />)}
+          {currentPage === 'newDashboard' && <NewDashboard />}
         </Box>
       </Box>
       <FileUploadDialog
