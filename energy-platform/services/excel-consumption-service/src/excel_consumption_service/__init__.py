@@ -1,0 +1,1 @@
+"""Excel consumption service package."""

@@ -1,0 +1,7 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: excel-consumption-service
+    static_configs:
+      - targets: ["excel-consumption-service:8000"]

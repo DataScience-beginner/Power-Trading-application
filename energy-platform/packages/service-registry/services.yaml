@@ -1,0 +1,38 @@
+platform:
+  name: energy-platform
+  environment: development
+
+services:
+  - key: client-web
+    display_name: Client Web
+    category: client-app
+    runtime: react-vite
+    owner: platform-team
+    tier: frontend
+    port: 4173
+    health_path: /
+    depends_on:
+      - excel-consumption-service
+    tags:
+      - client-facing
+      - dashboard
+
+  - key: excel-consumption-service
+    display_name: Excel Consumption Service
+    category: energy-data
+    runtime: python-fastapi
+    owner: platform-team
+    tier: backend
+    port: 8000
+    health_path: /health
+    depends_on:
+      - sqlite
+    tags:
+      - workbook-ingestion
+      - solar-working
+      - tenant-aware
+
+infrastructure:
+  monitoring:
+    prometheus_port: 9090
+    grafana_port: 3001

@@ -1,0 +1,19 @@
+service_key: excel-consumption-service
+display_name: Excel Consumption Service
+category: energy-data
+runtime: python-fastapi
+owner: platform-team
+tier: backend
+visibility: internal
+health_path: /health
+port: 8000
+depends_on:
+  - sqlite
+observability:
+  metrics_enabled: true
+  tracing_enabled: true
+  log_format: json
+tags:
+  - workbook-ingestion
+  - solar-working
+  - tenant-aware
