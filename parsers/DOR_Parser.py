@@ -150,18 +150,42 @@ class GDAMTemplateParser:
         except Exception as e:
             print(f"WARNING: pyxlsb method failed: {e}")
         
-        # Method 3: Try reading with xlrd and force save
+        # Method 3: Try reading with xlrd directly (cell-by-cell, bypassing formula evaluation)
         try:
-            print(f"INFO: Attempting forced xlrd read...")
+            print(f"INFO: Attempting direct xlrd cell-by-cell read...")
             
-            # Try to read despite errors
-            df = pd.read_excel(xls_path, sheet_name=0, header=None)
+            import xlrd
+            # Open workbook with formatting_info=False to avoid formula evaluation
+            # Use logfile to suppress formula warnings
+            wb = xlrd.open_workbook(xls_path, formatting_info=False, on_demand=True, logfile=open(os.devnull, 'w'))
+            ws = wb.sheet_by_index(0)
+            
+            # Read all rows and columns
+            data = []
+            for row_idx in range(ws.nrows):
+                row_data = []
+                for col_idx in range(ws.ncols):
+                    cell = ws.cell(row_idx, col_idx)
+                    if cell.ctype == xlrd.XL_CELL_EMPTY:
+                        row_data.append(None)
+                    elif cell.ctype == xlrd.XL_CELL_NUMBER:
+                        row_data.append(cell.value)
+                    elif cell.ctype == xlrd.XL_CELL_DATE:
+                        # Convert Excel date to datetime
+                        date_tuple = xlrd.xldate_as_tuple(cell.value, wb.datemode)
+                        row_data.append(f"{date_tuple[0]}-{date_tuple[1]:02d}-{date_tuple[2]:02d}")
+                    else:
+                        row_data.append(str(cell.value) if cell.value else None)
+                data.append(row_data)
+            
+            # Convert to DataFrame
+            df = pd.DataFrame(data)
             
             # Save as xlsx
             temp_xlsx = os.path.join(tempfile.gettempdir(), f"converted_{uuid.uuid4().hex}.xlsx")
             df.to_excel(temp_xlsx, index=False, header=False, engine='openpyxl')
             
-            print(f"INFO: Forced conversion successful")
+            print(f"INFO: Direct xlrd conversion successful ({ws.nrows} rows x {ws.ncols} cols)")
             return temp_xlsx
             
         except Exception as e:

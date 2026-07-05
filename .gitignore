@@ -53,3 +53,29 @@ output/*.json
 .pytest_cache/
 .coverage
 htmlcov/
+
+# Node
+node_modules/
+frontend-react/node_modules/
+package-lock.json
+
+# Environment
+.env
+.env.*
+*.env.local
+
+# Database
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+*.db-vacuum
+
+# Temp
+tmp/
+temp/
+*.tmp
+
+# Desktop app build
+desktop-app/dist/
+desktop-app/build/

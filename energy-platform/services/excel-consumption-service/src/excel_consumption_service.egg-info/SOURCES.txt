@@ -28,10 +28,13 @@ src/excel_consumption_service/models/tenant.py
 src/excel_consumption_service/models/workbook.py
 src/excel_consumption_service/schemas/__init__.py
 src/excel_consumption_service/schemas/auth.py
+src/excel_consumption_service/schemas/dashboard.py
 src/excel_consumption_service/schemas/workbook.py
 src/excel_consumption_service/services/__init__.py
+src/excel_consumption_service/services/admin_dashboard.py
 src/excel_consumption_service/services/authentication.py
 src/excel_consumption_service/services/file_storage.py
 src/excel_consumption_service/services/solar_working.py
 src/excel_consumption_service/services/workbook_ingestion.py
 src/excel_consumption_service/services/workbook_parser.py
+src/excel_consumption_service/services/workbook_queries.py

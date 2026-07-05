@@ -23,6 +23,9 @@ from parsers.SCH_Parser import SCHTemplateParser
 from database.config import get_db, init_db
 from database import services as db_services
 
+# Energy Platform Integration
+from api.energy_platform_integration import get_energy_platform_routes, init_energy_platform_db
+
 app = FastAPI(
     title="Power Trading Data API",
     description="Enterprise API for parsing and managing power trading data",
@@ -53,13 +56,16 @@ elif frontend_dir.exists() and (frontend_dir / "static").exists():
 OUTPUT_DIR = Path(__file__).parent.parent / "output"
 OUTPUT_DIR.mkdir(exist_ok=True)
 
+# Mount Energy Platform routes under /api/v1
+app.include_router(get_energy_platform_routes())
+
 # Initialize database on startup
 @app.on_event("startup")
 async def startup_event():
     """Initialize database when app starts"""
-    print("🗄️  Initializing database...")
+    print("Initializing database...")
     init_db()
-    print("✅ Database ready")
+    print("Database ready")
     
     # Load mock data if database is empty
     try:
@@ -70,17 +76,17 @@ async def startup_event():
         try:
             clients = get_all_clients(db)
             if len(clients) == 0:
-                print("📊 Database is empty, loading mock data...")
+                print("Database is empty, loading mock data...")
                 import subprocess
                 subprocess.run(["python", "generate_mock_reports.py"], check=False)
                 subprocess.run(["python", "upload_mock_reports.py"], check=False)
                 print("✅ Mock data loaded")
             else:
-                print(f"✅ Database has {len(clients)} clients already")
+                print(f"Database has {len(clients)} clients already")
         finally:
             db.close()
     except Exception as e:
-        print(f"⚠️  Mock data load failed: {e}")
+        print(f"WARNING: Mock data load failed: {e}")
         print("   You can upload files manually via the UI")
 
 @app.get("/")

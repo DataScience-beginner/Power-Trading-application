@@ -32,11 +32,21 @@ if not DATABASE_URL:
         # Fallback to SQLite for local development
         DATABASE_URL = f"sqlite:///{os.path.join(os.path.dirname(__file__), '..', 'power_trading.db')}"
 
+# Force SQLite for local development (override Railway .env)
+import platform
+if platform.system() == "Windows" and "postgresql" in (DATABASE_URL or ""):
+    # Check if psycopg2 is available
+    try:
+        import psycopg2
+    except ImportError:
+        print("WARNING: psycopg2 not installed. Using SQLite for local development.")
+        DATABASE_URL = f"sqlite:///{os.path.join(os.path.dirname(__file__), '..', 'power_trading.db')}"
+
 # Fix for Railway PostgreSQL URL (uses postgres:// instead of postgresql://)
 if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
-print(f"🗄️  Database: {'PostgreSQL (Production)' if 'postgresql' in DATABASE_URL else 'SQLite (Development)'}")
+print(f"Database: {'PostgreSQL (Production)' if 'postgresql' in DATABASE_URL else 'SQLite (Development)'}")
 
 # Create engine with appropriate settings
 if "postgresql" in DATABASE_URL:
@@ -78,4 +88,4 @@ def init_db():
     """
     from database.models import Client, Portfolio, DailyFile, Transaction, MonthlyCalculation
     Base.metadata.create_all(bind=engine)
-    print(f"✅ Database initialized successfully")
+    print(f"Database initialized successfully")
