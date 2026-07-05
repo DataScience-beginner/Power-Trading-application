@@ -49,14 +49,15 @@ const Workbooks: FC = () => {
   const handleLogin = async () => {
     try {
       const res = await axios.post(`${API_BASE}/auth/login`, {
-        username: 'admin',
-        password: 'admin123',
+        email: 'admin@demo.local',
+        password: 'Admin123!',
+        portal: 'admin',
       });
       localStorage.setItem('token', res.data.access_token);
       setSuccess('Login successful! You can now upload workbooks.');
       fetchWorkbooks();
     } catch (err: any) {
-      setError('Login failed. Using default tenant mode.');
+      setError('Login failed. Using demo mode for viewing.');
       // Set a demo token for viewing
       localStorage.setItem('token', 'demo-token');
     }
