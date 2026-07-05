@@ -28,4 +28,5 @@ RUN cd frontend-react && \
 EXPOSE 8000
 
 # Start server (database will initialize on startup)
-CMD uvicorn api.main:app --host 0.0.0.0 --port ${PORT:-8000}
+# Using shell form so $PORT env variable expands correctly on Railway
+CMD ["sh", "-c", "uvicorn api.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
