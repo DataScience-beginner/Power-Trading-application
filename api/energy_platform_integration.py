@@ -23,11 +23,9 @@ from excel_consumption_service.models.base import Base
 from excel_consumption_service.models import *  # Ensure all models are loaded
 from excel_consumption_service.db.bootstrap import seed_reference_data
 
-# Create the integration router
-energy_router = APIRouter(prefix="/api/v1", tags=["energy-platform"])
-
-# Mount the existing energy platform router under /api/v1
-energy_router.include_router(energy_platform_router)
+# The energy platform router already has /api/v1 prefix in its routes
+# Mount directly without adding another prefix
+energy_router = energy_platform_router
 
 def init_energy_platform_db():
     """Initialize the energy platform database tables."""
