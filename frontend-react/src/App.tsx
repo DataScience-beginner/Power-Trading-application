@@ -1,4 +1,4 @@
-import { useState, FC } from 'react';
+import { useState, FC, useEffect } from 'react';
 import { Box, CssBaseline, Toolbar } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import Navbar from './components/Navbar';
@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard';
 import EnergySchedule from './pages/EnergySchedule';
 import Analytics from './pages/Analytics';
 import Reports from './pages/Reports';
+import Workbooks from './pages/Workbooks';
 import FileUploadDialog from './components/FileUploadDialog';
 import CalculateEnergyScheduleDialog from './components/CalculateEnergyScheduleDialog';
 import { useAppDispatch } from './hooks/useAppStore';
@@ -30,7 +31,7 @@ const App: FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [calculateDialogOpen, setCalculateDialogOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState<'dashboard' | 'energySchedule' | 'analytics' | 'reports'>('dashboard');
+  const [currentPage, setCurrentPage] = useState<'dashboard' | 'energySchedule' | 'analytics' | 'reports' | 'workbooks'>('dashboard');
   const dispatch = useAppDispatch();
 
   const handleMenuClick = () => {
@@ -83,6 +84,7 @@ const App: FC = () => {
           {currentPage === 'energySchedule' && <EnergySchedule />}
           {currentPage === 'analytics' && <Analytics />}
           {currentPage === 'reports' && <Reports />}
+          {currentPage === 'workbooks' && <Workbooks />}
         </Box>
       </Box>
       <FileUploadDialog

@@ -21,6 +21,7 @@ import {
   ExpandMore,
   Business as BusinessIcon,
   CalendarMonth as CalendarIcon,
+  CloudUpload as CloudUploadIcon,
 } from '@mui/icons-material';
 import { useAppDispatch, useAppSelector } from '../hooks/useAppStore';
 import { fetchClients } from '../store/dashboardSlice';
@@ -30,8 +31,8 @@ const drawerWidth = 260;
 interface SidebarProps {
   open: boolean;
   onPortfolioSelect: (portfolio: string) => void;
-  currentPage: 'dashboard' | 'energySchedule' | 'analytics' | 'reports';
-  onPageChange: (page: 'dashboard' | 'energySchedule' | 'analytics' | 'reports') => void;
+  currentPage: 'dashboard' | 'energySchedule' | 'analytics' | 'reports' | 'workbooks';
+  onPageChange: (page: 'dashboard' | 'energySchedule' | 'analytics' | 'reports' | 'workbooks') => void;
 }
 
 const Sidebar: FC<SidebarProps> = ({ open, onPortfolioSelect, currentPage, onPageChange }) => {
@@ -121,6 +122,18 @@ const Sidebar: FC<SidebarProps> = ({ open, onPortfolioSelect, currentPage, onPag
                 <AssessmentIcon color={currentPage === 'reports' ? 'primary' : 'inherit'} />
               </ListItemIcon>
               <ListItemText primary="Reports" />
+            </ListItemButton>
+          </ListItem>
+
+          <ListItem disablePadding>
+            <ListItemButton
+              selected={currentPage === 'workbooks'}
+              onClick={() => onPageChange('workbooks')}
+            >
+              <ListItemIcon>
+                <CloudUploadIcon color={currentPage === 'workbooks' ? 'primary' : 'inherit'} />
+              </ListItemIcon>
+              <ListItemText primary="Workbooks" />
             </ListItemButton>
           </ListItem>
         </List>
