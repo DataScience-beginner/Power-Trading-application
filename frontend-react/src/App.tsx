@@ -43,13 +43,8 @@ const App: FC = () => {
   };
 
   const handleUploadSuccess = () => {
-    // Refresh data after successful upload
-    const filter = {
-      startDate: new Date(new Date().setMonth(new Date().getMonth() - 1))
-        .toISOString()
-        .split('T')[0],
-      endDate: new Date().toISOString().split('T')[0],
-    };
+    // Refresh data after successful upload without narrowing to the current month.
+    const filter = {};
     dispatch(fetchTransactions(filter));
     dispatch(fetchAnalytics(filter));
   };

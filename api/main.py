@@ -869,6 +869,7 @@ async def get_clients(db: Session = Depends(get_db)):
 
 @app.get("/api/transactions/all")
 async def get_all_transactions(
+    portfolio: str = None,
     portfolio_code: str = None,
     start_date: str = None,
     end_date: str = None,
@@ -883,8 +884,13 @@ async def get_all_transactions(
         query = db.query(Transaction).join(DailyFile).join(Portfolio)
         
         # Apply filters
-        if portfolio_code:
-            query = query.filter(Portfolio.portfolio_code == portfolio_code)
+        selected_portfolio = portfolio_code or portfolio
+
+        if selected_portfolio:
+            query = query.filter(
+                (Portfolio.portfolio_code == selected_portfolio) |
+                (Portfolio.client.has(entity_name=selected_portfolio))
+            )
         
         if start_date:
             start = datetime.fromisoformat(start_date).date()
@@ -937,6 +943,7 @@ async def get_all_transactions(
 
 @app.get("/api/analytics/summary")
 async def get_analytics_summary(
+    portfolio: str = None,
     portfolio_code: str = None,
     start_date: str = None,
     end_date: str = None,
@@ -951,8 +958,13 @@ async def get_analytics_summary(
         # Build base query
         file_query = db.query(DailyFile).join(Portfolio)
         
-        if portfolio_code:
-            file_query = file_query.filter(Portfolio.portfolio_code == portfolio_code)
+        selected_portfolio = portfolio_code or portfolio
+
+        if selected_portfolio:
+            file_query = file_query.filter(
+                (Portfolio.portfolio_code == selected_portfolio) |
+                (Portfolio.client.has(entity_name=selected_portfolio))
+            )
         
         if start_date:
             start = datetime.fromisoformat(start_date).date()
@@ -971,8 +983,11 @@ async def get_analytics_summary(
         # Get transaction stats
         txn_query = db.query(Transaction).join(DailyFile).join(Portfolio)
         
-        if portfolio_code:
-            txn_query = txn_query.filter(Portfolio.portfolio_code == portfolio_code)
+        if selected_portfolio:
+            txn_query = txn_query.filter(
+                (Portfolio.portfolio_code == selected_portfolio) |
+                (Portfolio.client.has(entity_name=selected_portfolio))
+            )
         
         if start_date:
             txn_query = txn_query.filter(Transaction.date >= datetime.fromisoformat(start_date).date())
@@ -984,8 +999,11 @@ async def get_analytics_summary(
         
         # Calculate net amount
         total_amount = db.query(func.sum(Transaction.amount)).join(DailyFile).join(Portfolio)
-        if portfolio_code:
-            total_amount = total_amount.filter(Portfolio.portfolio_code == portfolio_code)
+        if selected_portfolio:
+            total_amount = total_amount.filter(
+                (Portfolio.portfolio_code == selected_portfolio) |
+                (Portfolio.client.has(entity_name=selected_portfolio))
+            )
         if start_date:
             total_amount = total_amount.filter(Transaction.date >= datetime.fromisoformat(start_date).date())
         if end_date:

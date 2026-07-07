@@ -107,8 +107,8 @@ export interface AnalyticsResponse {
 
 // Filter types
 export interface DateFilter {
-  startDate: string;
-  endDate: string;
+  startDate?: string;
+  endDate?: string;
 }
 
 export interface TransactionFilter extends DateFilter {

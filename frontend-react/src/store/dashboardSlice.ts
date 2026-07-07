@@ -26,10 +26,7 @@ const initialState: DashboardState = {
   summary: null,
   hourlyDistribution: [],
   portfolioComparison: [],
-  filter: {
-    startDate: new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString().split('T')[0],
-    endDate: new Date().toISOString().split('T')[0],
-  },
+  filter: {},
   loading: false,
   error: null,
 };
