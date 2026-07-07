@@ -32,6 +32,9 @@ const Workbooks: FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
+  const getWorkbookId = (workbook: any): string | undefined =>
+    workbook?.workbook_id || workbook?.id;
+
   const ensureToken = async (): Promise<string | null> => {
     const existing = localStorage.getItem('token');
     if (existing && existing.trim().length > 0) {
@@ -218,8 +221,11 @@ const Workbooks: FC = () => {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {workbooks.map((wb: any) => (
-                        <TableRow key={wb.id}>
+                      {workbooks.map((wb: any) => {
+                        const workbookId = getWorkbookId(wb);
+
+                        return (
+                        <TableRow key={workbookId || wb.file_name}>
                           <TableCell>{wb.original_file_name || wb.file_name}</TableCell>
                           <TableCell>{wb.workbook_month || '-'}</TableCell>
                           <TableCell>
@@ -234,18 +240,18 @@ const Workbooks: FC = () => {
                             </Typography>
                           </TableCell>
                           <TableCell>
-                            {wb.status === 'calculated' && (
+                            {wb.status === 'calculated' && workbookId && (
                               <Button
                                 size="small"
                                 variant="text"
-                                onClick={() => handleViewResults(wb.id)}
+                                onClick={() => handleViewResults(workbookId)}
                               >
                                 View Results
                               </Button>
                             )}
                           </TableCell>
                         </TableRow>
-                      ))}
+                      )})}
                     </TableBody>
                   </Table>
                 </TableContainer>
