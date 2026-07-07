@@ -18,6 +18,25 @@ A complete **Excel-to-Schema conversion system** for energy trading data.
 
 ## ⚡ Quick Test (5 minutes)
 
+## 🖥️ Windows One-Click Local Run (Desktop + Backend)
+
+From project root:
+
+```bat
+run_desktop_with_backend.bat
+```
+
+Useful options:
+
+```bat
+run_desktop_with_backend.bat --keep-backend
+run_desktop_with_backend.bat --check
+run_desktop_app.bat
+run_desktop_app.bat --check
+```
+
+This is the fastest way to test locally with backend auto-start and health-check.
+
 ### Step 1: Install Requirements
 ```bash
 pip install pandas openpyxl xlrd --break-system-packages

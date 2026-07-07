@@ -44,6 +44,7 @@ app.add_middleware(
 # Mount static files - check multiple possible locations
 frontend_dir = Path(__file__).parent.parent / "frontend"
 frontend_react_dist = Path(__file__).parent.parent / "frontend-react" / "dist"
+frontend_react_public = Path(__file__).parent.parent / "frontend-react" / "public"
 
 if frontend_react_dist.exists():
     # Production: serve React build
@@ -65,6 +66,13 @@ async def startup_event():
     """Initialize database when app starts"""
     print("Initializing database...")
     init_db()
+    
+    # Initialize Energy Platform database (auth, workbooks tables)
+    try:
+        init_energy_platform_db()
+    except Exception as e:
+        print(f"WARNING: Energy Platform DB init failed: {e}")
+    
     print("Database ready")
     
     # Load mock data if database is empty
@@ -78,9 +86,16 @@ async def startup_event():
             if len(clients) == 0:
                 print("Database is empty, loading mock data...")
                 import subprocess
-                subprocess.run(["python", "generate_mock_reports.py"], check=False)
-                subprocess.run(["python", "upload_mock_reports.py"], check=False)
-                print("✅ Mock data loaded")
+                gen_result = subprocess.run([sys.executable, "generate_mock_reports.py"], check=False)
+                upload_result = subprocess.run([sys.executable, "upload_mock_reports.py"], check=False)
+
+                if gen_result.returncode == 0 and upload_result.returncode == 0:
+                    print("✅ Mock data loaded")
+                else:
+                    print(
+                        "⚠️ Mock data scripts completed with errors "
+                        f"(generate={gen_result.returncode}, upload={upload_result.returncode})"
+                    )
             else:
                 print(f"Database has {len(clients)} clients already")
         finally:
@@ -111,6 +126,39 @@ async def root():
             "docs": "/docs"
         }
     }
+
+@app.get("/manifest.json")
+async def web_manifest():
+    """Serve PWA manifest from React dist in production."""
+    manifest_file = frontend_react_dist / "manifest.json"
+    if manifest_file.exists():
+        return FileResponse(manifest_file, media_type="application/manifest+json")
+    public_manifest = frontend_react_public / "manifest.json"
+    if public_manifest.exists():
+        return FileResponse(public_manifest, media_type="application/manifest+json")
+    raise HTTPException(status_code=404, detail="Manifest not found")
+
+@app.get("/sw.js")
+async def service_worker():
+    """Serve service worker from React dist in production."""
+    sw_file = frontend_react_dist / "sw.js"
+    if sw_file.exists():
+        return FileResponse(sw_file, media_type="application/javascript")
+    public_sw = frontend_react_public / "sw.js"
+    if public_sw.exists():
+        return FileResponse(public_sw, media_type="application/javascript")
+    raise HTTPException(status_code=404, detail="Service worker not found")
+
+@app.get("/vite.svg")
+async def vite_icon():
+    """Serve favicon icon requested by default Vite template."""
+    icon_file = frontend_react_dist / "vite.svg"
+    if icon_file.exists():
+        return FileResponse(icon_file, media_type="image/svg+xml")
+    public_icon = frontend_react_public / "vite.svg"
+    if public_icon.exists():
+        return FileResponse(public_icon, media_type="image/svg+xml")
+    raise HTTPException(status_code=404, detail="Icon not found")
 
 @app.get("/parser")
 async def parser_ui():

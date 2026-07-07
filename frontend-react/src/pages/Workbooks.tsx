@@ -20,6 +20,11 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import axios from 'axios';
 
 const API_BASE = '/api/v1';
+const DEMO_LOGIN = {
+  email: 'admin@demo.local',
+  password: 'Admin123!',
+  portal: 'admin',
+};
 
 const Workbooks: FC = () => {
   const [workbooks, setWorkbooks] = useState<any[]>([]);
@@ -27,18 +32,36 @@ const Workbooks: FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
+  const ensureToken = async (): Promise<string | null> => {
+    const existing = localStorage.getItem('token');
+    if (existing && existing.trim().length > 0) {
+      return existing;
+    }
+
+    try {
+      const res = await axios.post(`${API_BASE}/auth/login`, DEMO_LOGIN);
+      const accessToken = res.data?.access_token as string | undefined;
+      if (accessToken) {
+        localStorage.setItem('token', accessToken);
+        return accessToken;
+      }
+    } catch {
+      return null;
+    }
+
+    return null;
+  };
+
   const fetchWorkbooks = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = await ensureToken();
       const headers: any = {};
       if (token) headers['Authorization'] = `Bearer ${token}`;
       
       const res = await axios.get(`${API_BASE}/workbooks`, { headers });
       setWorkbooks(res.data || []);
     } catch (err: any) {
-      if (err.response?.status !== 401) {
-        setError('Failed to load workbooks. You may need to login first.');
-      }
+      setError('Failed to load workbooks. Login may be required.');
     }
   };
 
@@ -48,18 +71,12 @@ const Workbooks: FC = () => {
 
   const handleLogin = async () => {
     try {
-      const res = await axios.post(`${API_BASE}/auth/login`, {
-        email: 'admin@demo.local',
-        password: 'Admin123!',
-        portal: 'admin',
-      });
+      const res = await axios.post(`${API_BASE}/auth/login`, DEMO_LOGIN);
       localStorage.setItem('token', res.data.access_token);
       setSuccess('Login successful! You can now upload workbooks.');
       fetchWorkbooks();
     } catch (err: any) {
-      setError('Login failed. Using demo mode for viewing.');
-      // Set a demo token for viewing
-      localStorage.setItem('token', 'demo-token');
+      setError('Login failed. Please verify backend auth setup.');
     }
   };
 
@@ -72,7 +89,7 @@ const Workbooks: FC = () => {
     setSuccess(null);
 
     try {
-      const token = localStorage.getItem('token');
+      const token = await ensureToken();
       const formData = new FormData();
       formData.append('file', file);
 
@@ -91,7 +108,7 @@ const Workbooks: FC = () => {
 
   const handleViewResults = async (workbookId: string) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = await ensureToken();
       const headers: any = {};
       if (token) headers['Authorization'] = `Bearer ${token}`;
       

@@ -75,13 +75,13 @@ def upload_report_file(file_path: Path, db_session):
             for txn in parsed_data.get('sell_transactions', []):
                 transactions_to_save.append({**txn, 'transaction_type': 'sell'})
         
-        saved_transactions = db_services.save_transactions(
+        saved_transactions_count = db_services.save_transactions(
             db_session,
             daily_file_id=daily_file.id,
             transactions=transactions_to_save
         )
         
-        print(f"  ✅ {filename}: {client.entity_name} - {len(saved_transactions)} transactions")
+        print(f"  ✅ {filename}: {client.entity_name} - {saved_transactions_count} transactions")
         return True
         
     except Exception as e:

@@ -13,6 +13,8 @@ from dotenv import load_dotenv
 
 # Load environment variables from .env file
 load_dotenv()
+# Also load Railway profile when present for local parity with production
+load_dotenv(".env.railway", override=False)
 
 # Get database URL from environment (Railway sets this for PostgreSQL)
 # Falls back to SQLite for local development
@@ -32,19 +34,18 @@ if not DATABASE_URL:
         # Fallback to SQLite for local development
         DATABASE_URL = f"sqlite:///{os.path.join(os.path.dirname(__file__), '..', 'power_trading.db')}"
 
-# Force SQLite for local development (override Railway .env)
-import platform
-if platform.system() == "Windows" and "postgresql" in (DATABASE_URL or ""):
-    # Check if psycopg2 is available
-    try:
-        import psycopg2
-    except ImportError:
-        print("WARNING: psycopg2 not installed. Using SQLite for local development.")
-        DATABASE_URL = f"sqlite:///{os.path.join(os.path.dirname(__file__), '..', 'power_trading.db')}"
+# Optional local override for SQLite-only runs
+if os.getenv("FORCE_SQLITE", "false").lower() in ("1", "true", "yes"):
+    DATABASE_URL = f"sqlite:///{os.path.join(os.path.dirname(__file__), '..', 'power_trading.db')}"
 
 # Fix for Railway PostgreSQL URL (uses postgres:// instead of postgresql://)
 if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
+# Railway Postgres typically requires SSL for external connections.
+if DATABASE_URL and DATABASE_URL.startswith("postgresql://") and "sslmode=" not in DATABASE_URL:
+    separator = "&" if "?" in DATABASE_URL else "?"
+    DATABASE_URL = f"{DATABASE_URL}{separator}sslmode=require"
 
 print(f"Database: {'PostgreSQL (Production)' if 'postgresql' in DATABASE_URL else 'SQLite (Development)'}")
 

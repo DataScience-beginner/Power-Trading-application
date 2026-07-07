@@ -122,6 +122,31 @@ Sample output showing:
 
 ## 🚀 Usage Examples
 
+## 🖥️ Windows Desktop Launch (Local Testing)
+
+Use these launchers from the project root on Windows:
+
+```bat
+run_desktop_with_backend.bat
+```
+
+What it does:
+- Starts backend API at `http://127.0.0.1:8000` (if not already running)
+- Waits for `/api/health` readiness
+- Launches desktop app from `desktop-app/run.py`
+- Stops backend when desktop app closes
+
+Optional commands:
+
+```bat
+run_desktop_with_backend.bat --keep-backend
+run_desktop_with_backend.bat --check
+run_desktop_app.bat
+run_desktop_app.bat --check
+```
+
+Use `--keep-backend` if you want backend to remain running after closing the desktop app.
+
 ### Example 1: Parse Single Excel File
 
 ```python
