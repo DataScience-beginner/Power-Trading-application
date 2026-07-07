@@ -117,6 +117,33 @@ export function UploadWorkbookPanel({ onUploaded }: UploadWorkbookPanelProps) {
             </article>
           </div>
 
+          <div className="table-wrap" style={{ marginTop: "1rem" }}>
+            <table className="data-table compact-table">
+              <thead>
+                <tr>
+                  <th>Sheet</th>
+                  <th>Type</th>
+                  <th>Status</th>
+                  <th>Rows</th>
+                  <th>Validation</th>
+                </tr>
+              </thead>
+              <tbody>
+                {result.sheet_summaries.map((sheet) => (
+                  <tr key={`${sheet.sheet_name}-${sheet.sheet_type}`}>
+                    <td>{sheet.sheet_name}</td>
+                    <td>{sheet.sheet_type}</td>
+                    <td>
+                      <span className="status-badge">{sheet.status}</span>
+                    </td>
+                    <td>{sheet.row_count ?? 0}</td>
+                    <td>{sheet.validation_summary ?? "-"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
           <div className="panel-heading-meta">
             <button
               className="secondary-button table-action-button"
@@ -152,7 +179,7 @@ export function UploadWorkbookPanel({ onUploaded }: UploadWorkbookPanelProps) {
                 </tr>
               </thead>
               <tbody>
-                {result.preview_rows.slice(0, 5).map((row) => (
+                {result.preview_rows.map((row) => (
                   <tr key={row.reading_date}>
                     <td>{row.reading_date}</td>
                     <td>{row.tneb_total.toFixed(2)}</td>
