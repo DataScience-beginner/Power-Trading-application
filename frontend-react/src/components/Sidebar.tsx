@@ -29,11 +29,14 @@ import { fetchClients } from '../store/dashboardSlice';
 
 const drawerWidth = 260;
   const isAdmin = Boolean(localStorage.getItem('admin_jwt') || sessionStorage.getItem('admin_jwt'));
+
+export type AppPage = 'dashboard' | 'energySchedule' | 'analytics' | 'reports' | 'aiPredict' | 'adminDatabase' | 'newDashboard' | 'workbooks';
+
 interface SidebarProps {
   open: boolean;
   onPortfolioSelect: (portfolio: string) => void;
-  currentPage: 'dashboard' | 'energySchedule' | 'analytics' | 'reports' | 'aiPredict' | 'adminDatabase';
-  onPageChange: (page: 'dashboard' | 'energySchedule' | 'analytics' | 'reports' | 'aiPredict' | 'adminDatabase') => void;
+  currentPage: AppPage;
+  onPageChange: (page: AppPage) => void;
 }
 
 const Sidebar: FC<SidebarProps> = ({ open, onPortfolioSelect, currentPage, onPageChange }) => {

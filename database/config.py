@@ -9,10 +9,21 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import os
+from pathlib import Path
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
-load_dotenv()
+# Load local environment files. Prefer .env.railway when present so local runs
+# target the same Railway PostgreSQL instance as deployment.
+project_root = Path(__file__).resolve().parent.parent
+railway_env_file = project_root / ".env.railway"
+default_env_file = project_root / ".env"
+
+if railway_env_file.exists():
+    load_dotenv(dotenv_path=railway_env_file, override=True)
+elif default_env_file.exists():
+    load_dotenv(dotenv_path=default_env_file)
+else:
+    load_dotenv()
 
 # Get database URL from environment (Railway sets this for PostgreSQL)
 # Falls back to SQLite for local development
@@ -76,6 +87,14 @@ def init_db():
     Initialize database by creating all tables.
     This reads all the model classes (Client, Portfolio, etc.) and creates tables.
     """
-    from database.models import Client, Portfolio, DailyFile, Transaction, MonthlyCalculation
+    from database.models import (
+        Client,
+        Portfolio,
+        DailyFile,
+        Transaction,
+        MonthlyCalculation,
+        WorkbookUploadRecord,
+        WorkbookResultRow,
+    )
     Base.metadata.create_all(bind=engine)
     print(f"✅ Database initialized successfully")

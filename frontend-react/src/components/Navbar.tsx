@@ -17,6 +17,7 @@ import {
   AccountCircle,
   UploadFile as UploadFileIcon,
   Calculate as CalculateIcon,
+  OpenInNew as OpenInNewIcon,
   // admin icon
   AdminPanelSettings as AdminPanelSettingsIcon,
 } from '@mui/icons-material';
@@ -25,10 +26,17 @@ interface NavbarProps {
   onMenuClick: () => void;
   onUploadClick: () => void;
   onCalculateClick: () => void;
+  onWorkbookInputsClick?: () => void;
   onAdminClick?: () => void;
 }
 
-const Navbar: FC<NavbarProps> = ({ onMenuClick, onUploadClick, onCalculateClick, onAdminClick }) => {
+const Navbar: FC<NavbarProps> = ({
+  onMenuClick,
+  onUploadClick,
+  onCalculateClick,
+  onWorkbookInputsClick,
+  onAdminClick,
+}) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -57,6 +65,12 @@ const Navbar: FC<NavbarProps> = ({ onMenuClick, onUploadClick, onCalculateClick,
         </Typography>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Tooltip title="Upload Inputs">
+            <IconButton color="inherit" onClick={() => onWorkbookInputsClick && onWorkbookInputsClick()}>
+              <OpenInNewIcon />
+            </IconButton>
+          </Tooltip>
+
           <Tooltip title="Calculate Energy Schedule">
             <IconButton color="inherit" onClick={onCalculateClick}>
               <CalculateIcon />

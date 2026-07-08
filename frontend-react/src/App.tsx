@@ -2,7 +2,7 @@ import { useState, FC, useEffect } from 'react';
 import { Box, CssBaseline, Toolbar } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import Navbar from './components/Navbar';
-import Sidebar from './components/Sidebar';
+import Sidebar, { type AppPage } from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
 import EnergySchedule from './pages/EnergySchedule';
 import Analytics from './pages/Analytics';
@@ -10,6 +10,7 @@ import Reports from './pages/Reports';
 import AIPredict from './pages/AIPredict';
 import AdminDatabase from './pages/AdminDatabase';
 import AdminLogin from './pages/AdminLogin';
+import WorkbookInputsPage from './pages/WorkbookInputsPage';
 import FileUploadDialog from './components/FileUploadDialog';
 import CalculateEnergyScheduleDialog from './components/CalculateEnergyScheduleDialog';
 import { useAppDispatch } from './hooks/useAppStore';
@@ -34,7 +35,7 @@ const App: FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [calculateDialogOpen, setCalculateDialogOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState<'dashboard' | 'energySchedule' | 'analytics' | 'reports' | 'aiPredict' | 'adminDatabase' | 'newDashboard'>('dashboard');
+  const [currentPage, setCurrentPage] = useState<AppPage>('dashboard');
   const dispatch = useAppDispatch();
 
   // react to URL query `?page=` so clicks that update history trigger navigation
@@ -45,8 +46,8 @@ const App: FC = () => {
         const p = url.searchParams.get('page');
         if (p && p !== currentPage) {
           // validate allowed pages
-          const allowed = ['dashboard','energySchedule','analytics','reports','aiPredict','adminDatabase', 'newDashboard'];
-          if (allowed.includes(p)) setCurrentPage(p as any);
+          const allowed = ['dashboard','energySchedule','analytics','reports','aiPredict','adminDatabase', 'newDashboard', 'workbooks'];
+          if (allowed.includes(p)) setCurrentPage(p as AppPage);
         }
       } catch (e) {}
     };
@@ -76,6 +77,10 @@ const App: FC = () => {
     dispatch(fetchAnalytics(filter));
   };
 
+  const handleWorkbookInputsClick = () => {
+    setCurrentPage('workbooks');
+  };
+
   // Simple auth check for admin
   const isAdmin = Boolean(localStorage.getItem('admin_jwt') || sessionStorage.getItem('admin_jwt'));
 
@@ -85,6 +90,7 @@ const App: FC = () => {
       <Box sx={{ display: 'flex' }}>
         <Navbar
           onMenuClick={handleMenuClick}
+          onWorkbookInputsClick={handleWorkbookInputsClick}
           onUploadClick={() => setUploadDialogOpen(true)}
           onCalculateClick={() => setCalculateDialogOpen(true)}
           onAdminClick={() => setCurrentPage('adminDatabase')}
@@ -113,6 +119,7 @@ const App: FC = () => {
           {currentPage === 'aiPredict' && <AIPredict />}
           {currentPage === 'adminDatabase' && (isAdmin ? <AdminDatabase /> : <AdminLogin onLogin={() => setCurrentPage('adminDatabase')} />)}
           {currentPage === 'newDashboard' && <NewDashboard />}
+          {currentPage === 'workbooks' && <WorkbookInputsPage />}
         </Box>
       </Box>
       <FileUploadDialog

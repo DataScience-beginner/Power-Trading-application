@@ -5,17 +5,21 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   server: {
-    host: true, // Expose the server to external connections (e.g., Codespaces)
-    port: 3000, // Default port for the Vite server
-    strictPort: true, // Ensure the server uses the specified port
+    host: '127.0.0.1',
+    port: 5173,
+    strictPort: true,
     watch: {
-      usePolling: true, // Fix for file system issues in some environments
+      usePolling: true,
     },
-    hmr: {
-      clientPort: 443, // Ensure HMR works in Codespaces
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+        secure: false,
+      },
     },
   },
   build: {
-    outDir: 'dist', // Output directory for the build
+    outDir: 'dist',
   },
 });

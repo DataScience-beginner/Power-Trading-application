@@ -388,3 +388,51 @@ class EnergyScheduleDay(Base):
     
     def __repr__(self):
         return f"<EnergyScheduleDay(id={self.id}, date={self.trading_date}, complete={self.is_complete})>"
+
+
+# ==================== TABLE 8: WORKBOOK UPLOADS ====================
+class WorkbookUploadRecord(Base):
+    """
+    Stores uploaded workbook metadata for the internal workbook flow.
+    """
+    __tablename__ = "workbook_upload_records"
+
+    id = Column(String, primary_key=True, index=True)
+    file_name = Column(String, nullable=False)
+    workbook_month = Column(String, nullable=True)
+    status = Column(String, default="uploaded", nullable=False)
+    uploaded_by = Column(String, nullable=True)
+    stored_file_path = Column(String, nullable=True)
+    uploaded_at = Column(DateTime, default=datetime.now, index=True)
+
+    result_rows = relationship(
+        "WorkbookResultRow",
+        back_populates="workbook",
+        cascade="all, delete-orphan",
+    )
+
+    def __repr__(self):
+        return f"<WorkbookUploadRecord(id={self.id}, file_name={self.file_name})>"
+
+
+# ==================== TABLE 9: WORKBOOK RESULT ROWS ====================
+class WorkbookResultRow(Base):
+    """
+    Stores calculated workbook result rows shown in the internal workbook page.
+    """
+    __tablename__ = "workbook_result_rows"
+
+    id = Column(Integer, primary_key=True, index=True)
+    workbook_id = Column(String, ForeignKey("workbook_upload_records.id"), nullable=False, index=True)
+    reading_date = Column(Date, nullable=False, index=True)
+    tneb_total = Column(Float, default=0.0)
+    iex_total = Column(Float, default=0.0)
+    solar_total = Column(Float, default=0.0)
+    tneb_balance = Column(Float, default=0.0)
+    banking_balance = Column(Float, default=0.0)
+    created_at = Column(DateTime, default=datetime.now)
+
+    workbook = relationship("WorkbookUploadRecord", back_populates="result_rows")
+
+    def __repr__(self):
+        return f"<WorkbookResultRow(id={self.id}, workbook_id={self.workbook_id}, date={self.reading_date})>"
