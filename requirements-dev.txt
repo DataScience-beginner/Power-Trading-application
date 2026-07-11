@@ -2,3 +2,6 @@
 
 # Test runner used by the Testing QA Agent rigorous gate.
 pytest>=8.0.0
+
+# Editable strategy and architecture presentations.
+python-pptx>=1.0.2

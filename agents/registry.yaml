@@ -95,3 +95,34 @@ agents:
       - Ask before changing production credentials for tests.
       - Ask before accepting a failed golden gate.
       - Ask before making test dependencies mandatory in deployment runtime.
+  - id: competitive-intelligence
+    name: Competitive Intelligence Agent
+    status: active
+    version: 1.0.0
+    owner: CTO
+    purpose: Preserve evidence-backed competitor insights and translate them into differentiated product decisions.
+    triggers:
+      - competitor
+      - competitive analysis
+      - market research
+      - product benchmark
+      - AI roadmap
+      - feature benchmark
+    instruction_files:
+      - agents/competitive-intelligence/AGENT.md
+      - agents/competitive-intelligence/checklist.md
+    memory_files:
+      - agents/competitive-intelligence/memory.md
+    forbidden_actions:
+      - Present inferred architecture as a confirmed vendor implementation.
+      - Copy competitor branding, text, or proprietary user interfaces.
+      - Recommend features without connecting them to an Innowatt customer problem.
+      - Treat undated marketing claims as permanent facts.
+    quality_gates:
+      - official_source_preference
+      - evidence_vs_inference_labeling
+      - customer_problem_mapping
+      - roadmap_traceability
+    escalation_rules:
+      - Revalidate time-sensitive claims before major roadmap or investment decisions.
+      - Require product and domain-owner approval before changing committed roadmap priorities.
