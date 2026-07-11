@@ -80,6 +80,8 @@ def provision_demo(db: Session, payload: DemoProvisionRequest) -> DemoProvisionR
                 client_id=client.id,
             )
             db.add(user); db.flush(); counts["users"] += 1
+        elif payload.reset_existing_passwords:
+            user.password_hash = hash_password(payload.default_password)
         for portfolio in portfolios:
             access = db.query(UserPortfolioAccess).filter(
                 UserPortfolioAccess.user_id == user.id,
@@ -102,7 +104,7 @@ def provision_demo(db: Session, payload: DemoProvisionRequest) -> DemoProvisionR
         clients_total=len(tenants),
         tenants=tenants,
         records_created=counts,
-        note="Demo users share the request password. Existing user passwords are never reset by repeat runs.",
+        note="Demo users share the request password. Existing passwords rotate only when reset_existing_passwords is explicitly true.",
     )
 
 

@@ -45,6 +45,8 @@ def test_demo_provisioning_is_idempotent_and_creates_five_tenants(db) -> None:
     assert second.records_created["clients"] == 0
     assert second.records_created["portfolios"] == 0
     assert second.records_created["transactions"] == 0
+    rotated = provision_demo(db, request.model_copy(update={"default_password": "RotatedPassword#2026", "reset_existing_passwords": True}))
+    assert rotated.status == "ready"
 
 
 def test_admin_lists_all_clients_while_client_lists_only_its_tenant(db) -> None:

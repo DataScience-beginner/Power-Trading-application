@@ -48,6 +48,7 @@ class DemoProvisionRequest(BaseModel):
     default_password: str = Field(..., min_length=12, max_length=200)
     days_of_history: int = Field(30, ge=14, le=90)
     portfolios_per_client: int = Field(2, ge=2, le=4)
+    reset_existing_passwords: bool = Field(False, description="Explicit admin-controlled rotation for existing demo users only.")
 
 
 class DemoTenantResponse(BaseModel):

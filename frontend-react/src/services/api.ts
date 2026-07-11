@@ -343,6 +343,7 @@ class ApiService {
       default_password: defaultPassword,
       days_of_history: 30,
       portfolios_per_client: 2,
+      reset_existing_passwords: true,
     });
     return response.data;
   }

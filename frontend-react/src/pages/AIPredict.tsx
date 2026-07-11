@@ -67,7 +67,7 @@ export default function AIPredict() {
       <CardContent><Typography variant="h6" fontWeight={800}>Demo tenant provisioning</Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>Idempotently creates five synthetic clients, two portfolios each, scoped users, generation history, and trading fixtures.</Typography>
         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-          <TextField label="Shared demo-user password" type="password" value={demoPassword} onChange={(event) => setDemoPassword(event.target.value)} helperText="Minimum 12 characters; existing passwords are not reset" fullWidth />
+          <TextField label="Shared demo-user password" type="password" value={demoPassword} onChange={(event) => setDemoPassword(event.target.value)} helperText="Minimum 12 characters; repeat provisioning rotates demo-user passwords" fullWidth />
           <Button variant="outlined" onClick={provisionDemo} disabled={loading || demoPassword.length < 12}>Provision five clients</Button>
         </Stack>
         {provisioned && <Alert severity="success" sx={{ mt: 2 }}>Ready: {provisioned.clients_total} clients. Created this run: {Object.entries(provisioned.records_created).map(([key, value]) => `${key}=${value}`).join(', ')}.</Alert>}
