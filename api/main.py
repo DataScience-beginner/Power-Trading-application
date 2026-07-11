@@ -94,7 +94,6 @@ elif frontend_dir.exists() and (frontend_dir / "static").exists():
     # Legacy: serve old frontend static files
     app.mount("/static", StaticFiles(directory=str(frontend_dir / "static")), name="static")
 
-app.include_router(web.router)
 app.include_router(health.router)
 app.include_router(clients.router)
 app.include_router(analytics.router)
@@ -105,6 +104,7 @@ app.include_router(energy_schedule.router)
 app.include_router(uploads.router)
 app.include_router(workbooks.router)
 app.include_router(admin.router)
+app.include_router(web.router)
 
 if __name__ == "__main__":
     import uvicorn

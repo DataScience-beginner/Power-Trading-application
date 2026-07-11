@@ -1,26 +1,16 @@
-import { useState, FC, useEffect } from 'react';
-import { Box, CssBaseline, Toolbar } from '@mui/material';
+import { FC } from 'react';
+import { CssBaseline } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import Navbar from './components/Navbar';
-import Sidebar, { type AppPage } from './components/Sidebar';
-import Dashboard from './pages/Dashboard';
-import EnergySchedule from './pages/EnergySchedule';
-import Analytics from './pages/Analytics';
-import Reports from './pages/Reports';
-import AIPredict from './pages/AIPredict';
-import AdminDatabase from './pages/AdminDatabase';
-import AdminLogin from './pages/AdminLogin';
-import WorkbookInputsPage from './pages/WorkbookInputsPage';
-import FileUploadDialog from './components/FileUploadDialog';
-import CalculateEnergyScheduleDialog from './components/CalculateEnergyScheduleDialog';
-import { useAppDispatch } from './hooks/useAppStore';
-import { fetchTransactions, fetchAnalytics, setFilter } from './store/dashboardSlice';
-import NewDashboard from './pages/NewDashboard';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import AppShell from './pages/AppShell';
+import SaasHome from './pages/public/SaasHome';
+import Pricing from './pages/public/Pricing';
+import Login from './pages/public/Login';
 
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#3b82f6',
+      main: '#2563eb',
     },
     secondary: {
       main: '#10b981',
@@ -29,109 +19,28 @@ const theme = createTheme({
   typography: {
     fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
   },
+  shape: {
+    borderRadius: 12,
+  },
 });
 
 const App: FC = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
-  const [calculateDialogOpen, setCalculateDialogOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState<AppPage>('dashboard');
-  const dispatch = useAppDispatch();
-
-  // react to URL query `?page=` so clicks that update history trigger navigation
-  useEffect(() => {
-    const applyPageFromUrl = () => {
-      try {
-        const url = new URL(window.location.href);
-        const p = url.searchParams.get('page');
-        if (p && p !== currentPage) {
-          // validate allowed pages
-          const allowed = ['dashboard','energySchedule','analytics','reports','aiPredict','adminDatabase', 'newDashboard', 'workbooks'];
-          if (allowed.includes(p)) setCurrentPage(p as AppPage);
-        }
-      } catch (e) {}
-    };
-
-    applyPageFromUrl();
-    window.addEventListener('popstate', applyPageFromUrl);
-    return () => window.removeEventListener('popstate', applyPageFromUrl);
-  }, [currentPage]);
-
-  const handleMenuClick = () => {
-    setSidebarOpen(!sidebarOpen);
-  };
-
-  const handlePortfolioSelect = (portfolio: string) => {
-    dispatch(setFilter({ portfolio }));
-  };
-
-  const handleUploadSuccess = () => {
-    // Refresh data after successful upload
-    const filter = {
-      startDate: new Date(new Date().setMonth(new Date().getMonth() - 1))
-        .toISOString()
-        .split('T')[0],
-      endDate: new Date().toISOString().split('T')[0],
-    };
-    dispatch(fetchTransactions(filter));
-    dispatch(fetchAnalytics(filter));
-  };
-
-  const handleWorkbookInputsClick = () => {
-    setCurrentPage('workbooks');
-  };
-
-  // Simple auth check for admin
-  const isAdmin = Boolean(localStorage.getItem('admin_jwt') || sessionStorage.getItem('admin_jwt'));
-
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box sx={{ display: 'flex' }}>
-        <Navbar
-          onMenuClick={handleMenuClick}
-          onWorkbookInputsClick={handleWorkbookInputsClick}
-          onUploadClick={() => setUploadDialogOpen(true)}
-          onCalculateClick={() => setCalculateDialogOpen(true)}
-          onAdminClick={() => setCurrentPage('adminDatabase')}
-        />
-        <Sidebar 
-          open={sidebarOpen} 
-          onPortfolioSelect={handlePortfolioSelect}
-          currentPage={currentPage}
-          onPageChange={setCurrentPage}
-        />
-        <Box
-          component="main"
-          sx={{
-            flexGrow: 1,
-            p: 3,
-            width: { sm: `calc(100% - ${sidebarOpen ? 260 : 0}px)` },
-            ml: sidebarOpen ? '260px' : 0,
-            transition: 'margin-left 0.3s',
-          }}
-        >
-          <Toolbar />
-          {currentPage === 'dashboard' && <Dashboard />}
-          {currentPage === 'energySchedule' && <EnergySchedule />}
-          {currentPage === 'analytics' && <Analytics />}
-          {currentPage === 'reports' && <Reports />}
-          {currentPage === 'aiPredict' && <AIPredict />}
-          {currentPage === 'adminDatabase' && (isAdmin ? <AdminDatabase /> : <AdminLogin onLogin={() => setCurrentPage('adminDatabase')} />)}
-          {currentPage === 'newDashboard' && <NewDashboard />}
-          {currentPage === 'workbooks' && <WorkbookInputsPage />}
-        </Box>
-      </Box>
-      <FileUploadDialog
-        open={uploadDialogOpen}
-        onClose={() => setUploadDialogOpen(false)}
-        onSuccess={handleUploadSuccess}
-      />
-      <CalculateEnergyScheduleDialog
-        open={calculateDialogOpen}
-        onClose={() => setCalculateDialogOpen(false)}
-        onSuccess={handleUploadSuccess}
-      />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<SaasHome />} />
+          <Route path="/platform" element={<SaasHome page="platform" />} />
+          <Route path="/partners" element={<SaasHome page="partners" />} />
+          <Route path="/careers" element={<SaasHome page="careers" />} />
+          <Route path="/contact" element={<SaasHome page="contact" />} />
+          <Route path="/pricing" element={<Pricing />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/app/*" element={<AppShell />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </BrowserRouter>
     </ThemeProvider>
   );
 };

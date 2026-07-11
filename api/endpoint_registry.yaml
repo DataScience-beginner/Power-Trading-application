@@ -41,6 +41,11 @@ domains:
         name: serve_energy_schedule_page
         safety: read_only
         chatbot_tool: false
+      - method: GET
+        path: /{full_path:path}
+        name: react_spa_fallback
+        safety: read_only
+        chatbot_tool: false
 
   health:
     target_router: api/routers/health.py

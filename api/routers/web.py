@@ -3,7 +3,7 @@
 from pathlib import Path
 from typing import Any
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from fastapi.responses import FileResponse
 
 
@@ -68,3 +68,21 @@ async def energy_schedule_page() -> FileResponse | dict[str, str]:
     if energy_schedule_file.exists():
         return FileResponse(energy_schedule_file)
     return {"message": "Energy Schedule page not found"}
+
+
+@router.get(
+    "/{full_path:path}",
+    summary="Serve React SPA fallback",
+    description="Serves the React application for public SaaS and authenticated app routes on direct browser refresh.",
+    response_model=None,
+)
+async def react_spa_fallback(full_path: str) -> FileResponse:
+    """Serve React index.html for browser-managed routes."""
+    if full_path.startswith("api/"):
+        raise HTTPException(status_code=404, detail="API route not found")
+
+    react_index = REACT_DIST_DIR / "index.html"
+    if react_index.exists():
+        return FileResponse(react_index)
+
+    raise HTTPException(status_code=404, detail="React application build not found")
