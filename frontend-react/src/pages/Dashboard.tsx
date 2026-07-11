@@ -147,6 +147,7 @@ const Dashboard: FC = () => {
 
           {/* Preset ranges */}
           <Stack direction="row" spacing={1}>
+            <Chip label="All Data" size="small" onClick={() => { setStartDate(''); setEndDate(''); }} clickable />
             <Chip label="Last 7d" size="small" onClick={() => { setEndDate(new Date().toISOString().split('T')[0]); setStartDate(new Date(Date.now() - 7*24*60*60*1000).toISOString().split('T')[0]); }} clickable />
             <Chip label="Last 30d" size="small" onClick={() => { setEndDate(new Date().toISOString().split('T')[0]); setStartDate(new Date(Date.now() - 30*24*60*60*1000).toISOString().split('T')[0]); }} clickable />
             <Chip label="MTD" size="small" onClick={() => { const now = new Date(); setEndDate(now.toISOString().split('T')[0]); setStartDate(new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0]); }} clickable />
