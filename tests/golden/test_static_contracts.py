@@ -17,9 +17,17 @@ def read(relative_path: str) -> str:
     return (ROOT / relative_path).read_text(encoding="utf-8")
 
 
+def read_api_python_sources() -> str:
+    """Return all active API Python source text for route contract checks."""
+    return "\n".join(
+        path.read_text(encoding="utf-8")
+        for path in sorted((ROOT / "api").rglob("*.py"))
+    )
+
+
 class ApiContractTests(unittest.TestCase):
     def test_core_api_endpoints_are_declared(self) -> None:
-        api = read("api/main.py")
+        api_sources = read_api_python_sources()
         required_routes = [
             '"/api/health"',
             '"/api/clients"',
@@ -33,7 +41,7 @@ class ApiContractTests(unittest.TestCase):
 
         for route in required_routes:
             with self.subTest(route=route):
-                self.assertIn(route, api)
+                self.assertIn(route, api_sources)
 
     def test_app_uses_database_dependency(self) -> None:
         api = read("api/main.py")

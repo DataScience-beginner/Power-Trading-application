@@ -87,6 +87,7 @@ from backend.ai.weather_fetcher import WeatherFetcher
 from backend.ai.power_model import PowerForecastModel
 from backend.ai.historical_data_fetcher import HistoricalDataFetcher
 from backend.ai.eda_module import WeatherEDA
+from api.routers import health, web
 
 app = FastAPI(
     title="Power Trading Data API",
@@ -113,6 +114,9 @@ if frontend_react_dist.exists():
 elif frontend_dir.exists() and (frontend_dir / "static").exists():
     # Legacy: serve old frontend static files
     app.mount("/static", StaticFiles(directory=str(frontend_dir / "static")), name="static")
+
+app.include_router(web.router)
+app.include_router(health.router)
 
 # Data storage
 OUTPUT_DIR = Path(__file__).parent.parent / "output"
@@ -640,54 +644,6 @@ async def startup_event():
             print("   You can upload files manually via the UI")
     else:
         print("ℹ️  AUTO_LOAD_MOCK_DATA is disabled")
-
-@app.get("/")
-async def root():
-    """Root endpoint - serves the React app"""
-    react_index = Path(__file__).parent.parent / "frontend-react" / "dist" / "index.html"
-    if react_index.exists():
-        return FileResponse(react_index)
-    
-    # Fallback to old dashboard
-    dashboard_file = frontend_dir / "dashboard.html"
-    if dashboard_file.exists():
-        return FileResponse(dashboard_file)
-    
-    return {
-        "message": "Power Trading Analytics Dashboard",
-        "version": "1.0.0",
-        "endpoints": {
-            "health": "/api/health",
-            "upload": "/api/upload",
-            "analytics": "/api/analytics/summary",
-            "docs": "/docs"
-        }
-    }
-
-@app.get("/parser")
-async def parser_ui():
-    """Parser UI - simple upload and view parsed JSON"""
-    html_file = frontend_dir / "index.html"
-    if html_file.exists():
-        return FileResponse(html_file)
-    return {"message": "Parser UI not found"}
-
-@app.get("/energy-schedule")
-async def energy_schedule_page():
-    """Energy Schedule Dashboard - daily CTU losses and cost analysis"""
-    energy_schedule_file = frontend_dir / "energy_schedule.html"
-    if energy_schedule_file.exists():
-        return FileResponse(energy_schedule_file)
-    return {"message": "Energy Schedule page not found"}
-
-@app.get("/api/health")
-async def health_check():
-    """Health check endpoint"""
-    return {
-        "status": "healthy",
-        "timestamp": datetime.now().isoformat(),
-        "service": "Power Trading API"
-    }
 
 @app.post("/api/data/bulk-upload")
 async def bulk_upload_data(
