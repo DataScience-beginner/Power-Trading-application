@@ -196,7 +196,7 @@ class SCHTemplateParser:
                         print(f"  WARNING: Could not extract issue_time: {e}")
                 
                 # Scheduling Date
-                elif 'scheduling' in cell_str:
+                elif 'scheduling' in cell_str or 'schedule date' in cell_str:
                     try:
                         date_val = df.iloc[row_idx, col_idx + 1]
                         if pd.notna(date_val):
@@ -283,6 +283,18 @@ class SCHTemplateParser:
             if match:
                 metadata['portfolio_code'] = match.group(1)
                 print(f"  Extracted portfolio_code from filename: {metadata['portfolio_code']}")
+
+        if 'entity_name' not in metadata:
+            for row_idx in range(min(10, len(df))):
+                for col_idx in range(min(5, len(df.columns))):
+                    cell_val = df.iloc[row_idx, col_idx]
+                    if pd.notna(cell_val) and str(cell_val).strip().lower().rstrip(':') == 'client name':
+                        try:
+                            name_val = df.iloc[row_idx, col_idx + 1]
+                            if pd.notna(name_val):
+                                metadata['entity_name'] = str(name_val).strip()
+                        except Exception:
+                            pass
         
         return metadata
     
@@ -302,6 +314,9 @@ class SCHTemplateParser:
                 break
         
         if data_start is None:
+            transactions = self._extract_simple_scheduling_transactions(df, scheduling_date)
+            if transactions:
+                return transactions
             print("ERROR: Could not find data start row")
             return transactions
         
@@ -438,6 +453,65 @@ class SCHTemplateParser:
         
         print(f"SUCCESS: Extracted {len(transactions)} scheduling transactions")
         
+        return transactions
+
+    def _extract_simple_scheduling_transactions(self, df: pd.DataFrame, scheduling_date: str) -> List[Dict]:
+        """Extract generated SCH rows that use Timeslot/Start/End/Scheduled columns."""
+        transactions = []
+        data_start = None
+
+        for row_idx in range(len(df)):
+            row_text = " ".join(str(val) for val in df.iloc[row_idx] if pd.notna(val))
+            if 'Timeslot' in row_text and 'Start Time' in row_text and 'Scheduled' in row_text:
+                data_start = row_idx + 1
+                break
+
+        if data_start is None:
+            return transactions
+
+        if not scheduling_date:
+            base_date = datetime.now()
+        else:
+            base_date = datetime.fromisoformat(scheduling_date)
+
+        for idx in range(data_start, len(df)):
+            row = df.iloc[idx]
+            if len(row) < 4 or pd.isna(row[1]) or pd.isna(row[2]):
+                continue
+
+            try:
+                start_text = str(row[1]).strip()
+                end_text = str(row[2]).strip()
+                if not re.match(r'\d{2}:\d{2}', start_text):
+                    continue
+
+                scheduled_kwh = float(row[3]) if pd.notna(row[3]) else 0.0
+                scheduled_mw = scheduled_kwh / 250.0
+                hour, minute = map(int, start_text.split(':'))
+                time_block_start = base_date.replace(hour=hour, minute=minute, second=0, microsecond=0)
+                time_block_end = time_block_start + timedelta(minutes=15)
+                time_slot = f"{start_text} - {end_text}"
+
+                transactions.append({
+                    'date': base_date.date().isoformat(),
+                    'time_slot': time_slot,
+                    'time_block_start': time_block_start.isoformat(),
+                    'time_block_end': time_block_end.isoformat(),
+                    'regional_injection_mw': 0.0,
+                    'regional_drawal_mw': scheduled_mw,
+                    'regional_net_mw': -scheduled_mw,
+                    'interface_injection_mw': 0.0,
+                    'interface_drawal_mw': scheduled_mw,
+                    'interface_net_mw': -scheduled_mw,
+                    'injection_losses_mw': 0.0,
+                    'drawal_losses_mw': 0.0,
+                    'total_losses_mw': 0.0,
+                    'net_scheduled_mw': -scheduled_mw
+                })
+            except (ValueError, TypeError, IndexError):
+                continue
+
+        print(f"SUCCESS: Extracted {len(transactions)} simple scheduling transactions")
         return transactions
     
     def _calculate_summary(self, transactions: List[Dict]) -> Dict[str, float]:

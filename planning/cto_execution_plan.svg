@@ -1,0 +1,139 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1700" height="1250" viewBox="0 0 1700 1250">
+  <defs>
+    <style>
+      .bg { fill: #f7fafc; }
+      .title { font: 700 38px Arial, Helvetica, sans-serif; fill: #102033; }
+      .subtitle { font: 400 18px Arial, Helvetica, sans-serif; fill: #4b5b6b; }
+      .section { fill: #ffffff; stroke: #d9e2ec; stroke-width: 2; rx: 18; }
+      .label { font: 700 18px Arial, Helvetica, sans-serif; fill: #102033; }
+      .phase-title { font: 700 17px Arial, Helvetica, sans-serif; fill: #102033; }
+      .text { font: 400 14px Arial, Helvetica, sans-serif; fill: #25364a; }
+      .small { font: 400 13px Arial, Helvetica, sans-serif; fill: #425466; }
+      .box { fill: #ffffff; stroke: #c8d3df; stroke-width: 2; rx: 10; }
+      .done { fill: #ecf8ef; stroke: #36a853; }
+      .next { fill: #fff6df; stroke: #f2a900; stroke-width: 3; }
+      .data { fill: #eaf3ff; stroke: #4a90e2; }
+      .dash { fill: #f1fbff; stroke: #2aa7c9; }
+      .secure { fill: #eef2ff; stroke: #6676d9; }
+      .plan { fill: #fff0f0; stroke: #d94b4b; }
+      .ai { fill: #f4ecff; stroke: #8b5cf6; }
+      .arrow { stroke: #64748b; stroke-width: 2.4; fill: none; marker-end: url(#arrow); }
+      .gate { fill: #102033; rx: 18; }
+      .gate-text { font: 700 13px Arial, Helvetica, sans-serif; fill: #ffffff; }
+      .principle { fill: #ffffff; stroke: #dde6ef; stroke-width: 2; rx: 12; }
+      .principle-title { font: 700 15px Arial, Helvetica, sans-serif; fill: #102033; }
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" width="1700" height="1250"/>
+
+  <text class="title" x="80" y="72">CTO Execution Plan</text>
+  <text class="subtitle" x="80" y="104">Roadmap from current V2 stabilization to PostgreSQL, agentic data operations, dashboard validation, optimization, and AI forecasting.</text>
+
+  <rect class="section" x="60" y="140" width="1580" height="160"/>
+  <text class="label" x="92" y="178">CTO Operating Principles</text>
+
+  <rect class="principle" x="92" y="205" width="210" height="62"/>
+  <text class="principle-title" x="118" y="230">Preserve Raw Data</text>
+  <text class="small" x="118" y="252">Uploads remain traceable</text>
+
+  <rect class="principle" x="326" y="205" width="210" height="62"/>
+  <text class="principle-title" x="352" y="230">Migrate Schemas</text>
+  <text class="small" x="352" y="252">No random prod edits</text>
+
+  <rect class="principle" x="560" y="205" width="210" height="62"/>
+  <text class="principle-title" x="586" y="230">Version Forecasts</text>
+  <text class="small" x="586" y="252">Models and outputs audited</text>
+
+  <rect class="principle" x="794" y="205" width="210" height="62"/>
+  <text class="principle-title" x="820" y="230">Tenant Isolation</text>
+  <text class="small" x="820" y="252">Client data stays separate</text>
+
+  <rect class="principle" x="1028" y="205" width="210" height="62"/>
+  <text class="principle-title" x="1054" y="230">Backup And Restore</text>
+  <text class="small" x="1054" y="252">Recovery must be tested</text>
+
+  <rect class="principle" x="1262" y="205" width="330" height="62"/>
+  <text class="principle-title" x="1288" y="230">Trace Every Dashboard Number</text>
+  <text class="small" x="1288" y="252">Source file -> parser -> calculation -> KPI</text>
+
+  <rect class="section" x="60" y="345" width="1580" height="715"/>
+  <text class="label" x="92" y="383">Execution Roadmap</text>
+
+  <rect class="box done" x="92" y="430" width="320" height="135"/>
+  <text class="phase-title" x="122" y="462">Phase 0: Workspace Stabilization</text>
+  <text class="text" x="122" y="493">V2 branch, mock generator, parsers,</text>
+  <text class="text" x="122" y="517">models, and architecture docs aligned.</text>
+  <text class="small" x="122" y="544">Status: in progress / mostly complete</text>
+
+  <rect class="box next" x="505" y="430" width="320" height="135"/>
+  <text class="phase-title" x="535" y="462">Phase 1: Database Foundation</text>
+  <text class="text" x="535" y="493">Confirm Railway PostgreSQL, add</text>
+  <text class="text" x="535" y="517">migrations, apply current schema.</text>
+  <text class="small" x="535" y="544">Immediate next step</text>
+
+  <rect class="box data" x="918" y="430" width="320" height="135"/>
+  <text class="phase-title" x="948" y="462">Phase 2: Mock Data Validation</text>
+  <text class="text" x="948" y="493">Load generated mock data, verify</text>
+  <text class="text" x="948" y="517">row counts and report completeness.</text>
+  <text class="small" x="948" y="544">PostgreSQL-backed test data</text>
+
+  <rect class="box dash" x="1331" y="430" width="260" height="135"/>
+  <text class="phase-title" x="1361" y="462">Phase 3: Dashboard Actuals</text>
+  <text class="text" x="1361" y="493">Trustworthy historical views,</text>
+  <text class="text" x="1361" y="517">file status, and drill-downs.</text>
+  <text class="small" x="1361" y="544">What happened?</text>
+
+  <path class="arrow" d="M412 498 L505 498"/>
+  <path class="arrow" d="M825 498 L918 498"/>
+  <path class="arrow" d="M1238 498 L1331 498"/>
+
+  <rect class="box ai" x="580" y="600" width="540" height="90"/>
+  <text class="phase-title" x="688" y="632">Phase 3A: Agentic Data Operations</text>
+  <text class="text" x="632" y="660">Email ingestion, attachment classification, validation, upload,</text>
+  <text class="text" x="670" y="682">data quality checks, dashboard summaries, exception alerts.</text>
+
+  <path class="arrow" d="M1461 565 C1461 600 1208 612 1120 645"/>
+
+  <rect class="gate" x="580" y="705" width="540" height="38"/>
+  <text class="gate-text" x="660" y="729">Review Gate: schema, data load, dashboard correctness, agent audit logs</text>
+
+  <rect class="box secure" x="92" y="790" width="320" height="135"/>
+  <text class="phase-title" x="122" y="822">Phase 4: Enterprise Controls</text>
+  <text class="text" x="122" y="853">Backups, access roles, audit trail,</text>
+  <text class="text" x="122" y="877">tenant isolation, agent permissions.</text>
+  <text class="small" x="122" y="904">Safe for real client data</text>
+
+  <rect class="box plan" x="505" y="790" width="320" height="135"/>
+  <text class="phase-title" x="535" y="822">Phase 5: Solar + Planning Model</text>
+  <text class="text" x="535" y="853">Solar bank, forecast tables,</text>
+  <text class="text" x="535" y="877">procurement plan tables.</text>
+  <text class="small" x="535" y="904">What should we do tomorrow?</text>
+
+  <rect class="box plan" x="918" y="790" width="320" height="135"/>
+  <text class="phase-title" x="948" y="822">Phase 6: Optimization Engine</text>
+  <text class="text" x="948" y="853">Recommend solar, IEX, and TNEB</text>
+  <text class="text" x="948" y="877">mix with cost/risk explanation.</text>
+  <text class="small" x="948" y="904">Decision support</text>
+
+  <rect class="box ai" x="1331" y="790" width="260" height="135"/>
+  <text class="phase-title" x="1361" y="822">Phase 7: AI Forecasting</text>
+  <text class="text" x="1361" y="853">Predict demand and IEX price,</text>
+  <text class="text" x="1361" y="877">agents prepare daily advice.</text>
+  <text class="small" x="1361" y="904">Specialist approval loop</text>
+
+  <path class="arrow" d="M580 743 C430 755 300 772 252 790"/>
+  <path class="arrow" d="M412 858 L505 858"/>
+  <path class="arrow" d="M825 858 L918 858"/>
+  <path class="arrow" d="M1238 858 L1331 858"/>
+
+  <rect class="gate" x="580" y="975" width="540" height="38"/>
+  <text class="gate-text" x="652" y="999">Review Gate: controls, planning model, agent recommendations, optimization accuracy</text>
+
+  <rect class="section" x="60" y="1100" width="1580" height="90"/>
+  <text class="label" x="92" y="1138">Immediate Next Step</text>
+  <text class="text" x="92" y="1168">Confirm Railway PostgreSQL connection, inspect schema, set up migrations, then design data intake so future email/upload/dashboard work can be performed by auditable agents.</text>
+</svg>

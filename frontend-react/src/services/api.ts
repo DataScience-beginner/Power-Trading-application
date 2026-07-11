@@ -23,7 +23,7 @@ class ApiService {
 
   constructor() {
     this.api = axios.create({
-      baseURL: '/api',
+      baseURL: import.meta.env.VITE_API_URL || '/api',
       headers: {
         'Content-Type': 'application/json',
       },
@@ -37,6 +37,19 @@ class ApiService {
         return Promise.reject(error);
       }
     );
+  }
+
+  private normalizeEnergyScheduleDay(day: any): EnergyScheduleDay {
+    return {
+      ...day,
+      gdam_total_cost: day.gdam_total_cost ?? day.gdam_cost ?? 0,
+      dam_total_cost: day.dam_total_cost ?? day.dam_cost ?? 0,
+      rtm_total_cost: day.rtm_total_cost ?? day.rtm_cost ?? 0,
+      consumption_after_losses_mwh:
+        day.consumption_after_losses_mwh ?? day.total_consumption_after_losses_mwh ?? 0,
+      total_nldc_fees: day.total_nldc_fees ?? day.total_nldc_fee ?? 0,
+      is_calculated: day.is_calculated ?? day.is_complete ?? false,
+    };
   }
 
   // Client endpoints
@@ -152,18 +165,26 @@ class ApiService {
     if (filter?.start_date) params.append('start_date', filter.start_date);
     if (filter?.end_date) params.append('end_date', filter.end_date);
 
-    const response = await this.api.get<EnergyScheduleDay[]>(
+    const response = await this.api.get<EnergyScheduleDay[] | { days?: EnergyScheduleDay[] }>(
       `/energy-schedule/days?${params.toString()}`
     );
-    return response.data;
+    const payload = response.data;
+    const days = Array.isArray(payload) ? payload : payload.days || [];
+    return days.map((day) => this.normalizeEnergyScheduleDay(day));
   }
 
   // Get specific day entry
   async getEnergyScheduleDay(portfolioId: number, tradingDate: string): Promise<EnergyScheduleDay> {
-    const response = await this.api.get<EnergyScheduleDay>(
-      `/energy-schedule/day/${portfolioId}/${tradingDate}`
+    const response = await this.api.get<EnergyScheduleDay[] | { days?: EnergyScheduleDay[] }>(
+      `/energy-schedule/days?portfolio_id=${portfolioId}&start_date=${tradingDate}&end_date=${tradingDate}`
     );
-    return response.data;
+    const payload = response.data;
+    const days = Array.isArray(payload) ? payload : payload.days || [];
+    const day = days[0];
+    if (!day) {
+      throw new Error(`Energy schedule day not found for portfolio ${portfolioId} on ${tradingDate}`);
+    }
+    return this.normalizeEnergyScheduleDay(day);
   }
 
   // Calculation endpoints

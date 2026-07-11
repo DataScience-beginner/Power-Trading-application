@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CTO Execution Plan</title>
+  <style>
+    :root {
+      --ink: #102033;
+      --muted: #4b5b6b;
+      --line: #d9e2ec;
+      --panel: #ffffff;
+      --bg: #f7fafc;
+      --blue: #eaf3ff;
+      --green: #ecf8ef;
+      --amber: #fff6df;
+      --red: #fff0f0;
+      --violet: #f4ecff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    main {
+      max-width: 1380px;
+      margin: 0 auto;
+      padding: 36px 28px 48px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 36px;
+      line-height: 1.12;
+    }
+
+    .subtitle {
+      margin: 0 0 24px;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.5;
+      max-width: 980px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .diagram,
+    .notes {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+    }
+
+    .diagram {
+      padding: 10px;
+      overflow: auto;
+    }
+
+    .diagram img {
+      display: block;
+      width: 100%;
+      min-width: 1060px;
+      height: auto;
+    }
+
+    .notes {
+      padding: 22px;
+    }
+
+    h2 {
+      margin: 0 0 14px;
+      font-size: 20px;
+    }
+
+    h3 {
+      margin: 22px 0 10px;
+      font-size: 15px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    li {
+      margin: 8px 0;
+      line-height: 1.45;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px 14px;
+      line-height: 1.45;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+
+    .green { background: var(--green); }
+    .amber { background: var(--amber); }
+    .blue { background: var(--blue); }
+    .red { background: var(--red); }
+    .violet { background: var(--violet); }
+
+    .next {
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 8px;
+      background: #102033;
+      color: #ffffff;
+      line-height: 1.45;
+    }
+
+    @media print {
+      body {
+        background: #ffffff;
+      }
+
+      main {
+        max-width: none;
+        padding: 20px;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .diagram,
+      .notes {
+        box-shadow: none;
+        break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>CTO Execution Plan</h1>
+    <p class="subtitle">
+      Living roadmap for turning the current application into an agentic-first SaaS power procurement platform, starting with PostgreSQL reliability and moving toward automated data operations, optimization, and AI-assisted trading decisions.
+    </p>
+
+    <section class="grid">
+      <div class="diagram">
+        <img src="cto_execution_plan.svg" alt="CTO execution plan roadmap">
+      </div>
+
+      <aside class="notes">
+        <h2>Executive Summary</h2>
+
+        <div class="card green">
+          <strong>Phase 0</strong><br>
+          Stabilize V2, mock data, parsers, models, and architecture docs.
+        </div>
+
+        <div class="card amber">
+          <strong>Phase 1</strong><br>
+          Confirm Railway PostgreSQL, add migrations, and apply schema cleanly.
+        </div>
+
+        <div class="card blue">
+          <strong>Phase 2-3A</strong><br>
+          Load mock data, make dashboards trustworthy, then automate routine BI/data operations with agents.
+        </div>
+
+        <div class="card red">
+          <strong>Phase 4-6</strong><br>
+          Add enterprise controls, agent permissions, solar bank model, and optimization engine.
+        </div>
+
+        <div class="card violet">
+          <strong>Phase 7</strong><br>
+          Add AI forecasting and agentic decision support after the data foundation is reliable.
+        </div>
+
+        <h3>Agentic-First Direction</h3>
+        <ul>
+          <li>Agents fetch client emails and attachments.</li>
+          <li>Agents validate DOR/SCH files and completeness.</li>
+          <li>Agents upload, parse, analyze, and prepare dashboards.</li>
+          <li>Humans act as specialists and exception reviewers.</li>
+        </ul>
+
+        <h3>Review Questions</h3>
+        <ul>
+          <li>What was completed?</li>
+          <li>What was validated?</li>
+          <li>What changed in the database?</li>
+          <li>What risks remain?</li>
+          <li>What should be done next?</li>
+        </ul>
+
+        <h3>CTO Rule</h3>
+        <ul>
+          <li>Raw data is preserved.</li>
+          <li>Calculated data is reproducible.</li>
+          <li>Forecasts are versioned.</li>
+          <li>Production changes use migrations.</li>
+          <li>Every KPI is traceable.</li>
+          <li>Agent actions are audited and permission-controlled.</li>
+        </ul>
+
+        <div class="next">
+          <strong>Immediate next step:</strong><br>
+          Confirm Railway PostgreSQL connection, inspect schema, set up migrations, then design data intake so future email/upload/dashboard work can be handled by auditable agents.
+        </div>
+      </aside>
+    </section>
+  </main>
+</body>
+</html>

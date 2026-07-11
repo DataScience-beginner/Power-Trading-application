@@ -26,6 +26,12 @@ env/
 ENV/
 .venv
 
+# Environment / secrets
+.env
+.env.*
+!.env.example
+!frontend-react/.env.example
+
 # IDEs
 .vscode/
 .idea/
@@ -40,11 +46,23 @@ Thumbs.db
 # Data files (optional - comment out if you want to track them)
 *.xls
 *.xlsx
+*.XLS
+*.XLSX
 *.csv
+*.CSV
+backend/data/cache/
 
 # Output
 output/*.json
 !output/.gitkeep
+
+# Frontend/package artifacts
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+build/
+**/build/
 
 # Logs
 *.log

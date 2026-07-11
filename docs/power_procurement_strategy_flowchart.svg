@@ -1,0 +1,136 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1120" viewBox="0 0 1600 1120">
+  <defs>
+    <style>
+      .bg { fill: #f7fafc; }
+      .title { font: 700 38px Arial, Helvetica, sans-serif; fill: #102033; }
+      .subtitle { font: 400 18px Arial, Helvetica, sans-serif; fill: #4b5b6b; }
+      .section-title { font: 700 22px Arial, Helvetica, sans-serif; fill: #14263a; }
+      .label { font: 700 18px Arial, Helvetica, sans-serif; fill: #102033; }
+      .text { font: 400 15px Arial, Helvetica, sans-serif; fill: #25364a; }
+      .small { font: 400 13px Arial, Helvetica, sans-serif; fill: #425466; }
+      .note { font: 700 15px Arial, Helvetica, sans-serif; fill: #102033; }
+      .box { fill: #ffffff; stroke: #c8d3df; stroke-width: 2; rx: 10; }
+      .client { fill: #eaf3ff; stroke: #4a90e2; }
+      .solar { fill: #ecf8ef; stroke: #36a853; }
+      .iex { fill: #fff6df; stroke: #f2a900; }
+      .grid { fill: #fff0f0; stroke: #d94b4b; }
+      .engine { fill: #eef2ff; stroke: #6676d9; stroke-width: 3; }
+      .decision { fill: #ffffff; stroke: #6676d9; stroke-width: 3; }
+      .output { fill: #f1fbff; stroke: #2aa7c9; }
+      .risk { fill: #fff8ed; stroke: #d98b2b; }
+      .arrow { stroke: #64748b; stroke-width: 2.4; fill: none; marker-end: url(#arrow); }
+      .arrow-soft { stroke: #94a3b8; stroke-width: 2; fill: none; marker-end: url(#arrow-soft); }
+      .lane { fill: #ffffff; stroke: #dde6ef; stroke-width: 2; rx: 18; }
+      .pill { fill: #102033; rx: 18; }
+      .pill-text { font: 700 14px Arial, Helvetica, sans-serif; fill: #ffffff; }
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+    </marker>
+    <marker id="arrow-soft" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1600" height="1120"/>
+
+  <text class="title" x="80" y="72">Power Procurement Strategy And Goal</text>
+  <text class="subtitle" x="80" y="104">Optimize when to buy IEX, when to consume solar, and how to minimize costly TNEB/Grid exposure.</text>
+
+  <rect class="pill" x="80" y="132" width="370" height="36"/>
+  <text class="pill-text" x="104" y="156">Cost order: Solar &lt; IEX &lt; TNEB/Grid</text>
+
+  <rect class="lane" x="60" y="200" width="1480" height="292"/>
+  <text class="section-title" x="88" y="238">1. Business Context And Inputs</text>
+
+  <rect class="box client" x="96" y="270" width="210" height="120"/>
+  <text class="label" x="132" y="305">Client</text>
+  <text class="text" x="122" y="334">Owns solar bank</text>
+  <text class="text" x="122" y="356">and portfolios</text>
+
+  <rect class="box solar" x="380" y="250" width="280" height="170"/>
+  <text class="label" x="420" y="286">Monthly Solar Bank</text>
+  <text class="text" x="410" y="320">Common for one client</text>
+  <text class="text" x="410" y="344">Can be used later</text>
+  <text class="text" x="410" y="368">Expires at month end</text>
+  <text class="note" x="410" y="396">Key risk: unused solar waste</text>
+
+  <rect class="box" x="730" y="250" width="280" height="170"/>
+  <text class="label" x="778" y="286">Portfolio Demand</text>
+  <text class="text" x="760" y="320">Day/night consumption</text>
+  <text class="text" x="760" y="344">96 time-slot profile</text>
+  <text class="text" x="760" y="368">Historical DOR/SCH actuals</text>
+  <text class="note" x="760" y="396">Need forecast for tomorrow</text>
+
+  <rect class="box iex" x="1080" y="250" width="280" height="170"/>
+  <text class="label" x="1130" y="286">IEX Market</text>
+  <text class="text" x="1110" y="320">Bought for the day</text>
+  <text class="text" x="1110" y="344">Must be used same day</text>
+  <text class="text" x="1110" y="368">Can be cheaper than TNEB</text>
+  <text class="note" x="1110" y="396">Key signal: price forecast</text>
+
+  <path class="arrow" d="M306 330 C334 330 346 330 380 330"/>
+  <path class="arrow" d="M306 330 C520 468 604 468 730 360"/>
+  <path class="arrow" d="M1010 335 C1038 335 1052 335 1080 335"/>
+
+  <rect class="lane" x="60" y="530" width="1480" height="286"/>
+  <text class="section-title" x="88" y="568">2. Procurement Optimization Engine</text>
+
+  <rect class="box engine" x="550" y="610" width="500" height="120"/>
+  <text class="label" x="648" y="648">Procurement Optimization Engine</text>
+  <text class="text" x="596" y="682">Compares today's IEX price, future IEX expectation,</text>
+  <text class="text" x="626" y="706">demand forecast, solar balance, and expiry pressure.</text>
+
+  <rect class="box solar" x="120" y="625" width="300" height="90"/>
+  <text class="label" x="174" y="660">Solar Pressure</text>
+  <text class="text" x="150" y="690">Remaining balance + days left</text>
+
+  <rect class="box iex" x="1180" y="625" width="300" height="90"/>
+  <text class="label" x="1232" y="660">IEX Opportunity</text>
+  <text class="text" x="1210" y="690">Today's price vs expected future price</text>
+
+  <path class="arrow" d="M520 420 C560 500 610 560 680 610"/>
+  <path class="arrow" d="M870 420 C850 500 830 560 810 610"/>
+  <path class="arrow" d="M1220 420 C1148 510 1060 560 950 610"/>
+  <path class="arrow" d="M420 670 C468 670 500 670 550 670"/>
+  <path class="arrow" d="M1180 670 C1130 670 1100 670 1050 670"/>
+
+  <rect class="decision" x="650" y="862" width="300" height="130" transform="rotate(45 800 927)"/>
+  <text class="label" x="727" y="900">Decision</text>
+  <text class="text" x="704" y="930">What should we buy</text>
+  <text class="text" x="718" y="954">or consume today?</text>
+
+  <path class="arrow" d="M800 730 L800 835"/>
+
+  <rect class="box output" x="92" y="875" width="305" height="150"/>
+  <text class="label" x="150" y="912">Buy IEX Today</text>
+  <text class="text" x="122" y="946">When IEX is cheap today</text>
+  <text class="text" x="122" y="970">and future price risk is high</text>
+  <text class="note" x="122" y="1000">Preserve solar for later</text>
+
+  <rect class="box output" x="455" y="875" width="305" height="150"/>
+  <text class="label" x="510" y="912">Use Solar Bank</text>
+  <text class="text" x="485" y="946">When IEX is expensive</text>
+  <text class="text" x="485" y="970">or solar expiry risk is high</text>
+  <text class="note" x="485" y="1000">Avoid waste before month end</text>
+
+  <rect class="box grid" x="840" y="875" width="305" height="150"/>
+  <text class="label" x="900" y="912">Use TNEB/Grid</text>
+  <text class="text" x="870" y="946">Only when demand remains</text>
+  <text class="text" x="870" y="970">after solar and IEX planning</text>
+  <text class="note" x="870" y="1000">Costly fallback</text>
+
+  <rect class="box risk" x="1205" y="875" width="305" height="150"/>
+  <text class="label" x="1270" y="912">Dashboard Output</text>
+  <text class="text" x="1235" y="946">Expected cost and savings</text>
+  <text class="text" x="1235" y="970">Solar expiry risk</text>
+  <text class="text" x="1235" y="994">Over/under purchase risk</text>
+
+  <path class="arrow" d="M700 927 C560 910 480 920 397 940"/>
+  <path class="arrow" d="M745 970 C720 990 702 1004 760 1000"/>
+  <path class="arrow" d="M905 960 C972 992 1024 1000 1145 950"/>
+  <path class="arrow" d="M950 927 C1036 910 1138 918 1205 940"/>
+
+  <rect class="lane" x="60" y="1040" width="1480" height="50"/>
+  <text class="small" x="90" y="1072">Future AI phase: predict next-day demand and IEX price, then recommend the best daily trading quantity to minimize total cost and avoid month-end solar expiry.</text>
+</svg>

@@ -1,0 +1,134 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1700" height="1200" viewBox="0 0 1700 1200">
+  <defs>
+    <style>
+      .bg { fill: #f7fafc; }
+      .title { font: 700 38px Arial, Helvetica, sans-serif; fill: #102033; }
+      .subtitle { font: 400 18px Arial, Helvetica, sans-serif; fill: #4b5b6b; }
+      .section { fill: #ffffff; stroke: #d9e2ec; stroke-width: 2; rx: 18; }
+      .section-title { font: 700 23px Arial, Helvetica, sans-serif; fill: #14263a; }
+      .label { font: 700 18px Arial, Helvetica, sans-serif; fill: #102033; }
+      .text { font: 400 14px Arial, Helvetica, sans-serif; fill: #25364a; }
+      .small { font: 400 13px Arial, Helvetica, sans-serif; fill: #425466; }
+      .box { fill: #ffffff; stroke: #c8d3df; stroke-width: 2; rx: 10; }
+      .client { fill: #eaf3ff; stroke: #4a90e2; }
+      .solar { fill: #ecf8ef; stroke: #36a853; }
+      .portfolio { fill: #eef2ff; stroke: #6676d9; }
+      .actual { fill: #f1fbff; stroke: #2aa7c9; }
+      .calc { fill: #fff6df; stroke: #f2a900; }
+      .plan { fill: #fff0f0; stroke: #d94b4b; }
+      .proposed { stroke-dasharray: 8 6; }
+      .arrow { stroke: #64748b; stroke-width: 2.4; fill: none; marker-end: url(#arrow); }
+      .arrow-soft { stroke: #94a3b8; stroke-width: 2; fill: none; marker-end: url(#arrow-soft); }
+      .divider { stroke: #cbd5e1; stroke-width: 2; stroke-dasharray: 5 7; }
+      .tag { fill: #102033; rx: 16; }
+      .tag-text { font: 700 13px Arial, Helvetica, sans-serif; fill: #ffffff; }
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+    </marker>
+    <marker id="arrow-soft" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" width="1700" height="1200"/>
+
+  <text class="title" x="80" y="72">Client And Data Model Architecture</text>
+  <text class="subtitle" x="80" y="104">Top-to-bottom data structure: current implemented report model plus proposed solar, forecast, and procurement planning layer.</text>
+
+  <rect class="box client" x="650" y="140" width="400" height="110"/>
+  <text class="label" x="815" y="178">Client</text>
+  <text class="text" x="710" y="208">Business entity with one or more portfolios</text>
+  <text class="small" x="725" y="230">Example: Mellbro Sugars Pvt / Grasim Industries</text>
+
+  <rect class="section" x="60" y="300" width="760" height="790"/>
+  <text class="section-title" x="92" y="340">Current Implemented Data Model</text>
+  <rect class="tag" x="92" y="360" width="178" height="30"/>
+  <text class="tag-text" x="112" y="381">Actuals / Dashboard</text>
+
+  <rect class="section" x="880" y="300" width="760" height="790"/>
+  <text class="section-title" x="912" y="340">Proposed Optimization Data Model</text>
+  <rect class="tag" x="912" y="360" width="182" height="30"/>
+  <text class="tag-text" x="932" y="381">Planning / Forecasting</text>
+
+  <path class="arrow" d="M760 250 C680 280 560 300 440 325"/>
+  <path class="arrow" d="M940 250 C1025 280 1140 300 1260 325"/>
+
+  <rect class="box portfolio" x="250" y="420" width="380" height="88"/>
+  <text class="label" x="400" y="454">Portfolio</text>
+  <text class="text" x="300" y="482">Portfolio code under one client</text>
+
+  <rect class="box solar proposed" x="1040" y="420" width="380" height="88"/>
+  <text class="label" x="1168" y="454">Solar Bank</text>
+  <text class="text" x="1088" y="482">Client/month level solar balance</text>
+
+  <rect class="box actual" x="115" y="575" width="260" height="118"/>
+  <text class="label" x="178" y="610">Daily Files</text>
+  <text class="text" x="145" y="638">DOR-GDAM / DAM / RTM</text>
+  <text class="text" x="145" y="662">SCH-GDAM / DAM / RTM</text>
+  <text class="small" x="145" y="684">6 files per portfolio/day</text>
+
+  <rect class="box actual" x="505" y="575" width="260" height="118"/>
+  <text class="label" x="570" y="610">Transactions</text>
+  <text class="text" x="535" y="638">Buy / Sell / Scheduling</text>
+  <text class="text" x="535" y="662">96 time slots per report</text>
+  <text class="small" x="535" y="684">15-minute resolution</text>
+
+  <path class="arrow" d="M440 508 L440 540 C440 558 395 578 375 610"/>
+  <path class="arrow" d="M375 634 C420 634 458 634 505 634"/>
+
+  <rect class="box calc" x="115" y="770" width="290" height="138"/>
+  <text class="label" x="170" y="806">Monthly Calculations</text>
+  <text class="text" x="145" y="836">Flexible dashboard calculation data</text>
+  <text class="text" x="145" y="860">Buy/sell/schedule totals</text>
+  <text class="text" x="145" y="884">Cost and profit/loss metrics</text>
+
+  <rect class="box calc" x="475" y="770" width="290" height="138"/>
+  <text class="label" x="530" y="806">Energy Schedule</text>
+  <text class="text" x="505" y="836">Month sheet</text>
+  <text class="text" x="505" y="860">Daily entries</text>
+  <text class="text" x="505" y="884">DOR summary + SCH consumption</text>
+
+  <path class="arrow" d="M245 693 C245 725 250 742 260 770"/>
+  <path class="arrow" d="M635 693 C635 725 628 742 620 770"/>
+
+  <rect class="box actual" x="250" y="960" width="380" height="80"/>
+  <text class="label" x="360" y="994">Dashboard Metrics</text>
+  <text class="text" x="300" y="1022">What happened? Actual uploads and calculations.</text>
+
+  <path class="arrow" d="M260 908 C300 930 340 948 385 960"/>
+  <path class="arrow" d="M620 908 C580 930 535 948 495 960"/>
+
+  <rect class="box solar proposed" x="1040" y="550" width="380" height="126"/>
+  <text class="label" x="1126" y="586">Solar Bank Entries</text>
+  <text class="text" x="1072" y="616">Daily allocation / consumption / expiry</text>
+  <text class="text" x="1072" y="640">Can be linked back to portfolio usage</text>
+
+  <path class="arrow" d="M1230 508 L1230 550"/>
+
+  <rect class="box portfolio proposed" x="925" y="735" width="280" height="125"/>
+  <text class="label" x="990" y="772">Demand Forecast</text>
+  <text class="text" x="955" y="802">Portfolio/day forecast</text>
+  <text class="text" x="955" y="826">Day/night + 96 slots</text>
+
+  <rect class="box portfolio proposed" x="1255" y="735" width="280" height="125"/>
+  <text class="label" x="1325" y="772">IEX Forecast</text>
+  <text class="text" x="1285" y="802">GDAM / DAM / RTM price</text>
+  <text class="text" x="1285" y="826">Timeslot price forecast</text>
+
+  <path class="arrow-soft" d="M1230 676 C1170 700 1115 715 1065 735"/>
+  <path class="arrow-soft" d="M1230 676 C1285 700 1340 715 1395 735"/>
+
+  <rect class="box plan proposed" x="1040" y="930" width="380" height="120"/>
+  <text class="label" x="1136" y="966">Procurement Plan</text>
+  <text class="text" x="1070" y="996">Recommended solar, IEX, and TNEB mix</text>
+  <text class="text" x="1070" y="1020">Expected cost, savings, and risk warning</text>
+
+  <path class="arrow" d="M1065 860 C1105 890 1150 910 1205 930"/>
+  <path class="arrow" d="M1395 860 C1355 890 1310 910 1255 930"/>
+  <path class="arrow" d="M1230 676 L1230 930"/>
+
+  <line class="divider" x1="850" y1="300" x2="850" y2="1090"/>
+
+  <text class="small" x="100" y="1138">Design principle: current tables answer “What happened?”; proposed planning tables answer “What should we do tomorrow?”</text>
+</svg>

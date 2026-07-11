@@ -81,7 +81,7 @@ def upload_report_file(file_path: Path, db_session):
             transactions=transactions_to_save
         )
         
-        print(f"  ✅ {filename}: {client.entity_name} - {len(saved_transactions)} transactions")
+        print(f"  ✅ {filename}: {client.entity_name} - {saved_transactions} transactions")
         return True
         
     except Exception as e:

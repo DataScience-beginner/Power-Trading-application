@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Power Procurement Strategy And Goal</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #102033;
+      --muted: #4b5b6b;
+      --line: #d9e2ec;
+      --panel: #ffffff;
+      --bg: #f7fafc;
+      --blue: #eaf3ff;
+      --green: #ecf8ef;
+      --amber: #fff6df;
+      --red: #fff0f0;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    main {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 36px 28px 48px;
+    }
+
+    .hero {
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 36px;
+      line-height: 1.12;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.5;
+      max-width: 920px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .diagram,
+    .notes {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+    }
+
+    .diagram {
+      padding: 10px;
+      overflow: auto;
+    }
+
+    .diagram img {
+      display: block;
+      width: 100%;
+      min-width: 980px;
+      height: auto;
+    }
+
+    .notes {
+      padding: 22px;
+    }
+
+    h2 {
+      margin: 0 0 14px;
+      font-size: 20px;
+    }
+
+    h3 {
+      margin: 22px 0 10px;
+      font-size: 15px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    li {
+      margin: 8px 0;
+      line-height: 1.45;
+    }
+
+    .rule {
+      display: grid;
+      gap: 10px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px 14px;
+      line-height: 1.45;
+      font-size: 14px;
+    }
+
+    .green { background: var(--green); }
+    .amber { background: var(--amber); }
+    .red { background: var(--red); }
+    .blue { background: var(--blue); }
+
+    .formula {
+      margin: 14px 0 0;
+      padding: 12px 14px;
+      border-radius: 8px;
+      background: #102033;
+      color: #ffffff;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    @media print {
+      body {
+        background: #ffffff;
+      }
+
+      main {
+        max-width: none;
+        padding: 20px;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .diagram,
+      .notes {
+        box-shadow: none;
+        break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <h1>Power Procurement Strategy And Goal</h1>
+      <p class="subtitle">
+        Visual summary of how the application should decide when to buy IEX, when to consume the monthly solar bank, and when TNEB/Grid becomes the fallback source.
+      </p>
+    </section>
+
+    <section class="grid">
+      <div class="diagram">
+        <img src="power_procurement_strategy_flowchart.svg" alt="Power procurement strategy flowchart">
+      </div>
+
+      <aside class="notes">
+        <h2>Core Idea</h2>
+        <p>
+          The application is not only a report dashboard. It is a procurement optimization system that helps reduce total power cost.
+        </p>
+
+        <div class="formula">Solar &lt; IEX &lt; TNEB/Grid</div>
+
+        <h3>Important Rule</h3>
+        <div class="rule">
+          <div class="card amber">
+            If IEX is cheap today, buy IEX first and preserve solar for later days.
+          </div>
+          <div class="card green">
+            If IEX is expensive, consume solar and avoid unnecessary market purchase.
+          </div>
+          <div class="card red">
+            Near month end, use solar aggressively if the remaining balance may expire.
+          </div>
+          <div class="card blue">
+            Use TNEB/Grid only for the uncovered gap after planning.
+          </div>
+        </div>
+
+        <h3>Decision Inputs</h3>
+        <ul>
+          <li>Tomorrow demand forecast</li>
+          <li>Tomorrow IEX price forecast</li>
+          <li>Remaining monthly solar bank</li>
+          <li>Days left before expiry</li>
+          <li>TNEB/Grid tariff</li>
+          <li>Historical DOR/SCH actuals</li>
+        </ul>
+
+        <h3>Final Output</h3>
+        <ul>
+          <li>IEX quantity to buy</li>
+          <li>Solar quantity to consume</li>
+          <li>TNEB/Grid fallback exposure</li>
+          <li>Expected cost and savings</li>
+          <li>Expiry and purchase risk warning</li>
+        </ul>
+      </aside>
+    </section>
+  </main>
+</body>
+</html>

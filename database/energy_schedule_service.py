@@ -173,7 +173,7 @@ class EnergyScheduleCalculator:
         }
         
         for dor_file in dor_files:
-            market = dor_file.market_type
+            market = dor_file.sub_category
             
             # Get transactions for this file
             transactions = db.query(Transaction).filter(
@@ -223,7 +223,7 @@ class EnergyScheduleCalculator:
                 timeslot_data.append({
                     "time_slot": txn.time_slot,
                     "consumption": txn.quantity_mw or 0,
-                    "market": sch_file.market_type
+                    "market": sch_file.sub_category
                 })
         
         return timeslot_data

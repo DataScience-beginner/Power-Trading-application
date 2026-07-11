@@ -616,27 +616,30 @@ async def startup_event():
     init_db()
     print("✅ Database ready")
     
-    # Load mock data if database is empty
-    try:
-        from database.config import SessionLocal
-        from database.services import get_all_clients
-        
-        db = SessionLocal()
+    if os.getenv("AUTO_LOAD_MOCK_DATA", "false").lower() == "true":
         try:
-            clients = get_all_clients(db)
-            if len(clients) == 0:
-                print("📊 Database is empty, loading mock data...")
-                import subprocess
-                subprocess.run(["python", "generate_mock_reports.py"], check=False)
-                subprocess.run(["python", "upload_mock_reports.py"], check=False)
-                print("✅ Mock data loaded")
-            else:
-                print(f"✅ Database has {len(clients)} clients already")
-        finally:
-            db.close()
-    except Exception as e:
-        print(f"⚠️  Mock data load failed: {e}")
-        print("   You can upload files manually via the UI")
+            from database.config import SessionLocal
+            from database.services import get_all_clients
+            
+            db = SessionLocal()
+            try:
+                clients = get_all_clients(db)
+                if len(clients) == 0:
+                    print("📊 Database is empty, loading mock data...")
+                    import subprocess
+                    subprocess.run(["python", "generate_mock_reports.py"], check=False)
+                    subprocess.run(["python", "upload_mock_reports.py"], check=False)
+                    subprocess.run(["python", "rebuild_energy_schedules.py"], check=False)
+                    print("✅ Mock data loaded")
+                else:
+                    print(f"✅ Database has {len(clients)} clients already")
+            finally:
+                db.close()
+        except Exception as e:
+            print(f"⚠️  Mock data load failed: {e}")
+            print("   You can upload files manually via the UI")
+    else:
+        print("ℹ️  AUTO_LOAD_MOCK_DATA is disabled")
 
 @app.get("/")
 async def root():
@@ -936,109 +939,27 @@ async def upload_file(
         print(f"   - File ID: {daily_file.id}")
         print(f"   - Transactions: {txn_count}")
         
-        # ==================== STORY 3.1 & 3.2: AUTO-TRANSFER TO ENERGY SCHEDULE ====================
+        # ==================== AUTO-BUILD ENERGY SCHEDULE FROM DB DATA ====================
         energy_schedule_result = None
         try:
-            from parsers.DOR_EnergySchedule_Parser import DOR_EnergyScheduleParser
-            from parsers.SCH_Energy_Schedule_Parser import SCH_EnergyScheduleParser
-            from database.energy_schedule_crud import (
-                get_or_create_daily_entry,
-                update_daily_entry_dor_data,
-                update_daily_entry_sch_data,
-                calculate_daily_entry
+            from database.energy_schedule_builder import rebuild_energy_schedule_for_day
+
+            print(f"\n⚡ REBUILDING ENERGY SCHEDULE FROM SAVED DATA...")
+
+            energy_schedule_result = rebuild_energy_schedule_for_day(
+                db,
+                portfolio_id=portfolio.id,
+                trading_date=trading_date
             )
-            
-            print(f"\n⚡ AUTO-TRANSFER TO ENERGY SCHEDULE...")
-            
-            # Determine if this is a DOR or SCH file
-            is_dor = metadata.get('main_category') == 'DOR'
-            is_sch = metadata.get('main_category') == 'SCH'
-            
-            if is_dor or is_sch:
-                # Get or create daily entry
-                daily_entry = get_or_create_daily_entry(
-                    db,
-                    portfolio_id=portfolio.id,
-                    trading_date=trading_date
-                )
-                
-                print(f"   ✅ Daily entry: {daily_entry.id} for {trading_date}")
-                
-                if is_dor:
-                    # Parse with DOR Energy Schedule Parser
-                    dor_parser = DOR_EnergyScheduleParser(str(temp_file))
-                    dor_data = dor_parser.parse()
-                    
-                    market_type = metadata.get('sub_category', 'DAM')  # GDAM, DAM, or RTM
-                    
-                    # Update daily entry with DOR data
-                    daily_entry = update_daily_entry_dor_data(
-                        db,
-                        daily_entry_id=daily_entry.id,
-                        market_type=market_type,
-                        dor_data=dor_data
-                    )
-                    
-                    print(f"   ✅ {market_type} DOR data transferred")
-                    print(f"      NLDC Fee: ₹{dor_data['summary']['nldc_application_fee']:.2f}")
-                    print(f"      CTU Charges: ₹{dor_data['summary']['ctu_transmission_charges']['total']:.2f}")
-                    print(f"      Total Cost: ₹{dor_data['summary']['total_cost']:.2f}")
-                    
-                elif is_sch:
-                    # Parse with SCH Energy Schedule Parser
-                    sch_parser = SCH_EnergyScheduleParser(str(temp_file))
-                    sch_data = sch_parser.parse()
-                    
-                    # Update daily entry with SCH data
-                    daily_entry = update_daily_entry_sch_data(
-                        db,
-                        daily_entry_id=daily_entry.id,
-                        sch_data=sch_data
-                    )
-                    
-                    print(f"   ✅ SCH consumption data transferred")
-                    print(f"      Total Consumption: {sch_data['consumption_after_losses']['total_mwh']:.2f} MWh")
-                    print(f"      Combined Losses: {sch_data['losses']['combined_percent']:.2f}%")
-                
-                # STORY 3.2: Auto-trigger calculations if all files present
-                if daily_entry.has_gdam_data and daily_entry.has_dam_data and daily_entry.has_rtm_data and daily_entry.has_sch_data:
-                    print(f"\n   🎯 ALL 4 FILES PRESENT - AUTO-CALCULATING...")
-                    
-                    daily_entry = calculate_daily_entry(db, daily_entry.id)
-                    
-                    print(f"   ✅ CALCULATIONS COMPLETE:")
-                    print(f"      Total Scheduled: {daily_entry.total_scheduled_mwh:.2f} MWh")
-                    print(f"      CTU Losses: {daily_entry.ctu_losses_mwh:.2f} MWh ({daily_entry.ctu_losses_percent:.2f}%)")
-                    print(f"      Energy Savings: {daily_entry.energy_savings_mwh:.2f} MWh")
-                    print(f"      Total Cost: ₹{daily_entry.total_cost:.2f}")
-                    
-                    energy_schedule_result = {
-                        "auto_calculated": True,
-                        "total_scheduled_mwh": daily_entry.total_scheduled_mwh,
-                        "ctu_losses_percent": daily_entry.ctu_losses_percent,
-                        "energy_savings_mwh": daily_entry.energy_savings_mwh,
-                        "total_cost": daily_entry.total_cost
-                    }
-                else:
-                    print(f"\n   ⏳ Waiting for remaining files:")
-                    print(f"      GDAM: {'✅' if daily_entry.has_gdam_data else '❌'}")
-                    print(f"      DAM:  {'✅' if daily_entry.has_dam_data else '❌'}")
-                    print(f"      RTM:  {'✅' if daily_entry.has_rtm_data else '❌'}")
-                    print(f"      SCH:  {'✅' if daily_entry.has_sch_data else '❌'}")
-                    
-                    energy_schedule_result = {
-                        "auto_calculated": False,
-                        "files_present": {
-                            "gdam": daily_entry.has_gdam_data == 1,
-                            "dam": daily_entry.has_dam_data == 1,
-                            "rtm": daily_entry.has_rtm_data == 1,
-                            "sch": daily_entry.has_sch_data == 1
-                        },
-                        "message": "Waiting for remaining files to auto-calculate"
-                    }
-                
+            energy_schedule_result["auto_calculated"] = energy_schedule_result["is_complete"]
+
+            print(f"   ✅ Energy schedule day: {energy_schedule_result['daily_entry_id']}")
+            print(f"      Complete: {energy_schedule_result['is_complete']}")
+            print(f"      Files found: {energy_schedule_result['files_found']}")
+            print(f"      Total scheduled: {energy_schedule_result['total_scheduled_mwh']:.2f} MWh")
+            print(f"      Total consumption: {energy_schedule_result['total_consumption_after_losses_mwh']:.2f} MWh")
         except Exception as e:
-            print(f"\n   ⚠️  Energy Schedule transfer skipped: {str(e)}")
+            print(f"\n   ⚠️  Energy Schedule rebuild skipped: {str(e)}")
             energy_schedule_result = {
                 "auto_calculated": False,
                 "error": str(e)

@@ -28,9 +28,15 @@ import { useAppDispatch, useAppSelector } from '../hooks/useAppStore';
 import { fetchClients } from '../store/dashboardSlice';
 
 const drawerWidth = 260;
-  const isAdmin = Boolean(localStorage.getItem('admin_jwt') || sessionStorage.getItem('admin_jwt'));
-
-export type AppPage = 'dashboard' | 'energySchedule' | 'analytics' | 'reports' | 'aiPredict' | 'adminDatabase' | 'newDashboard' | 'workbooks';
+export type AppPage =
+  | 'dashboard'
+  | 'energySchedule'
+  | 'analytics'
+  | 'reports'
+  | 'aiPredict'
+  | 'adminDatabase'
+  | 'newDashboard'
+  | 'workbooks';
 
 interface SidebarProps {
   open: boolean;

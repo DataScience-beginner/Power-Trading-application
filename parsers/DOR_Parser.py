@@ -64,7 +64,11 @@ class GDAMTemplateParser:
         charges = self._extract_charges(df)
         
         # Extract transactions based on format
-        if file_format == 'DAILY_OBLIGATION':
+        if file_format == 'SIMPLE_DOR':
+            transactions = self._extract_simple_dor_transactions(df, metadata['delivery_date'])
+            buy_transactions = transactions
+            sell_transactions = []
+        elif file_format == 'DAILY_OBLIGATION':
             # Daily Obligation format has combined transactions
             transactions = self._extract_daily_obligation_transactions(df, metadata['delivery_date'])
             # For Daily Obligation, all transactions are typically purchases (negative amounts)
@@ -173,6 +177,13 @@ class GDAMTemplateParser:
     
     def _detect_format(self, df: pd.DataFrame) -> str:
         """Detect if file is GDAM format or Daily Obligation format"""
+        # Lightweight mock-generator format used by generate_mock_reports.py
+        for idx in range(min(20, len(df))):
+            row = df.iloc[idx]
+            row_text = " ".join(str(val) for val in row if pd.notna(val))
+            if 'Time Slot' in row_text and 'Quantity' in row_text and 'Amount' in row_text:
+                return 'SIMPLE_DOR'
+
         # Look for "Daily Trade Report" header (Daily Obligation format)
         for idx in range(min(50, len(df))):
             row = df.iloc[idx]
@@ -315,8 +326,68 @@ class GDAMTemplateParser:
             metadata['remarks'] = ' | '.join(remarks[:5])  # Limit to first 5 remarks
         else:
             metadata['remarks'] = ''
+
+        # Lightweight mock files keep metadata as simple label/value rows.
+        self._extract_simple_metadata(df, metadata, file_path)
         
         return metadata
+
+    def _extract_simple_metadata(self, df: pd.DataFrame, metadata: Dict[str, Any], file_path: str = None) -> None:
+        """Fill metadata from simple generated mock files without disturbing real IEX files."""
+        label_map = {
+            'trading date': 'trading_date',
+            'delivery date': 'delivery_date',
+            'schedule date': 'delivery_date',
+            'scheduling date': 'delivery_date',
+            'entity id': 'entity_id',
+            'client code': 'portfolio_code',
+            'portfolio code': 'portfolio_code',
+            'client name': 'entity_name',
+            'entity name': 'entity_name',
+            'portfolio name': 'portfolio_name',
+        }
+
+        for row_idx in range(min(15, len(df))):
+            for col_idx in range(min(8, len(df.columns))):
+                label = df.iloc[row_idx, col_idx]
+                if pd.isna(label):
+                    continue
+
+                label_text = str(label).strip().lower().rstrip(':')
+                target = label_map.get(label_text)
+                if not target or col_idx + 1 >= len(df.columns):
+                    continue
+
+                value = df.iloc[row_idx, col_idx + 1]
+                if pd.isna(value):
+                    continue
+
+                if target.endswith('_date'):
+                    try:
+                        parsed = value.date().isoformat() if isinstance(value, datetime) else pd.to_datetime(value).date().isoformat()
+                        metadata[target] = parsed
+                        if target == 'delivery_date' and 'trading_date' not in metadata:
+                            metadata['trading_date'] = parsed
+                    except Exception:
+                        pass
+                else:
+                    metadata[target] = str(value).strip()
+
+        if 'delivery_date' not in metadata and 'trading_date' in metadata:
+            metadata['delivery_date'] = metadata['trading_date']
+        if 'trading_date' not in metadata and 'delivery_date' in metadata:
+            metadata['trading_date'] = metadata['delivery_date']
+
+        if 'entity_id' not in metadata:
+            metadata['entity_id'] = 'A2AR0NPT0000'
+
+        if 'portfolio_code' not in metadata and file_path:
+            match = re.search(r'(NPT\d+_[A-Z]+\d+)', os.path.basename(file_path).upper())
+            if match:
+                metadata['portfolio_code'] = match.group(1)
+
+        if 'entity_name' not in metadata:
+            metadata['entity_name'] = 'Mellbro Sugars Pvt'
     
     def _extract_charges(self, df: pd.DataFrame) -> Dict[str, float]:
         """Extract all charges from charges section"""
@@ -432,6 +503,68 @@ class GDAMTemplateParser:
                         charges['formulas']['sldc_scheduling_charges'] = combined_formula
         
         return charges
+
+    def _extract_simple_dor_transactions(self, df: pd.DataFrame, delivery_date: str) -> List[Dict]:
+        """Extract 96 time-slot rows from generated mock DOR files."""
+        transactions = []
+        data_start = None
+
+        for idx in range(min(30, len(df))):
+            row_text = " ".join(str(val) for val in df.iloc[idx] if pd.notna(val))
+            if 'Time Slot' in row_text and 'Quantity' in row_text:
+                data_start = idx + 1
+                break
+
+        if data_start is None:
+            for idx in range(len(df)):
+                first = df.iloc[idx, 0] if len(df.columns) else None
+                if pd.notna(first) and re.match(r'\d{2}:\d{2}\s*-\s*\d{2}:\d{2}', str(first).strip()):
+                    data_start = idx
+                    break
+
+        if data_start is None:
+            print("WARNING: Could not find simple DOR time-slot section")
+            return transactions
+
+        base_date = datetime.fromisoformat(delivery_date)
+
+        for idx in range(data_start, len(df)):
+            row = df.iloc[idx]
+            time_block = row[0] if len(row) > 0 else None
+
+            if pd.isna(time_block):
+                continue
+
+            time_block = str(time_block).strip()
+            if 'total' in time_block.lower():
+                break
+            if not re.match(r'\d{2}:\d{2}\s*-\s*\d{2}:\d{2}', time_block):
+                continue
+
+            try:
+                quantity = float(row[1]) if len(row) > 1 and pd.notna(row[1]) else 0.0
+                rate = float(row[2]) if len(row) > 2 and pd.notna(row[2]) else 0.0
+                amount = float(row[3]) if len(row) > 3 and pd.notna(row[3]) else quantity * rate * 0.25
+                start_time = time_block.split('-')[0].strip()
+                hour, minute = map(int, start_time.split(':'))
+                time_block_start = base_date.replace(hour=hour, minute=minute, second=0, microsecond=0)
+                time_block_end = time_block_start + timedelta(minutes=15)
+
+                transactions.append({
+                    'date': base_date.date().isoformat(),
+                    'time_slot': time_block,
+                    'time_block_start': time_block_start.isoformat(),
+                    'time_block_end': time_block_end.isoformat(),
+                    'quantity_mw': quantity,
+                    'rate_per_mwh': rate,
+                    'amount': amount
+                })
+            except (ValueError, TypeError, IndexError):
+                continue
+
+        transactions.sort(key=lambda x: x['time_block_start'])
+        print(f"INFO: Extracted {len(transactions)} simple DOR transactions")
+        return transactions
     
     def _extract_daily_obligation_transactions(self, df: pd.DataFrame, delivery_date: str) -> List[Dict]:
         """Extract transactions from Daily Obligation Summary format"""

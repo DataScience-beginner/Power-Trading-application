@@ -1,6 +1,8 @@
 """
-Generate mock DOR and SCH reports for testing the energy schedule calculation engine
-Creates 10 days of realistic mock data (Jan 13-22, 2026)
+Generate parser-compatible mock DOR and SCH reports.
+Creates a full month of 6 files per day:
+- DOR-GDAM, DOR-DAM, DOR-RTM
+- SCH-GDAM, SCH-DAM, SCH-RTM
 """
 
 import openpyxl
@@ -66,31 +68,33 @@ def create_dor_report(trading_date, market_type="GDAM"):
     )
     
     # Set column widths
-    ws.column_dimensions['A'].width = 25
-    ws.column_dimensions['B'].width = 15
-    ws.column_dimensions['C'].width = 15
-    ws.column_dimensions['D'].width = 15
-    ws.column_dimensions['E'].width = 15
-    ws.column_dimensions['F'].width = 15
+    ws.column_dimensions['A'].width = 18
+    ws.column_dimensions['B'].width = 16
+    ws.column_dimensions['C'].width = 16
+    ws.column_dimensions['D'].width = 16
     
     # Title
     ws['A1'] = f"IEX - Daily Obligation Summary Report ({market_type})"
     ws['A1'].font = Font(bold=True, size=14)
-    ws.merge_cells('A1:F1')
+    ws.merge_cells('A1:D1')
     
     # Report metadata
     ws['A3'] = "Trading Date:"
     ws['B3'] = trading_date.strftime("%d-%b-%Y")
-    ws['A4'] = "Client Code:"
-    ws['B4'] = CLIENT_CODE
-    ws['A5'] = "Client Name:"
-    ws['B5'] = CLIENT_NAME.replace("_", " ")
-    ws['A6'] = "Market Type:"
-    ws['B6'] = market_type
+    ws['A4'] = "Delivery Date:"
+    ws['B4'] = trading_date.strftime("%d-%b-%Y")
+    ws['A5'] = "Entity ID:"
+    ws['B5'] = "A2AR0NPT0000"
+    ws['A6'] = "Client Code:"
+    ws['B6'] = CLIENT_CODE
+    ws['A7'] = "Client Name:"
+    ws['B7'] = CLIENT_NAME.replace("_", " ")
+    ws['A8'] = "Market Type:"
+    ws['B8'] = market_type
     
-    # Header row
-    row = 8
-    headers = ["Description", "Scheduled (kWh)", "Deviation (kWh)", "Charges (₹)", "Rate (₹/kWh)", "Total Cost (₹)"]
+    # Header row. DOR_Parser reads this lightweight mock layout directly.
+    row = 10
+    headers = ["Time Slot", "Quantity (MW)", "Rate (₹/MWh)", "Amount (₹)"]
     for col, header in enumerate(headers, start=1):
         cell = ws.cell(row=row, column=col, value=header)
         cell.fill = header_fill
@@ -98,33 +102,41 @@ def create_dor_report(trading_date, market_type="GDAM"):
         cell.alignment = center
         cell.border = border
     
-    # Generate realistic data
-    scheduled_total = random.uniform(45000, 55000)
-    deviation = random.uniform(-2000, 2000)
-    deviation_charges = abs(deviation) * random.uniform(5.5, 7.5)
-    transmission_loss_pct = random.uniform(3.5, 4.5)
-    transmission_loss = scheduled_total * (transmission_loss_pct / 100)
-    transmission_charges = transmission_loss * random.uniform(4.2, 5.8)
-    
-    # Data rows
-    data_rows = [
-        ["Scheduled Energy", scheduled_total, deviation, deviation_charges, 
-         random.uniform(5.5, 7.5), scheduled_total * random.uniform(4.5, 5.5)],
-        ["Transmission Loss", transmission_loss, 0, transmission_charges,
-         random.uniform(4.2, 5.8), transmission_charges],
-        ["Energy Charges", "", "", "",  "", scheduled_total * random.uniform(4.5, 5.5)],
-        ["Total Payable", "", "", "", "", 
-         scheduled_total * random.uniform(4.5, 5.5) + deviation_charges + transmission_charges]
-    ]
-    
-    for data_row in data_rows:
+    consumption_data = generate_realistic_consumption()
+    market_multiplier = {"GDAM": 0.92, "DAM": 1.00, "RTM": 0.35}[market_type]
+    rate_base = {"GDAM": 4200, "DAM": 5000, "RTM": 6200}[market_type]
+    total_quantity = 0.0
+    total_amount = 0.0
+
+    for timeslot_num in range(1, 97):
         row += 1
+        minutes_from_start = (timeslot_num - 1) * 15
+        start_time = datetime.combine(trading_date, datetime.min.time()) + timedelta(minutes=minutes_from_start)
+        end_time = start_time + timedelta(minutes=15)
+        quantity_mw = round((consumption_data[timeslot_num - 1] / 1000.0) * market_multiplier, 3)
+        rate = round(rate_base + random.uniform(-300, 450), 2)
+        amount = round(quantity_mw * rate * 0.25, 2)
+        total_quantity += quantity_mw
+        total_amount += amount
+
+        data_row = [
+            f"{start_time.strftime('%H:%M')} - {end_time.strftime('%H:%M')}",
+            quantity_mw,
+            rate,
+            amount
+        ]
+
         for col, value in enumerate(data_row, start=1):
             cell = ws.cell(row=row, column=col, value=value)
             cell.border = border
             cell.alignment = center
-            if isinstance(value, (int, float)) and value != "":
+            if isinstance(value, (int, float)):
                 cell.number_format = '#,##0.00'
+
+    row += 1
+    ws.cell(row=row, column=1, value="Total").font = Font(bold=True)
+    ws.cell(row=row, column=2, value=round(total_quantity, 3)).font = Font(bold=True)
+    ws.cell(row=row, column=4, value=round(total_amount, 2)).font = Font(bold=True)
     
     # Save file
     date_str = trading_date.strftime("%d%m%y")
@@ -133,7 +145,7 @@ def create_dor_report(trading_date, market_type="GDAM"):
     wb.save(filepath)
     return filepath
 
-def create_sch_report(trading_date):
+def create_sch_report(trading_date, market_type="GDAM"):
     """
     Create mock SCH (Scheduling) Excel file
     Format matches: IEX260114SCH_NPT0019_TN0_Grasim_Industries_Limited.xlsx
@@ -160,12 +172,12 @@ def create_sch_report(trading_date):
     ws.column_dimensions['D'].width = 18
     
     # Title
-    ws['A1'] = f"IEX - Scheduling Report (GDAM)"
+    ws['A1'] = f"IEX - Scheduling Report ({market_type})"
     ws['A1'].font = Font(bold=True, size=14)
     ws.merge_cells('A1:D1')
     
     # Report metadata
-    ws['A3'] = "Schedule Date:"
+    ws['A3'] = "Scheduling Date:"
     ws['B3'] = trading_date.strftime("%d-%b-%Y")
     ws['A4'] = "Client Code:"
     ws['B4'] = CLIENT_CODE
@@ -218,7 +230,10 @@ def create_sch_report(trading_date):
     
     # Save file
     date_str = trading_date.strftime("%d%m%y")
-    filename = f"IEX{date_str}SCH_{CLIENT_CODE}_{CLIENT_NAME}.xlsx"
+    if market_type == "DAM":
+        filename = f"IEX{date_str}SCH_{CLIENT_CODE}_{CLIENT_NAME}.xlsx"
+    else:
+        filename = f"{market_type}_IEX{date_str}SCH_{CLIENT_CODE}_{CLIENT_NAME}.xlsx"
     filepath = os.path.join(OUTPUT_DIR, filename)
     wb.save(filepath)
     return filepath
@@ -242,10 +257,11 @@ def generate_all_mock_reports():
             generated_files.append(filepath)
             print(f"  ✓ Created DOR-{market_type}: {os.path.basename(filepath)}")
         
-        # Generate SCH report (GDAM)
-        filepath = create_sch_report(current_date)
-        generated_files.append(filepath)
-        print(f"  ✓ Created SCH: {os.path.basename(filepath)}")
+        # Generate SCH reports (3 types: GDAM, DAM, RTM)
+        for market_type in ["GDAM", "DAM", "RTM"]:
+            filepath = create_sch_report(current_date, market_type)
+            generated_files.append(filepath)
+            print(f"  ✓ Created SCH-{market_type}: {os.path.basename(filepath)}")
     
     print(f"\n✅ Generated {len(generated_files)} mock report files")
     print(f"📁 Location: {OUTPUT_DIR}")
