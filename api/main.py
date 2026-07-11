@@ -8,7 +8,7 @@ Version: 1.0.1
 from fastapi import FastAPI, File, UploadFile, HTTPException, Depends, Body, Header
 from database.config import get_db
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, FileResponse, StreamingResponse
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from typing import List, Optional, Dict, Any
@@ -83,11 +83,7 @@ from parsers.SCH_Parser import SCHTemplateParser
 from database.config import get_db, init_db
 from database import services as db_services
 from database.models import WorkbookUploadRecord, WorkbookResultRow
-from backend.ai.weather_fetcher import WeatherFetcher
-from backend.ai.power_model import PowerForecastModel
-from backend.ai.historical_data_fetcher import HistoricalDataFetcher
-from backend.ai.eda_module import WeatherEDA
-from api.routers import analytics, clients, health, reports, web
+from api.routers import ai, analytics, clients, health, reports, web
 
 app = FastAPI(
     title="Power Trading Data API",
@@ -120,6 +116,7 @@ app.include_router(health.router)
 app.include_router(clients.router)
 app.include_router(analytics.router)
 app.include_router(reports.router)
+app.include_router(ai.router)
 
 # Data storage
 OUTPUT_DIR = Path(__file__).parent.parent / "output"
@@ -1813,201 +1810,6 @@ async def get_energy_savings_summary(
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error calculating energy savings: {str(e)}")
-
-
-# ===========================
-# AI POWER FORECASTING ENDPOINTS
-# ===========================
-
-weather_fetcher = WeatherFetcher()
-power_model = PowerForecastModel()
-historical_fetcher = HistoricalDataFetcher()
-eda_analyzer = WeatherEDA()
-
-@app.get("/api/ai/weather/{client_id}")
-async def get_weather_forecast(
-    client_id: str,
-    lat: float,
-    lon: float,
-    days_ahead: int = 7
-):
-    """
-    Get weather data for AI power forecasting
-    
-    Args:
-        client_id: Client identifier
-        lat: Latitude (e.g., 12.97 for Chennai)
-        lon: Longitude (e.g., 80.22 for Chennai)
-        days_ahead: Number of forecast days (default 7)
-        
-    Returns:
-        Weather data with historical summary and daily forecast
-    """
-    try:
-        weather_data = weather_fetcher.get_weather_data(lat, lon, days_ahead)
-        
-        return JSONResponse(content={
-            "success": True,
-            "client_id": client_id,
-            "data": weather_data
-        })
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Error fetching weather data: {str(e)}"
-        )
-
-
-@app.post("/api/ai/forecast-power/{client_id}")
-async def forecast_power_generation(
-    client_id: str,
-    lat: float = Body(...),
-    lon: float = Body(...),
-    capacity_kw: float = Body(5000),
-    farm_type: str = Body("solar"),
-    days_ahead: int = Body(7)
-):
-    """
-    AI-powered power generation forecast
-    
-    Args:
-        client_id: Client identifier
-        lat: Latitude
-        lon: Longitude
-        capacity_kw: Farm capacity in kW (default 5000)
-        farm_type: "solar" or "wind" (default "solar")
-        days_ahead: Forecast days (default 7)
-        
-    Returns:
-        Power forecast with p10/p50/p90 confidence intervals and recommended bid
-    """
-    try:
-        # Get weather data
-        weather_data = weather_fetcher.get_weather_data(lat, lon, days_ahead)
-        daily_weather = weather_data.get("daily_forecast", [])
-        
-        # Run power forecast model
-        forecast = power_model.forecast_power(
-            daily_weather=daily_weather,
-            capacity_kw=capacity_kw,
-            farm_type=farm_type
-        )
-        
-        return JSONResponse(content={
-            "success": True,
-            "client_id": client_id,
-            "forecast": forecast,
-            "weather_summary": weather_data.get("historical_summary"),
-            "location": {"lat": lat, "lon": lon}
-        })
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Error generating power forecast: {str(e)}"
-        )
-
-
-@app.get("/api/ai/inspect-weather/{client_id}")
-async def inspect_weather_data(
-    client_id: str,
-    lat: float,
-    lon: float,
-    days_ahead: int = 7
-):
-    """
-    EDA: Inspect weather data before forecasting
-    Returns detailed weather stats and data quality checks
-    """
-    try:
-        weather_data = weather_fetcher.get_weather_data(lat, lon, days_ahead)
-        historical = weather_data.get("historical_summary", {})
-        daily = weather_data.get("daily_forecast", [])
-        
-        # Calculate statistics
-        ghi_values = [d.get("ghi_wh_m2", 0) for d in daily]
-        temp_values = [d.get("temp_c", 0) for d in daily]
-        precip_values = [d.get("precip_mm", 0) for d in daily]
-        cloud_risks = [d.get("cloud_risk", 0) for d in daily]
-        
-        stats = {
-            "ghi_stats": {
-                "min": round(min(ghi_values) if ghi_values else 0, 2),
-                "max": round(max(ghi_values) if ghi_values else 0, 2),
-                "avg": round(sum(ghi_values) / len(ghi_values) if ghi_values else 0, 2)
-            },
-            "temp_stats": {
-                "min": round(min(temp_values) if temp_values else 0, 1),
-                "max": round(max(temp_values) if temp_values else 0, 1),
-                "avg": round(sum(temp_values) / len(temp_values) if temp_values else 0, 1)
-            },
-            "precip_stats": {
-                "total": round(sum(precip_values), 1),
-                "rainy_days": sum(1 for p in precip_values if p > 1)
-            },
-            "cloud_risk_stats": {
-                "avg": round(sum(cloud_risks) / len(cloud_risks) if cloud_risks else 0, 2),
-                "high_risk_days": sum(1 for c in cloud_risks if c > 0.6)
-            }
-        }
-        
-        quality_checks = {
-            "all_dates_present": len(daily) == days_ahead,
-            "data_completeness": f"{len(daily)}/{days_ahead} days"
-        }
-        
-        return JSONResponse(content={
-            "success": True,
-            "client_id": client_id,
-            "location": {"lat": lat, "lon": lon},
-            "historical_summary": historical,
-            "statistics": stats,
-            "quality_checks": quality_checks,
-            "daily_forecast": daily
-        })
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
-
-
-@app.get("/api/ai/historical-data/{client_id}")
-async def get_historical_data(
-    client_id: str,
-    lat: float,
-    lon: float,
-    years: int = 10
-):
-    """
-    Step 1: Fetch 10 years of historical weather data with progress logs
-    Shows raw data in table format + caches for consistency
-    """
-    try:
-        result = historical_fetcher.get_historical_data(lat, lon, years)
-        return JSONResponse(content={
-            "success": True,
-            "client_id": client_id,
-            **result
-        })
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
-
-
-@app.post("/api/ai/eda-analysis/{client_id}")
-async def perform_eda(
-    client_id: str,
-    raw_data: List[Dict] = Body(...)
-):
-    """
-    Step 2: Perform EDA on historical data to find patterns
-    Analyzes monthly/seasonal trends, correlations, insights
-    """
-    try:
-        analysis = eda_analyzer.analyze(raw_data)
-        return JSONResponse(content={
-            "success": True,
-            "client_id": client_id,
-            "eda_results": analysis
-        })
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
 
 
 if __name__ == "__main__":
