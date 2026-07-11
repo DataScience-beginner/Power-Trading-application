@@ -53,3 +53,45 @@ agents:
       - Ask before rewriting Git history.
       - Ask before changing production credentials.
       - Ask before broad database destructive operations.
+  - id: testing-qa
+    name: Testing QA Agent
+    status: active
+    version: 1.0.0
+    owner: CTO
+    purpose: Own automated test gates, endpoint contract checks, and release validation depth.
+    triggers:
+      - test
+      - tests
+      - testing
+      - qa
+      - quality gate
+      - pre-commit
+      - endpoint
+      - api endpoint
+      - regression
+      - rigorous testing
+      - deployment validation
+      - chatbot endpoint
+    instruction_files:
+      - agents/testing-qa/AGENT.md
+      - agents/testing-qa/checklist.md
+    memory_files:
+      - agents/testing-qa/memory.md
+    forbidden_actions:
+      - Run unbounded tests that can hang indefinitely.
+      - Mutate production data during automated tests.
+      - Treat local SQLite data as production truth.
+      - Skip golden checks before committing code.
+      - Hide skipped checks from the final report.
+    quality_gates:
+      - golden_smoke
+      - golden_standard
+      - golden_rigorous
+      - api_contracts
+      - frontend_build
+      - python_compile
+    escalation_rules:
+      - Ask before adding tests that write to production or staging data.
+      - Ask before changing production credentials for tests.
+      - Ask before accepting a failed golden gate.
+      - Ask before making test dependencies mandatory in deployment runtime.

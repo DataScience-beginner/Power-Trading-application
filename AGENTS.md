@@ -18,10 +18,11 @@ agents/registry.yaml
 
 If the task matches a registered agent trigger, load that agent package before acting.
 
-Current active agent:
+Current active agents:
 
 ```text
 agents/codebase-qc/
+agents/testing-qa/
 ```
 
 ## Mission
@@ -69,7 +70,8 @@ The QC agent protects:
 
 5. Put tests in `tests/`.
    - Test files should not live in root.
-   - Prefer `python -m pytest tests/...` for test execution.
+   - The default pre-commit gate is `python scripts/quality/golden_test.py --mode standard`.
+   - Use the Testing QA Agent to choose smoke, standard, or rigorous depth.
 
 6. Keep only one active app copy.
    - Active frontend: `frontend-react/`
@@ -106,12 +108,26 @@ git ls-files '.env' '.env.*' '*.db' '*.pid' '*.log' '*.zip' '**/node_modules/*' 
 
 Expected result for the last command: no tracked files, except allowed examples like `.env.example`.
 
-For code changes, run the relevant checks:
+For code changes, run the golden gate:
+
+```bash
+python scripts/quality/golden_test.py --mode standard
+```
+
+For risky releases, API refactors, database/model changes, parser changes, calculation changes, or chatbot/tool endpoints, run:
+
+```bash
+python scripts/quality/golden_test.py --mode rigorous
+```
+
+The golden gate includes the relevant checks:
 
 ```bash
 python -m compileall -q api database parsers backend scripts tests
 cd frontend-react && npm run build
 ```
+
+If a check is skipped or cannot run, the checkpoint summary must say why.
 
 ## Required PR / checkpoint summary
 
