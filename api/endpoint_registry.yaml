@@ -1,0 +1,326 @@
+version: 1
+updated_at: "2026-07-11"
+purpose: >
+  Enterprise endpoint registry for humans, agents, chatbots, tests, and refactors.
+  Every API route should be listed here with ownership, intent, safety level,
+  response contract status, and future router placement.
+
+governance:
+  source_code_current: api/main.py
+  target_architecture: api/routers/*
+  openapi_source: FastAPI generated /openapi.json
+  rule: Update this file whenever an endpoint is added, removed, renamed, or materially changed.
+  pydantic_policy:
+    request_models_required_for: ["POST", "PUT", "PATCH"]
+    response_models_required_for_new_endpoints: true
+    endpoint_docstrings_required: true
+    route_summary_required: true
+    route_description_required: true
+  safety_levels:
+    read_only: Safe for chatbot/agent read tools.
+    controlled_write: Requires validation and audit logging.
+    destructive: Requires explicit human/admin approval.
+    external_dependency: Calls external network/API or requires external service.
+
+domains:
+  web_pages:
+    target_router: api/routers/web.py
+    endpoints:
+      - method: GET
+        path: /
+        name: serve_frontend_or_api_root
+        safety: read_only
+        chatbot_tool: false
+      - method: GET
+        path: /parser
+        name: serve_parser_page
+        safety: read_only
+        chatbot_tool: false
+      - method: GET
+        path: /energy-schedule
+        name: serve_energy_schedule_page
+        safety: read_only
+        chatbot_tool: false
+
+  health:
+    target_router: api/routers/health.py
+    endpoints:
+      - method: GET
+        path: /api/health
+        name: health_check
+        safety: read_only
+        chatbot_tool: true
+        response_model_needed: true
+
+  admin:
+    target_router: api/routers/admin.py
+    endpoints:
+      - method: POST
+        path: /api/admin/login
+        name: admin_login
+        safety: controlled_write
+        chatbot_tool: false
+        request_model_present: true
+        response_model_present: true
+      - method: GET
+        path: /api/admin/me
+        name: get_current_admin_profile
+        safety: read_only
+        chatbot_tool: false
+      - method: GET
+        path: /api/admin/tables
+        name: list_admin_tables
+        safety: read_only
+        chatbot_tool: false
+      - method: GET
+        path: /api/admin/table/{table_name}
+        name: get_admin_table_rows
+        safety: read_only
+        chatbot_tool: false
+      - method: POST
+        path: /api/admin/reset-database
+        name: reset_database
+        safety: destructive
+        chatbot_tool: false
+
+  workbook_auth:
+    target_router: api/routers/workbook_auth.py
+    endpoints:
+      - method: POST
+        path: /api/v1/auth/login
+        name: workbook_login
+        safety: controlled_write
+        chatbot_tool: false
+        request_model_present: true
+        response_model_present: true
+
+  workbooks:
+    target_router: api/routers/workbooks.py
+    endpoints:
+      - method: GET
+        path: /api/v1/workbooks
+        name: list_workbooks
+        safety: read_only
+        chatbot_tool: true
+        response_model_present: true
+      - method: POST
+        path: /api/v1/workbooks/upload
+        name: upload_workbook
+        safety: controlled_write
+        chatbot_tool: false
+        response_model_present: true
+      - method: GET
+        path: /api/v1/workbooks/{workbook_id}/solar-working
+        name: get_workbook_solar_working
+        safety: read_only
+        chatbot_tool: true
+        response_model_present: true
+
+  upload_and_files:
+    target_router: api/routers/uploads.py
+    endpoints:
+      - method: POST
+        path: /api/data/bulk-upload
+        name: bulk_upload_data
+        safety: controlled_write
+        chatbot_tool: false
+      - method: POST
+        path: /api/upload
+        name: upload_trading_file
+        safety: controlled_write
+        chatbot_tool: false
+      - method: GET
+        path: /api/files
+        name: list_files
+        safety: read_only
+        chatbot_tool: true
+      - method: GET
+        path: /api/data/{filename}
+        name: get_file_data
+        safety: read_only
+        chatbot_tool: true
+      - method: GET
+        path: /api/summary/{filename}
+        name: get_file_summary
+        safety: read_only
+        chatbot_tool: true
+      - method: DELETE
+        path: /api/data/{filename}
+        name: delete_file_data
+        safety: destructive
+        chatbot_tool: false
+
+  clients_and_portfolios:
+    target_router: api/routers/clients.py
+    endpoints:
+      - method: GET
+        path: /api/clients
+        name: list_clients
+        safety: read_only
+        chatbot_tool: true
+        response_model_needed: true
+      - method: GET
+        path: /api/portfolios/{portfolio_code}/daily-files
+        name: get_portfolio_daily_files
+        safety: read_only
+        chatbot_tool: true
+      - method: GET
+        path: /api/files/{file_id}/transactions
+        name: get_file_transactions
+        safety: read_only
+        chatbot_tool: true
+      - method: PUT
+        path: /api/transactions/{transaction_id}
+        name: update_transaction
+        safety: controlled_write
+        chatbot_tool: false
+        request_model_needed: true
+      - method: GET
+        path: /api/transactions/all
+        name: list_all_transactions
+        safety: read_only
+        chatbot_tool: true
+
+  analytics:
+    target_router: api/routers/analytics.py
+    endpoints:
+      - method: GET
+        path: /api/analytics/summary
+        name: get_analytics_summary
+        safety: read_only
+        chatbot_tool: true
+        response_model_needed: true
+      - method: GET
+        path: /api/analytics/dor-vs-sch
+        name: get_dor_vs_sch_analytics
+        safety: read_only
+        chatbot_tool: true
+        response_model_needed: true
+
+  energy_schedule:
+    target_router: api/routers/energy_schedule.py
+    endpoints:
+      - method: GET
+        path: /api/energy-schedule/status
+        name: get_energy_schedule_status
+        safety: read_only
+        chatbot_tool: true
+        response_model_needed: true
+      - method: GET
+        path: /api/energy-schedule/months
+        name: list_energy_schedule_months
+        safety: read_only
+        chatbot_tool: true
+        response_model_needed: true
+      - method: GET
+        path: /api/energy-schedule/days
+        name: list_energy_schedule_days
+        safety: read_only
+        chatbot_tool: true
+        response_model_needed: true
+        note: Declared twice in current api/main.py; refactor must consolidate.
+      - method: GET
+        path: /api/energy-schedule/months/{month_sheet_id}/days
+        name: list_days_for_energy_schedule_month
+        safety: read_only
+        chatbot_tool: true
+        response_model_needed: true
+      - method: POST
+        path: /api/calculate/energy-schedule
+        name: calculate_energy_schedule
+        safety: controlled_write
+        chatbot_tool: false
+        request_model_needed: true
+        response_model_needed: true
+
+  energy_calculations:
+    target_router: api/routers/energy_calculations.py
+    endpoints:
+      - method: GET
+        path: /api/energy-schedule/calculations/ctu-losses
+        name: calculate_ctu_losses
+        safety: read_only
+        chatbot_tool: true
+        response_model_needed: true
+      - method: GET
+        path: /api/energy-schedule/calculations/ctu-charges
+        name: calculate_ctu_charges
+        safety: read_only
+        chatbot_tool: true
+        response_model_needed: true
+      - method: GET
+        path: /api/energy-schedule/calculations/nldc-fees
+        name: calculate_nldc_fees
+        safety: read_only
+        chatbot_tool: true
+        response_model_needed: true
+      - method: GET
+        path: /api/energy-schedule/calculations/energy-savings
+        name: calculate_energy_savings
+        safety: read_only
+        chatbot_tool: true
+        response_model_needed: true
+
+  reports:
+    target_router: api/routers/reports.py
+    endpoints:
+      - method: GET
+        path: /api/reports/daily-trading/pdf
+        name: export_daily_trading_pdf
+        safety: read_only
+        chatbot_tool: false
+      - method: GET
+        path: /api/reports/daily-trading/excel
+        name: export_daily_trading_excel
+        safety: read_only
+        chatbot_tool: false
+      - method: GET
+        path: /api/reports/energy-schedule/pdf
+        name: export_energy_schedule_pdf
+        safety: read_only
+        chatbot_tool: false
+
+  ai_forecasting:
+    target_router: api/routers/ai.py
+    endpoints:
+      - method: GET
+        path: /api/ai/weather/{client_id}
+        name: get_weather_for_client
+        safety: external_dependency
+        chatbot_tool: true
+        response_model_needed: true
+      - method: POST
+        path: /api/ai/forecast-power/{client_id}
+        name: forecast_power_for_client
+        safety: external_dependency
+        chatbot_tool: true
+        request_model_needed: true
+        response_model_needed: true
+      - method: GET
+        path: /api/ai/inspect-weather/{client_id}
+        name: inspect_weather_for_client
+        safety: external_dependency
+        chatbot_tool: false
+      - method: GET
+        path: /api/ai/historical-data/{client_id}
+        name: get_historical_data_for_client
+        safety: read_only
+        chatbot_tool: true
+        response_model_needed: true
+      - method: POST
+        path: /api/ai/eda-analysis/{client_id}
+        name: run_eda_analysis_for_client
+        safety: external_dependency
+        chatbot_tool: true
+        request_model_needed: true
+        response_model_needed: true
+
+refactor_backlog:
+  - Split api/main.py into routers by domain.
+  - Move Pydantic request/response models into api/schemas/.
+  - Move business logic from route functions into services.
+  - Add response_model to chatbot-safe read endpoints.
+  - Add route summary and description for all active endpoints.
+  - Consolidate duplicate /api/energy-schedule/days route.
+  - Add deterministic integration tests for each router.
+

@@ -56,6 +56,7 @@ The agent may:
 - run build/compile checks;
 - inspect Git state;
 - inspect production-safe API health endpoints.
+- flag oversized files and require refactor plans.
 
 ## Forbidden actions
 
@@ -69,6 +70,27 @@ The agent must not:
 - leave root clutter behind;
 - create duplicate active app folders;
 - skip validation after risky moves.
+- allow new oversized files without a refactor justification.
+
+## Maintainability and token-budget rules
+
+Code should be small enough for humans and agents to reason about without wasting context.
+
+File-size policy:
+
+- Target maximum: 1,000 lines per source file.
+- Temporary exception maximum: 1,500 lines per source file, only with a clear refactor note.
+- Anything above 1,500 lines is a QC violation and should be split before adding more behavior.
+- API route files should usually be much smaller: one domain/router per file.
+- Large files must be split by business capability, not by random line count.
+
+When a file is oversized, prefer:
+
+- routers over one large API file;
+- services over route-level business logic;
+- schemas/Pydantic models over untyped dictionaries;
+- small helper modules over deeply nested functions;
+- endpoint registry updates over hidden route changes.
 
 ## Context strategy
 

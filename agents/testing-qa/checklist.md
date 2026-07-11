@@ -38,6 +38,14 @@ Core endpoints that must remain discoverable:
 - `/api/reports/daily-trading/pdf`
 - `/api/reports/daily-trading/excel`
 
+Endpoint changes must also update:
+
+```text
+api/endpoint_registry.yaml
+```
+
+The registry is the source of truth for agents/chatbots planning how to call application capabilities.
+
 ## Energy schedule checklist
 
 Validate that the codebase still contains:
@@ -58,4 +66,3 @@ Before adding chatbot endpoints, confirm:
 - output is explainable in business language;
 - endpoint does not expose credentials;
 - AI recommendation actions are auditable.
-

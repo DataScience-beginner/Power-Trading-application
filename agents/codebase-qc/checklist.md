@@ -52,6 +52,31 @@ agents/              agent registry/packages
 archive/legacy/      old files preserved for reference
 ```
 
+## File-size and token-budget hygiene
+
+Check large source files before refactors:
+
+```bash
+find api database backend parsers scripts frontend-react/src -type f \
+  \( -name '*.py' -o -name '*.tsx' -o -name '*.ts' \) \
+  -exec wc -l {} +
+```
+
+Expected:
+
+- target maximum: 1,000 lines per source file;
+- temporary exception maximum: 1,500 lines with a refactor note;
+- no new behavior should be added to files above 1,500 lines;
+- split large files by business capability.
+
+Current known violation:
+
+```text
+api/main.py
+```
+
+The intended fix is to split it into FastAPI routers and service/schema modules.
+
 ## Validation
 
 For Python/backend/script changes:

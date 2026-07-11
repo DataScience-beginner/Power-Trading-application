@@ -40,6 +40,28 @@ class ApiContractTests(unittest.TestCase):
         self.assertIn("Depends(get_db)", api)
         self.assertIn("init_db", api)
 
+    def test_endpoint_registry_exists_and_tracks_core_routes(self) -> None:
+        registry = read("api/endpoint_registry.yaml")
+        required_routes = [
+            "/api/health",
+            "/api/clients",
+            "/api/analytics/summary",
+            "/api/energy-schedule/months",
+            "/api/energy-schedule/days",
+            "/api/calculate/energy-schedule",
+            "/api/reports/daily-trading/pdf",
+            "/api/reports/daily-trading/excel",
+        ]
+
+        for route in required_routes:
+            with self.subTest(route=route):
+                self.assertIn(route, registry)
+
+    def test_api_main_is_marked_as_refactor_target(self) -> None:
+        plan = read("planning/api_refactor_plan.md")
+        self.assertIn("api/main.py", plan)
+        self.assertIn("2,597 lines", plan)
+
 
 class EnergyScheduleContractTests(unittest.TestCase):
     def test_energy_schedule_models_exist(self) -> None:
@@ -84,4 +106,3 @@ class AgentGovernanceContractTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

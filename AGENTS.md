@@ -90,8 +90,15 @@ The QC agent protects:
    - Frontend changes: run `npm run build` in `frontend-react/`.
    - Python/backend/script changes: run `python -m compileall -q api database parsers backend scripts tests`.
    - API/deploy changes: smoke test `/api/health`, `/api/clients`, and relevant endpoints.
+   - API endpoint changes must update `api/endpoint_registry.yaml`.
 
-10. Protect production deployment.
+10. Keep files small enough for humans and agents.
+    - Target maximum: 1,000 lines per source file.
+    - Temporary exception maximum: 1,500 lines with a refactor note.
+    - Do not add new behavior to files above 1,500 lines.
+    - Split oversized files by business capability.
+
+11. Protect production deployment.
     - Railway uses `Dockerfile` + `railway.json`.
     - Do not introduce competing deployment config unless intentionally adopted.
     - Keep `.dockerignore` strict so deploy context stays small.
