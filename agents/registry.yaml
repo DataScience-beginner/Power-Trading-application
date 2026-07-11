@@ -1,0 +1,55 @@
+version: 1
+updated_at: "2026-07-11"
+governance:
+  root_policy: AGENTS.md
+  lifecycle:
+    - proposed
+    - active
+    - deprecated
+    - retired
+  default_context_strategy:
+    always_load:
+      - AGENTS.md
+      - agents/registry.yaml
+    load_agent_package_when_triggered: true
+    avoid_loading_archive_by_default: true
+
+agents:
+  - id: codebase-qc
+    name: Codebase QC Agent
+    status: active
+    version: 1.0.0
+    owner: CTO
+    purpose: Keep the repository production-ready, lean, secure, and maintainable.
+    triggers:
+      - cleanup
+      - repo
+      - quality
+      - production-ready
+      - commit
+      - refactor
+      - archive
+      - delete
+      - move files
+      - deployment hygiene
+    instruction_files:
+      - agents/codebase-qc/AGENT.md
+      - agents/codebase-qc/checklist.md
+    memory_files:
+      - agents/codebase-qc/memory.md
+    forbidden_actions:
+      - Commit secrets or local credentials.
+      - Delete files before reference analysis and archive review.
+      - Introduce root-folder clutter.
+      - Bypass build/compile checks for risky changes.
+      - Add duplicate active app copies.
+    quality_gates:
+      - git_hygiene
+      - python_compile
+      - frontend_build
+      - production_api_smoke_when_relevant
+    escalation_rules:
+      - Ask before destructive deletion.
+      - Ask before rewriting Git history.
+      - Ask before changing production credentials.
+      - Ask before broad database destructive operations.

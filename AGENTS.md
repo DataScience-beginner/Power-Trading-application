@@ -2,6 +2,28 @@
 
 This repository uses a strict Quality Controller agent mindset. Any AI agent or developer working here must follow these rules before changing, moving, deleting, or deploying code.
 
+## Agent registry
+
+Operational agent definitions live under:
+
+```text
+agents/
+```
+
+Always check:
+
+```text
+agents/registry.yaml
+```
+
+If the task matches a registered agent trigger, load that agent package before acting.
+
+Current active agent:
+
+```text
+agents/codebase-qc/
+```
+
 ## Mission
 
 Keep the Power Trading application production-ready, lean, secure, and understandable.
