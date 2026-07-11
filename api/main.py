@@ -87,7 +87,7 @@ from backend.ai.weather_fetcher import WeatherFetcher
 from backend.ai.power_model import PowerForecastModel
 from backend.ai.historical_data_fetcher import HistoricalDataFetcher
 from backend.ai.eda_module import WeatherEDA
-from api.routers import analytics, clients, health, web
+from api.routers import analytics, clients, health, reports, web
 
 app = FastAPI(
     title="Power Trading Data API",
@@ -119,6 +119,7 @@ app.include_router(web.router)
 app.include_router(health.router)
 app.include_router(clients.router)
 app.include_router(analytics.router)
+app.include_router(reports.router)
 
 # Data storage
 OUTPUT_DIR = Path(__file__).parent.parent / "output"
@@ -1812,147 +1813,6 @@ async def get_energy_savings_summary(
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error calculating energy savings: {str(e)}")
-
-
-# ==================== REPORT GENERATION ENDPOINTS ====================
-
-@app.get("/api/reports/daily-trading/pdf")
-async def download_daily_trading_pdf(
-    date: str = None,
-    portfolio_code: str = None,
-    db: Session = Depends(get_db)
-):
-    """Generate and download PDF report for daily trading"""
-    try:
-        from database.models import Transaction, DailyFile, Portfolio
-        from api.report_generator import generate_daily_trading_pdf
-        
-        query = db.query(Transaction).join(DailyFile).join(Portfolio)
-        
-        if date:
-            query = query.filter(Transaction.date == datetime.fromisoformat(date).date())
-        if portfolio_code:
-            query = query.filter(Portfolio.portfolio_code == portfolio_code)
-        
-        transactions = query.all()
-        
-        trans_data = [
-            {
-                "date": t.date.isoformat(),
-                "time_slot": t.time_slot,
-                "transaction_type": t.transaction_type,
-                "report_type": t.daily_file.report_type,
-                "quantity_mw": t.quantity_mw,
-                "rate_per_mwh": t.rate_per_mwh,
-                "amount": t.amount
-            }
-            for t in transactions
-        ]
-        
-        pdf_buffer = generate_daily_trading_pdf(trans_data, date or datetime.now().strftime("%Y-%m-%d"))
-        
-        return StreamingResponse(
-            pdf_buffer,
-            media_type="application/pdf",
-            headers={"Content-Disposition": f"attachment; filename=Daily_Trading_Report_{date or 'latest'}.pdf"}
-        )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error generating PDF: {str(e)}")
-
-
-@app.get("/api/reports/daily-trading/excel")
-async def download_daily_trading_excel(
-    date: str = None,
-    portfolio_code: str = None,
-    db: Session = Depends(get_db)
-):
-    """Generate and download Excel report for daily trading"""
-    try:
-        from database.models import Transaction, DailyFile, Portfolio
-        from api.report_generator import generate_daily_trading_excel
-        
-        query = db.query(Transaction).join(DailyFile).join(Portfolio)
-        
-        if date:
-            query = query.filter(Transaction.date == datetime.fromisoformat(date).date())
-        if portfolio_code:
-            query = query.filter(Portfolio.portfolio_code == portfolio_code)
-        
-        transactions = query.all()
-        
-        trans_data = [
-            {
-                "date": t.date.isoformat(),
-                "time_slot": t.time_slot,
-                "transaction_type": t.transaction_type,
-                "report_type": t.daily_file.report_type,
-                "quantity_mw": t.quantity_mw,
-                "rate_per_mwh": t.rate_per_mwh,
-                "amount": t.amount
-            }
-            for t in transactions
-        ]
-        
-        excel_buffer = generate_daily_trading_excel(trans_data, date or datetime.now().strftime("%Y-%m-%d"))
-        
-        return StreamingResponse(
-            excel_buffer,
-            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            headers={"Content-Disposition": f"attachment; filename=Daily_Trading_Report_{date or 'latest'}.xlsx"}
-        )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error generating Excel: {str(e)}")
-
-
-@app.get("/api/reports/energy-schedule/pdf")
-async def download_energy_schedule_pdf(
-    portfolio_id: int = None,
-    start_date: str = None,
-    end_date: str = None,
-    db: Session = Depends(get_db)
-):
-    """Generate and download PDF report for energy schedule analysis"""
-    try:
-        from database.models import EnergyScheduleDay
-        from api.report_generator import generate_energy_schedule_pdf
-        
-        # Query daily entries directly
-        query = db.query(EnergyScheduleDay)
-        
-        # Filter by portfolio_id if provided
-        if portfolio_id:
-            from database.models import EnergyScheduleMonth
-            query = query.join(EnergyScheduleMonth).filter(
-                EnergyScheduleMonth.portfolio_id == portfolio_id
-            )
-        
-        # Filter by date range
-        if start_date:
-            query = query.filter(EnergyScheduleDay.trading_date >= start_date)
-        if end_date:
-            query = query.filter(EnergyScheduleDay.trading_date <= end_date)
-        
-        days = query.order_by(EnergyScheduleDay.trading_date).all()
-        
-        days_data = [
-            {
-                "trading_date": day.trading_date.isoformat(),
-                "energy_savings_mwh": day.energy_savings_mwh or 0,
-                "ctu_losses_percent": day.ctu_losses_percent or 0,
-                "total_cost": day.total_cost or 0
-            }
-            for day in days
-        ]
-        
-        pdf_buffer = generate_energy_schedule_pdf(days_data)
-        
-        return StreamingResponse(
-            pdf_buffer,
-            media_type="application/pdf",
-            headers={"Content-Disposition": "attachment; filename=Energy_Schedule_Report.pdf"}
-        )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error generating PDF: {str(e)}")
 
 
 # ===========================
