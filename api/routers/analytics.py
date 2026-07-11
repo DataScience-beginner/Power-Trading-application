@@ -9,6 +9,8 @@ from sqlalchemy.orm import Session
 
 from database.config import get_db
 from database.models import DailyFile, Portfolio, Transaction
+from api.security.chat_auth import get_current_user
+from database.chatbot_models import AppUser, UserPortfolioAccess
 
 
 router = APIRouter(tags=["analytics"])
@@ -71,10 +73,20 @@ async def get_analytics_summary(
     start_date: str = None,
     end_date: str = None,
     db: Session = Depends(get_db),
+    user: AppUser = Depends(get_current_user),
 ) -> AnalyticsSummaryResponse:
     """Return dashboard analytics summary metrics with optional portfolio/date filters."""
     try:
         file_query = db.query(DailyFile).join(Portfolio)
+        permitted_portfolios: set[int] = set()
+        if user.role != "platform_admin":
+            file_query = file_query.filter(Portfolio.client_id == user.client_id)
+            permitted_portfolios = {
+                item.portfolio_id
+                for item in db.query(UserPortfolioAccess).filter(UserPortfolioAccess.user_id == user.id).all()
+            }
+            if permitted_portfolios:
+                file_query = file_query.filter(Portfolio.id.in_(permitted_portfolios))
 
         if portfolio_code:
             file_query = file_query.filter(Portfolio.portfolio_code == portfolio_code)
@@ -93,6 +105,10 @@ async def get_analytics_summary(
         sch_count = sum(1 for f in files if f.report_type.startswith("SCH"))
 
         txn_query = db.query(Transaction).join(DailyFile).join(Portfolio)
+        if user.role != "platform_admin":
+            txn_query = txn_query.filter(Portfolio.client_id == user.client_id)
+            if permitted_portfolios:
+                txn_query = txn_query.filter(Portfolio.id.in_(permitted_portfolios))
 
         if portfolio_code:
             txn_query = txn_query.filter(Portfolio.portfolio_code == portfolio_code)
@@ -106,6 +122,10 @@ async def get_analytics_summary(
         total_transactions = txn_query.count()
 
         total_amount = db.query(func.sum(Transaction.amount)).join(DailyFile).join(Portfolio)
+        if user.role != "platform_admin":
+            total_amount = total_amount.filter(Portfolio.client_id == user.client_id)
+            if permitted_portfolios:
+                total_amount = total_amount.filter(Portfolio.id.in_(permitted_portfolios))
         if portfolio_code:
             total_amount = total_amount.filter(Portfolio.portfolio_code == portfolio_code)
         if start_date:
@@ -156,6 +176,7 @@ async def get_dor_vs_sch_comparison(
     portfolio_code: str = None,
     trading_date: str = None,
     db: Session = Depends(get_db),
+    user: AppUser = Depends(get_current_user),
 ) -> DorVsSchResponse:
     """Return hourly DOR-vs-SCH comparison for a trading date."""
     try:
@@ -168,6 +189,8 @@ async def get_dor_vs_sch_comparison(
             DailyFile.trading_date == date_obj,
             DailyFile.report_type.like("DOR%"),
         )
+        if user.role != "platform_admin":
+            dor_query = dor_query.filter(Portfolio.client_id == user.client_id)
         if portfolio_code:
             dor_query = dor_query.filter(Portfolio.portfolio_code == portfolio_code)
 
@@ -175,6 +198,8 @@ async def get_dor_vs_sch_comparison(
             DailyFile.trading_date == date_obj,
             DailyFile.report_type.like("SCH%"),
         )
+        if user.role != "platform_admin":
+            sch_query = sch_query.filter(Portfolio.client_id == user.client_id)
         if portfolio_code:
             sch_query = sch_query.filter(Portfolio.portfolio_code == portfolio_code)
 
@@ -214,4 +239,3 @@ async def get_dor_vs_sch_comparison(
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching DOR vs SCH comparison: {str(e)}") from e
-

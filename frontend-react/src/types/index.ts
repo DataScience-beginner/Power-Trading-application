@@ -4,6 +4,7 @@ export interface Client {
   entity_id: string;
   entity_name: string;
   portfolio_count: number;
+  portfolios: Portfolio[];
 }
 
 // Portfolio types
@@ -12,8 +13,8 @@ export interface Portfolio {
   client_id: number;
   portfolio_code: string;
   portfolio_name: string;
-  state: string;
-  is_active: boolean;
+  state?: string;
+  is_active?: boolean;
 }
 
 // Transaction types

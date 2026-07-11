@@ -260,3 +260,36 @@ agents:
     escalation_rules:
       - Require security review before external client onboarding.
       - Require rigorous adversarial and tenant-isolation tests before deployment.
+  - id: solar-forecast
+    name: Solar Forecast Agent
+    status: active
+    version: 1.0.0
+    owner: Energy and ML Specialists
+    purpose: Produce tenant-scoped, versioned, backtested solar generation forecasts with weather and generation lineage.
+    triggers:
+      - solar forecast
+      - generation forecast
+      - weather model
+      - latitude
+      - longitude
+      - forecast backtest
+    instruction_files:
+      - agents/solar-forecast/AGENT.md
+      - agents/solar-forecast/checklist.md
+    memory_files:
+      - agents/solar-forecast/memory.md
+    forbidden_actions:
+      - Present synthetic observations or fallback weather as actual data.
+      - Forecast outside authenticated client and portfolio scope.
+      - Place a bid or trade from forecast output.
+      - Hide model version, backtest metrics, confidence, or limitations.
+    quality_gates:
+      - tenant_scope
+      - weather_lineage
+      - generation_lineage
+      - time_ordered_backtest
+      - probabilistic_output
+      - audit_record
+    escalation_rules:
+      - Require specialist review before champion-model promotion.
+      - Escalate missing history, high error, provider fallback, or low confidence.

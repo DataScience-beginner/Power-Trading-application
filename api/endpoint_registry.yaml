@@ -491,6 +491,36 @@ domains:
         request_model_present: true
         response_model_present: true
 
+  ai_forecasting:
+    target_router: api/routers/forecasting.py
+    contract_version: solar-forecast-v1
+    notes:
+      - JWT client and portfolio scope is mandatory; platform administrators may access all tenants.
+      - Open-Meteo weather and generation history feed a calibrated physical baseline with P10/P50/P90.
+      - Synthetic fallback and demo histories are explicitly labelled and never presented as actual observations.
+      - Forecasts are read-only decision support and cannot place bids, trades, or schedule changes.
+    endpoints:
+      - method: POST
+        path: /api/v1/forecasts/solar/run
+        name: run_solar_generation_forecast
+        safety: controlled_write
+        chatbot_tool: true
+        request_model_present: true
+        response_model_present: true
+      - method: GET
+        path: /api/v1/forecasts/solar/latest
+        name: read_latest_solar_generation_forecast
+        safety: read_only
+        chatbot_tool: true
+        response_model_present: true
+      - method: POST
+        path: /api/v1/admin/demo/provision
+        name: provision_multi_tenant_demo
+        safety: controlled_write
+        chatbot_tool: false
+        request_model_present: true
+        response_model_present: true
+
 refactor_backlog:
   - Split api/main.py into routers by domain.
   - Move Pydantic request/response models into api/schemas/.

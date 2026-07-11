@@ -13,6 +13,7 @@ from api.security.chat_auth import authorize_scope, create_access_token, hash_pa
 from api.services.chat_auth_service import create_user
 from api.services.chat_model_provider import GroqNarrativeProvider
 from api.services.chatbot_service import answer_message, create_conversation, get_conversation, safety_violation
+from api.services.insight_assistant_service import classify_intent
 from database.chatbot_models import AppUser, ChatConversation, ChatMessage
 from database.config import Base
 from database.models import Client, DailyFile, Portfolio, Transaction
@@ -153,6 +154,20 @@ def test_provider_fallback_never_requires_external_network(monkeypatch) -> None:
     result = GroqNarrativeProvider().narrate("Explain cost", {"Total cost": 1234}, "Baseline")
     assert result.provider == "deterministic"
     assert "Total cost=1234" in result.content
+
+
+def test_solar_forecast_question_uses_read_only_ai2_route(db) -> None:
+    session, client, _, portfolio, _ = db
+    user = create_user(session, UserCreateRequest(
+        email="solar-chat@example.com", password="StrongPassword123!", display_name="Solar Chat",
+        role="client_user", client_id=client.id, portfolio_ids=[portfolio.id],
+    ))
+    conversation = create_conversation(session, user, ConversationCreateRequest(client_id=client.id, portfolio_id=portfolio.id))
+    result = answer_message(session, user, conversation.id, ChatQueryRequest(question="Explain the latest solar generation forecast"))
+    assert classify_intent("Explain the latest solar generation forecast") == "solar_forecast"
+    assert result.assistant_message.intent == "solar_forecast"
+    assert result.assistant_message.safety_status == "allowed"
+    assert "run the governed solar forecast first" in result.assistant_message.content
 
 
 def test_chatbot_migration_is_additive() -> None:

@@ -15,6 +15,7 @@ from api.services.chat_model_provider import GroqNarrativeProvider
 from api.services.data_quality_service import latest_quality_summary
 from api.services.insight_assistant_service import classify_intent
 from api.services.market_explanation_service import explain_market
+from api.services.forecasting_service import latest_solar_forecast
 from database.chatbot_models import AppUser, ChatConversation, ChatMessage
 from database.models import DailyFile, Portfolio
 
@@ -24,6 +25,7 @@ SUGGESTIONS = [
     "Explain the recorded IEX cost for this period.",
     "Compare the recorded DOR and SCH quantities.",
     "How much data is available for this portfolio?",
+    "Explain the latest solar generation forecast.",
 ]
 
 SAFETY_PATTERNS = {
@@ -198,6 +200,52 @@ def answer_message(
             confidence=100 if summary else 40,
             token_usage=result.token_usage,
         )
+    elif intent == "solar_forecast":
+        if not conversation.portfolio_id:
+            content = "Select a portfolio-scoped conversation before asking for a solar generation forecast."
+            assistant = persist_message(
+                db, conversation.id, "assistant", content, intent=intent, provider="deterministic",
+                model="forecast-explainer-v1", prompt_version="chatbot-system-v1",
+                limitations=["Solar forecasts require one authorized portfolio."], safety_status="blocked", confidence=100,
+            )
+        else:
+            try:
+                forecast = latest_solar_forecast(db, conversation.client_id, conversation.portfolio_id)
+                total_p50 = round(sum(point.p50_kwh for point in forecast.points), 2)
+                facts = {
+                    "intent": intent,
+                    "forecast_run_id": forecast.run_id,
+                    "horizon_days": len(forecast.points),
+                    "total_p50_kwh": total_p50,
+                    "confidence_pct": round(forecast.confidence * 100),
+                    "mape_pct": forecast.backtest_metrics.get("mape_pct"),
+                    "weather_source": forecast.weather_source,
+                    "data_classification": forecast.data_classification,
+                }
+                baseline = (
+                    f"The latest {len(forecast.points)}-day solar forecast has P50 generation of {total_p50:,.0f} kWh "
+                    f"with {forecast.confidence:.0%} confidence. Weather source is {forecast.weather_source}; "
+                    f"generation history is classified as {forecast.data_classification}."
+                )
+                result = GroqNarrativeProvider().narrate(payload.question, facts, baseline)
+                limitations = list(forecast.limitations)
+                if result.limitation:
+                    limitations.append(result.limitation)
+                assistant = persist_message(
+                    db, conversation.id, "assistant", result.content, intent=intent, provider=result.provider,
+                    model=result.model, prompt_version="chatbot-system-v1",
+                    tool_calls=[{"tool": "latest_solar_forecast", "safety": "read_only"}],
+                    evidence=[{"forecast_run_id": forecast.run_id, "contract_version": forecast.contract_version}],
+                    limitations=limitations, safety_status="allowed", confidence=round(forecast.confidence * 100),
+                    token_usage=result.token_usage,
+                )
+            except HTTPException as exc:
+                assistant = persist_message(
+                    db, conversation.id, "assistant",
+                    "No solar forecast exists for this portfolio yet. Open AI Predict and run the governed solar forecast first.",
+                    intent=intent, provider="deterministic", model="forecast-explainer-v1",
+                    prompt_version="chatbot-system-v1", limitations=[str(exc.detail)], safety_status="allowed", confidence=100,
+                )
     else:
         explanation = explain_market(
             db,

@@ -19,6 +19,7 @@ import type {
 } from '../types/energySchedule';
 import type { AssistantAnswer, MarketExplanation, QualityPolicy, QualityRun } from '../types/aiInsights';
 import type { AuthToken, ChatAnswer, ChatConversation, ChatUser } from '../types/chatbot';
+import type { DemoProvisionResult, SolarForecast } from '../types/forecasting';
 
 class ApiService {
   private api: AxiosInstance;
@@ -39,6 +40,12 @@ class ApiService {
         return Promise.reject(error);
       }
     );
+
+    this.api.interceptors.request.use((config) => {
+      const token = sessionStorage.getItem('innowatt_access_token');
+      if (token) config.headers.Authorization = `Bearer ${token}`;
+      return config;
+    });
   }
 
   private normalizeEnergyScheduleDay(day: any): EnergyScheduleDay {
@@ -318,6 +325,25 @@ class ApiService {
 
   async getCurrentUser(): Promise<ChatUser> {
     const response = await this.api.get<ChatUser>('/v1/auth/me', { headers: this.authHeaders() });
+    return response.data;
+  }
+
+  async runSolarForecast(clientId: number, portfolioId: number, horizonDays: number): Promise<SolarForecast> {
+    const response = await this.api.post<SolarForecast>('/v1/forecasts/solar/run', {
+      client_id: clientId,
+      portfolio_id: portfolioId,
+      horizon_days: horizonDays,
+      correlation_id: crypto.randomUUID(),
+    });
+    return response.data;
+  }
+
+  async provisionDemoTenants(defaultPassword: string): Promise<DemoProvisionResult> {
+    const response = await this.api.post<DemoProvisionResult>('/v1/admin/demo/provision', {
+      default_password: defaultPassword,
+      days_of_history: 30,
+      portfolios_per_client: 2,
+    });
     return response.data;
   }
 

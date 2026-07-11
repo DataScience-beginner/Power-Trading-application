@@ -9,6 +9,8 @@ from sqlalchemy.orm import Session
 
 from database import services as db_services
 from database.config import get_db
+from api.security.chat_auth import authorize_scope, get_current_user, require_admin
+from database.chatbot_models import AppUser, UserPortfolioAccess
 
 
 router = APIRouter(tags=["clients"])
@@ -79,6 +81,14 @@ class FileTransactionsResponse(BaseModel):
     transactions: list[FileTransactionItem]
 
 
+class ClientPortfolioItem(BaseModel):
+    """Portfolio identity nested beneath an authorized client."""
+
+    id: int
+    portfolio_code: str
+    portfolio_name: str | None
+
+
 class ClientSummaryItem(BaseModel):
     """Client summary used by dashboards and assistant workflows."""
 
@@ -86,6 +96,7 @@ class ClientSummaryItem(BaseModel):
     entity_id: str
     entity_name: str
     portfolio_count: int
+    portfolios: list[ClientPortfolioItem]
 
 
 class ClientsResponse(BaseModel):
@@ -138,6 +149,7 @@ async def update_transaction(
     transaction_id: int,
     updates: dict[str, Any] = Body(...),
     db: Session = Depends(get_db),
+    _admin: AppUser = Depends(require_admin),
 ) -> TransactionUpdateResponse:
     """Update selected fields on a transaction while preserving the existing request shape."""
     try:
@@ -169,6 +181,7 @@ async def get_portfolio_daily_files(
     portfolio_code: str,
     trading_date: Optional[str] = None,
     db: Session = Depends(get_db),
+    user: AppUser = Depends(get_current_user),
 ) -> PortfolioDailyFilesResponse:
     """Return daily files for a portfolio/date to support dashboard completeness checks."""
     try:
@@ -176,6 +189,7 @@ async def get_portfolio_daily_files(
 
         if not portfolio:
             raise HTTPException(status_code=404, detail="Portfolio not found")
+        authorize_scope(db, user, portfolio.client_id, portfolio.id)
 
         if trading_date:
             date_obj = datetime.fromisoformat(trading_date).date()
@@ -222,9 +236,15 @@ async def get_portfolio_daily_files(
 async def get_file_transactions(
     file_id: int,
     db: Session = Depends(get_db),
+    user: AppUser = Depends(get_current_user),
 ) -> FileTransactionsResponse:
     """Return all transactions for a parsed daily file."""
     try:
+        from database.models import DailyFile
+        daily_file = db.query(DailyFile).filter(DailyFile.id == file_id).first()
+        if not daily_file:
+            raise HTTPException(status_code=404, detail="File not found")
+        authorize_scope(db, user, daily_file.portfolio.client_id, daily_file.portfolio_id)
         transactions = db_services.get_transactions_by_file(db, file_id)
 
         return FileTransactionsResponse(
@@ -266,10 +286,20 @@ async def get_file_transactions(
     summary="List clients",
     description="Returns clients available for dashboard, analytics, and assistant workflows.",
 )
-async def get_clients(db: Session = Depends(get_db)) -> ClientsResponse:
+async def get_clients(
+    db: Session = Depends(get_db),
+    user: AppUser = Depends(get_current_user),
+) -> ClientsResponse:
     """Return all clients with portfolio counts."""
     try:
         clients = db_services.get_all_clients(db)
+        permitted_portfolio_ids: set[int] = set()
+        if user.role != "platform_admin":
+            clients = [client for client in clients if client.id == user.client_id]
+            permitted_portfolio_ids = {
+                item.portfolio_id
+                for item in db.query(UserPortfolioAccess).filter(UserPortfolioAccess.user_id == user.id).all()
+            }
         return ClientsResponse(
             success=True,
             count=len(clients),
@@ -279,6 +309,11 @@ async def get_clients(db: Session = Depends(get_db)) -> ClientsResponse:
                     entity_id=c.entity_id,
                     entity_name=c.entity_name,
                     portfolio_count=len(c.portfolios),
+                    portfolios=[
+                        ClientPortfolioItem(id=p.id, portfolio_code=p.portfolio_code, portfolio_name=p.portfolio_name)
+                        for p in c.portfolios
+                        if user.role == "platform_admin" or not permitted_portfolio_ids or p.id in permitted_portfolio_ids
+                    ],
                 )
                 for c in clients
             ],
@@ -299,12 +334,21 @@ async def get_all_transactions(
     end_date: str = None,
     report_type: str = None,
     db: Session = Depends(get_db),
+    user: AppUser = Depends(get_current_user),
 ) -> TransactionsListResponse:
     """Return filtered transactions with a hard limit for dashboard performance."""
     try:
         from database.models import DailyFile, Portfolio, Transaction
 
         query = db.query(Transaction).join(DailyFile).join(Portfolio)
+        if user.role != "platform_admin":
+            query = query.filter(Portfolio.client_id == user.client_id)
+            restrictions = {
+                item.portfolio_id
+                for item in db.query(UserPortfolioAccess).filter(UserPortfolioAccess.user_id == user.id).all()
+            }
+            if restrictions:
+                query = query.filter(Portfolio.id.in_(restrictions))
 
         if portfolio_code:
             query = query.filter(Portfolio.portfolio_code == portfolio_code)
@@ -359,4 +403,3 @@ async def get_all_transactions(
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching transactions: {str(e)}") from e
-
