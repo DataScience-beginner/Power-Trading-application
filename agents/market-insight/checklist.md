@@ -2,6 +2,7 @@
 
 - Scope and service authentication validated.
 - Question routed to an approved intent/tool.
+- Prohibited forecast, mutation, bid, and trade language is rejected before informational keyword routing.
 - Answer derives from structured scoped facts.
 - Evidence and units included.
 - Confidence and limitations disclosed.

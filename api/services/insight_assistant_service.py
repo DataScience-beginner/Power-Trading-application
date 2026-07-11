@@ -12,6 +12,22 @@ from api.services.market_explanation_service import explain_market
 def classify_intent(question: str) -> str:
     """Classify only supported read-only intents using deterministic keywords."""
     text = question.lower()
+    prohibited_requests = [
+        "forecast",
+        "predict",
+        "place a trade",
+        "place trade",
+        "submit a bid",
+        "execute a trade",
+        "trade automatically",
+        "buy automatically",
+        "sell automatically",
+        "change the schedule",
+        "correct the data",
+        "delete the data",
+    ]
+    if any(phrase in text for phrase in prohibited_requests):
+        return "unsupported"
     if any(word in text for word in ["quality", "missing", "duplicate", "invalid", "complete"]):
         return "data_quality"
     if any(word in text for word in ["schedule", "dor", "sch", "variance", "deviation"]):

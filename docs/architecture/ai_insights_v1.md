@@ -41,6 +41,8 @@ Narratives use a provider-neutral `NarrativeProvider` contract. AI-1 selects the
 
 Supported intents are quality, coverage, recorded market cost, and schedule-data context. The assistant cannot execute user-supplied SQL or invoke mutating tools. Unsupported questions receive a refusal and suggested safe questions.
 
+Prohibited forecast, prediction, correction, schedule-change, bid, and trade requests are rejected before informational keywords such as IEX, price, or schedule are considered. This prevents a consequential request from being misrouted as a harmless explanation.
+
 ## Frontend security
 
 The current internal UI accepts the AI Foundation service key and stores it in `sessionStorage`, never source code or persistent local storage. Before external client release, replace this temporary specialist workflow with SaaS JWT/RBAC and server-side agent credentials.

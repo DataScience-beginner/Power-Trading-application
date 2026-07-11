@@ -143,6 +143,8 @@ def test_bounded_assistant_routes_or_refuses_without_actions(db) -> None:
     client_id, portfolio_id = scope(db)
     assert classify_intent("Are files missing?") == "data_quality"
     assert classify_intent("Predict the weather in 2035") == "unsupported"
+    assert classify_intent("Forecast tomorrow and place an IEX trade automatically") == "unsupported"
+    assert classify_intent("Explain the recorded IEX cost") == "market_cost"
     response = answer_query(
         db,
         AssistantQueryRequest(
