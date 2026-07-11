@@ -67,6 +67,11 @@ build/
 # Logs
 *.log
 
+# Local runtime/package artifacts
+*.db
+*.pid
+*.zip
+
 # Testing
 .pytest_cache/
 .coverage
