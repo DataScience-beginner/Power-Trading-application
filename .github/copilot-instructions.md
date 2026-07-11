@@ -65,30 +65,22 @@ sch_date = calculation_date  # Jan 15
 pip install -r requirements.txt --break-system-packages
 
 # Initialize database (creates tables, runs migrations)
-python init_database.py
+python scripts/db/init_database.py
 
 # Start FastAPI server (port 8000)
 uvicorn api.main:app --reload --host 0.0.0.0 --port 8000
-# OR use convenience script:
-./start_server.sh
-
-# Parse single file
-python run_parser.py <path-to-excel>
-
-# Interactive menu
-./manage.sh
 ```
 
 ### Testing Workflows
 ```bash
-# Generate mock DOR/SCH reports (10 days of data)
-python generate_mock_reports.py
+# Generate mock DOR/SCH reports
+python scripts/data_generation/generate_mock_reports.py
 
 # Upload all mock reports to database
-python upload_mock_reports.py
+python scripts/ingestion/upload_mock_reports.py
 
 # Test calculation workflow
-python test_calculation_workflow.py
+python -m pytest tests/test_calculation_workflow.py
 ```
 
 ## Data Model Hierarchy

@@ -9,19 +9,20 @@ import openpyxl
 from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 from datetime import datetime, timedelta
-import os
+from pathlib import Path
 import random
 
 # Constants
 START_DATE = datetime(2026, 1, 1)  # Start from Jan 1
 NUM_DAYS = 30  # Generate full month
-OUTPUT_DIR = "/workspaces/Power-Trading-application/Data/mock_reports"
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+OUTPUT_DIR = PROJECT_ROOT / "Data" / "mock_reports"
 CLIENT_CODE = "NPT0027_KA0"
 CLIENT_NAME = "Mellbro_Sugars_Pvt"
 
 def create_output_dir():
     """Create output directory for mock reports"""
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     print(f"✓ Created output directory: {OUTPUT_DIR}")
 
 def generate_realistic_consumption():
@@ -278,7 +279,7 @@ if __name__ == "__main__":
     print("\n" + "=" * 80)
     print("NEXT STEPS:")
     print("=" * 80)
-    print("1. Upload these files to the database using: python3 upload_mock_reports.py")
+    print("1. Upload these files to the database using: python scripts/ingestion/upload_mock_reports.py")
     print("2. Test calculation engine with the uploaded data")
     print("3. Verify energy schedule calculations in dashboard")
     print("=" * 80)

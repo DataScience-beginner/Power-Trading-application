@@ -627,9 +627,9 @@ async def startup_event():
                 if len(clients) == 0:
                     print("📊 Database is empty, loading mock data...")
                     import subprocess
-                    subprocess.run(["python", "generate_mock_reports.py"], check=False)
-                    subprocess.run(["python", "upload_mock_reports.py"], check=False)
-                    subprocess.run(["python", "rebuild_energy_schedules.py"], check=False)
+                    subprocess.run([sys.executable, "scripts/data_generation/generate_mock_reports.py"], check=False)
+                    subprocess.run([sys.executable, "scripts/ingestion/upload_mock_reports.py"], check=False)
+                    subprocess.run([sys.executable, "scripts/energy_schedule/rebuild_energy_schedules.py"], check=False)
                     print("✅ Mock data loaded")
                 else:
                     print(f"✅ Database has {len(clients)} clients already")

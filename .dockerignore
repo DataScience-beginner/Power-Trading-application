@@ -14,6 +14,10 @@ __pycache__
 .idea
 *.md
 output/
-Data/mock_reports/
+Data/
+archive/
+docs/
+planning/
+tests/
 *.pid
 *.zip

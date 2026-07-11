@@ -11,27 +11,33 @@ Usage:
 
 import sys
 import os
+from pathlib import Path
 
 # Add parent directory to path so we can import database module
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(PROJECT_ROOT))
 
-from database.config import init_db, DATABASE_FILE
+from database.config import init_db, DATABASE_URL
 
 def main():
     print("=" * 60)
     print("🗄️  INITIALIZING POWER TRADING DATABASE")
     print("=" * 60)
     
-    print(f"\n📍 Database Location: {DATABASE_FILE}")
+    print(f"\n📍 Database URL: {DATABASE_URL}")
     
-    # Check if database already exists
-    if os.path.exists(DATABASE_FILE):
+    database_file = None
+    if DATABASE_URL.startswith("sqlite:///"):
+        database_file = DATABASE_URL.replace("sqlite:///", "", 1)
+
+    # Check if local SQLite database already exists
+    if database_file and os.path.exists(database_file):
         response = input("\n⚠️  Database already exists. Recreate it? (yes/no): ")
         if response.lower() != 'yes':
             print("❌ Operation cancelled.")
             return
         else:
-            os.remove(DATABASE_FILE)
+            os.remove(database_file)
             print("🗑️  Old database deleted.")
     
     # Create database and tables
@@ -46,7 +52,7 @@ def main():
     print("   4. transactions     - Store time-slot level data (96 per file)")
     print("   5. monthly_calculations - Store calculation results")
     
-    print(f"\n💡 Database ready at: {DATABASE_FILE}")
+    print(f"\n💡 Database ready: {DATABASE_URL}")
     print("=" * 60)
 
 if __name__ == "__main__":

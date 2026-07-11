@@ -10,8 +10,9 @@ from pathlib import Path
 from datetime import datetime, date
 import json
 
-# Add parent directory to path
-sys.path.insert(0, str(Path(__file__).parent))
+# Add project root to path
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(PROJECT_ROOT))
 
 from database.config import SessionLocal, init_db
 from database import services as db_services
@@ -94,7 +95,7 @@ def main():
     
     if not mock_reports_dir.exists():
         print(f"❌ Mock reports directory not found: {mock_reports_dir}")
-        print("   Run generate_mock_reports.py first!")
+        print("   Run: python scripts/data_generation/generate_mock_reports.py")
         return False
     
     # Get all Excel files
