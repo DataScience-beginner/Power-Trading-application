@@ -87,7 +87,7 @@ from backend.ai.weather_fetcher import WeatherFetcher
 from backend.ai.power_model import PowerForecastModel
 from backend.ai.historical_data_fetcher import HistoricalDataFetcher
 from backend.ai.eda_module import WeatherEDA
-from api.routers import clients, health, web
+from api.routers import analytics, clients, health, web
 
 app = FastAPI(
     title="Power Trading Data API",
@@ -118,6 +118,7 @@ elif frontend_dir.exists() and (frontend_dir / "static").exists():
 app.include_router(web.router)
 app.include_router(health.router)
 app.include_router(clients.router)
+app.include_router(analytics.router)
 
 # Data storage
 OUTPUT_DIR = Path(__file__).parent.parent / "output"
@@ -1088,174 +1089,6 @@ async def delete_file(filename: str):
             status_code=500,
             detail=f"Error deleting file: {str(e)}"
         )
-
-
-@app.get("/api/analytics/summary")
-async def get_analytics_summary(
-    portfolio_code: str = None,
-    start_date: str = None,
-    end_date: str = None,
-    db: Session = Depends(get_db)
-):
-    """Get analytics summary for dashboard"""
-    try:
-        from database.models import DailyFile, Transaction, Portfolio
-        from sqlalchemy import func
-        from datetime import datetime
-        
-        # Build base query
-        file_query = db.query(DailyFile).join(Portfolio)
-        
-        if portfolio_code:
-            file_query = file_query.filter(Portfolio.portfolio_code == portfolio_code)
-        
-        if start_date:
-            start = datetime.fromisoformat(start_date).date()
-            file_query = file_query.filter(DailyFile.trading_date >= start)
-        
-        if end_date:
-            end = datetime.fromisoformat(end_date).date()
-            file_query = file_query.filter(DailyFile.trading_date <= end)
-        
-        files = file_query.all()
-        
-        # Count DOR vs SCH
-        dor_count = sum(1 for f in files if f.report_type.startswith('DOR'))
-        sch_count = sum(1 for f in files if f.report_type.startswith('SCH'))
-        
-        # Get transaction stats
-        txn_query = db.query(Transaction).join(DailyFile).join(Portfolio)
-        
-        if portfolio_code:
-            txn_query = txn_query.filter(Portfolio.portfolio_code == portfolio_code)
-        
-        if start_date:
-            txn_query = txn_query.filter(Transaction.date >= datetime.fromisoformat(start_date).date())
-        
-        if end_date:
-            txn_query = txn_query.filter(Transaction.date <= datetime.fromisoformat(end_date).date())
-        
-        total_transactions = txn_query.count()
-        
-        # Calculate net amount
-        total_amount = db.query(func.sum(Transaction.amount)).join(DailyFile).join(Portfolio)
-        if portfolio_code:
-            total_amount = total_amount.filter(Portfolio.portfolio_code == portfolio_code)
-        if start_date:
-            total_amount = total_amount.filter(Transaction.date >= datetime.fromisoformat(start_date).date())
-        if end_date:
-            total_amount = total_amount.filter(Transaction.date <= datetime.fromisoformat(end_date).date())
-        
-        net_amount = total_amount.scalar() or 0
-        
-        # Get hourly distribution - skip for now to avoid SQL compatibility issues
-        hourly_data = []
-        
-        # Buy vs Sell count
-        buy_count = txn_query.filter(Transaction.transaction_type == 'buy').count()
-        sell_count = txn_query.filter(Transaction.transaction_type == 'sell').count()
-        scheduling_count = txn_query.filter(Transaction.transaction_type == 'scheduling').count()
-        
-        return {
-            "success": True,
-            "summary": {
-                "dor_files": dor_count,
-                "sch_files": sch_count,
-                "total_files": len(files),
-                "total_transactions": total_transactions,
-                "net_amount": float(net_amount),
-                "buy_transactions": buy_count,
-                "sell_transactions": sell_count,
-                "scheduling_transactions": scheduling_count
-            },
-            "hourly_distribution": [
-                {
-                    "hour": int(h[0]) if h[0] else 0,
-                    "avg_quantity": float(h[1]) if h[1] else 0
-                }
-                for h in hourly_data
-            ] if hourly_data else []
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error fetching analytics: {str(e)}")
-
-
-@app.get("/api/analytics/dor-vs-sch")
-async def get_dor_vs_sch_comparison(
-    portfolio_code: str = None,
-    trading_date: str = None,
-    db: Session = Depends(get_db)
-):
-    """Get DOR vs SCH comparison for same trading date"""
-    try:
-        from database.models import DailyFile, Transaction, Portfolio
-        from datetime import datetime
-        from sqlalchemy import func
-        
-        if not trading_date:
-            raise HTTPException(status_code=400, detail="trading_date parameter required")
-        
-        date_obj = datetime.fromisoformat(trading_date).date()
-        
-        # Get DOR files for this date
-        dor_query = db.query(DailyFile).join(Portfolio).filter(
-            DailyFile.trading_date == date_obj,
-            DailyFile.report_type.like('DOR%')
-        )
-        if portfolio_code:
-            dor_query = dor_query.filter(Portfolio.portfolio_code == portfolio_code)
-        
-        # Get SCH files for this date
-        sch_query = db.query(DailyFile).join(Portfolio).filter(
-            DailyFile.trading_date == date_obj,
-            DailyFile.report_type.like('SCH%')
-        )
-        if portfolio_code:
-            sch_query = sch_query.filter(Portfolio.portfolio_code == portfolio_code)
-        
-        dor_files = dor_query.all()
-        sch_files = sch_query.all()
-        
-        # Get hourly averages for DOR
-        dor_hourly = {}
-        for file in dor_files:
-            transactions = db.query(Transaction).filter(Transaction.daily_file_id == file.id).all()
-            for txn in transactions:
-                hour = txn.time_slot.split(' - ')[0]
-                if hour not in dor_hourly:
-                    dor_hourly[hour] = []
-                dor_hourly[hour].append(txn.quantity_mw or 0)
-        
-        # Get hourly averages for SCH
-        sch_hourly = {}
-        for file in sch_files:
-            transactions = db.query(Transaction).filter(Transaction.daily_file_id == file.id).all()
-            for txn in transactions:
-                hour = txn.time_slot.split(' - ')[0]
-                if hour not in sch_hourly:
-                    sch_hourly[hour] = []
-                sch_hourly[hour].append(txn.quantity_mw or txn.total_quantity_mw or 0)
-        
-        # Calculate averages
-        dor_data = {hour: sum(vals)/len(vals) for hour, vals in dor_hourly.items()}
-        sch_data = {hour: sum(vals)/len(vals) for hour, vals in sch_hourly.items()}
-        
-        # Generate hourly labels
-        hours = sorted(set(list(dor_data.keys()) + list(sch_data.keys())))
-        
-        return {
-            "success": True,
-            "trading_date": trading_date,
-            "dor_files": len(dor_files),
-            "sch_files": len(sch_files),
-            "comparison": {
-                "hours": hours,
-                "dor_values": [dor_data.get(h, 0) for h in hours],
-                "sch_values": [sch_data.get(h, 0) for h in hours]
-            }
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error fetching DOR vs SCH comparison: {str(e)}")
 
 
 @app.get("/api/energy-schedule/days")
