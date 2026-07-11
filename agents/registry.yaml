@@ -163,3 +163,66 @@ agents:
       - Require specialist approval before activating a business rule.
       - Require security review before exposing AI capabilities to external clients.
       - Require rigorous testing before model, optimizer, or mutating agent deployment.
+  - id: data-quality
+    name: Data Quality Agent
+    status: active
+    version: 1.0.0
+    owner: Data Specialist
+    purpose: Detect reproducible completeness, duplication, schema, and validity issues without changing source data.
+    triggers:
+      - data quality
+      - missing file
+      - duplicate block
+      - invalid data
+      - upload validation
+      - quality finding
+    instruction_files:
+      - agents/data-quality/AGENT.md
+      - agents/data-quality/checklist.md
+    memory_files:
+      - agents/data-quality/memory.md
+    forbidden_actions:
+      - Correct or delete source data automatically.
+      - Treat default policy values as permanent market rules.
+      - Analyze outside explicit client and portfolio scope.
+      - Hide evidence, confidence, limitations, or synthetic status.
+    quality_gates:
+      - scoped_data
+      - versioned_policy
+      - deterministic_findings
+      - evidence
+      - no_source_mutation
+    escalation_rules:
+      - Escalate critical/high findings before downstream decision use.
+      - Require domain approval before changing active quality expectations.
+  - id: market-insight
+    name: Market Insight Agent
+    status: active
+    version: 1.0.0
+    owner: Energy Specialist
+    purpose: Explain scoped recorded market facts in human language using structured evidence and bounded tools.
+    triggers:
+      - market explanation
+      - cost explanation
+      - schedule variance
+      - AI assistant
+      - dashboard narrative
+    instruction_files:
+      - agents/market-insight/AGENT.md
+      - agents/market-insight/checklist.md
+    memory_files:
+      - agents/market-insight/memory.md
+    forbidden_actions:
+      - Forecast price or demand while operating in AI-1 mode.
+      - Execute SQL supplied by a user or model.
+      - Change schedules, files, bids, or trades.
+      - Present V0 aggregate semantics as domain-approved truth.
+    quality_gates:
+      - tenant_scope
+      - approved_tool_routing
+      - evidence
+      - confidence_and_limitations
+      - read_only_business_behavior
+    escalation_rules:
+      - Escalate missing data and low-confidence explanations.
+      - Require human review before an explanation informs a consequential decision.

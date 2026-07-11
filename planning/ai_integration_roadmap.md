@@ -59,6 +59,8 @@ Implemented foundation:
 
 ## Phase AI-1: Read-only intelligence
 
+Implementation status: deterministic AI-1 implementation completed locally; Railway migration, service credential, and deployment remain final promotion steps.
+
 Deliver:
 
 - upload classification and data-quality agent;
@@ -68,6 +70,16 @@ Deliver:
 - read-only chatbot over approved APIs.
 
 Exit metric: at least 90% of seeded file defects detected; zero cross-client data exposure; all answers cite internal evidence.
+
+Implemented foundation:
+
+- versioned dynamic QualityPolicy and deterministic rule engine;
+- persisted quality runs and evidence-backed findings;
+- scoped market aggregate explanation with audit and decision records;
+- bounded assistant intents with unsupported-question refusal;
+- specialist AI Insights UI with session-only credential handling;
+- Data Quality and Market Insight governed agents;
+- isolated tests with no Railway writes.
 
 ## Phase AI-2: Forecasting
 

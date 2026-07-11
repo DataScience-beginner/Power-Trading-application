@@ -99,5 +99,6 @@ def init_db():
     # Register additive AI-0 tables with SQLAlchemy metadata. Existing V0 tables
     # remain unchanged; production promotion should still use the reviewed SQL migration.
     from database import ai_foundation_models  # noqa: F401
+    from database import ai_insights_models  # noqa: F401
     Base.metadata.create_all(bind=engine)
     print(f"✅ Database initialized successfully")

@@ -24,7 +24,8 @@ import {
   ExpandMore,
   Business as BusinessIcon,
   CalendarMonth as CalendarIcon,
-  Psychology as PsychologyIcon
+  Psychology as PsychologyIcon,
+  AutoAwesome as AutoAwesomeIcon,
 } from '@mui/icons-material';
 import { useAppDispatch, useAppSelector } from '../hooks/useAppStore';
 import { fetchClients } from '../store/dashboardSlice';
@@ -38,6 +39,7 @@ export type AppPage =
   | 'analytics'
   | 'reports'
   | 'aiPredict'
+  | 'aiInsights'
   | 'adminDatabase'
   | 'newDashboard'
   | 'workbooks';
@@ -102,6 +104,18 @@ const Sidebar: FC<SidebarProps> = ({ open, onPortfolioSelect, currentPage, onPag
                 <DashboardIcon color={currentPage === 'dashboard' ? 'primary' : 'inherit'} />
               </ListItemIcon>
               <ListItemText primary="Dashboard" />
+            </ListItemButton>
+          </ListItem>
+
+          <ListItem disablePadding>
+            <ListItemButton
+              selected={currentPage === 'aiInsights'}
+              onClick={() => onPageChange('aiInsights')}
+            >
+              <ListItemIcon>
+                <AutoAwesomeIcon color={currentPage === 'aiInsights' ? 'primary' : 'inherit'} />
+              </ListItemIcon>
+              <ListItemText primary="AI Insights" />
             </ListItemButton>
           </ListItem>
 

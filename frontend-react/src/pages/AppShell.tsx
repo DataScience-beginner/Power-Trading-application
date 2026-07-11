@@ -7,6 +7,7 @@ import EnergySchedule from './EnergySchedule';
 import Analytics from './Analytics';
 import Reports from './Reports';
 import AIPredict from './AIPredict';
+import AIInsights from './AIInsights';
 import AdminDatabase from './AdminDatabase';
 import AdminLogin from './AdminLogin';
 import WorkbookInputsPage from './WorkbookInputsPage';
@@ -26,6 +27,7 @@ const allowedPages: AppPage[] = [
   'analytics',
   'reports',
   'aiPredict',
+  'aiInsights',
   'adminDatabase',
   'newDashboard',
   'workbooks',
@@ -118,6 +120,7 @@ const AppShell: FC = () => {
         {currentPage === 'analytics' && <Analytics />}
         {currentPage === 'reports' && <Reports />}
         {currentPage === 'aiPredict' && <AIPredict />}
+        {currentPage === 'aiInsights' && <AIInsights />}
         {currentPage === 'adminDatabase' && (isAdmin ? <AdminDatabase /> : <AdminLogin onLogin={() => handlePageChange('adminDatabase')} />)}
         {currentPage === 'newDashboard' && <NewDashboard />}
         {currentPage === 'workbooks' && <WorkbookInputsPage />}

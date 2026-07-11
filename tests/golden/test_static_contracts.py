@@ -64,6 +64,8 @@ class ApiContractTests(unittest.TestCase):
             "/api/reports/daily-trading/pdf",
             "/api/reports/daily-trading/excel",
             "/api/v1/ai-foundation/capabilities",
+            "/api/v1/ai-insights/quality/analyze",
+            "/api/v1/ai-insights/assistant/query",
         ]
 
         for route in required_routes:
@@ -186,6 +188,8 @@ class AgentGovernanceContractTests(unittest.TestCase):
         self.assertIn("testing-qa", registry)
         self.assertIn("competitive-intelligence", registry)
         self.assertIn("ai-governance", registry)
+        self.assertIn("data-quality", registry)
+        self.assertIn("market-insight", registry)
 
     def test_ai_foundation_is_agent_and_human_readable(self) -> None:
         required_files = [
@@ -203,6 +207,25 @@ class AgentGovernanceContractTests(unittest.TestCase):
         self.assertIn("EvidenceItem", schema)
         self.assertIn("human_review_required", schema)
         self.assertIn("is_synthetic", schema)
+
+    def test_ai_insights_contract_is_complete(self) -> None:
+        required_files = [
+            "api/schemas/ai_insights.py",
+            "api/services/data_quality_service.py",
+            "api/services/market_explanation_service.py",
+            "api/services/insight_assistant_service.py",
+            "api/routers/ai_insights.py",
+            "database/ai_insights_models.py",
+            "database/migrations/ai_insights_v1.sql",
+            "frontend-react/src/pages/AIInsights.tsx",
+        ]
+        for relative_path in required_files:
+            with self.subTest(file=relative_path):
+                self.assertTrue((ROOT / relative_path).exists())
+
+        assistant = read("api/services/insight_assistant_service.py")
+        self.assertIn('return "unsupported"', assistant)
+        self.assertIn("No forecast", assistant)
 
     def test_root_agent_policy_references_registry(self) -> None:
         policy = read("AGENTS.md")

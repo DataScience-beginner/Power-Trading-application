@@ -389,6 +389,42 @@ domains:
         chatbot_tool: true
         response_model_present: true
 
+  ai_insights:
+    target_router: api/routers/ai_insights.py
+    contract_version: ai-insights-v1
+    notes:
+      - Deterministic engine is authoritative; future LLM providers may narrate structured evidence only.
+      - Current V0 data and mock patterns are compatibility inputs, not final domain truth.
+      - No endpoint forecasts, corrects source data, changes schedules, bids, or trades.
+    endpoints:
+      - method: POST
+        path: /api/v1/ai-insights/quality/analyze
+        name: analyze_data_quality
+        safety: controlled_write
+        chatbot_tool: false
+        request_model_present: true
+        response_model_present: true
+      - method: GET
+        path: /api/v1/ai-insights/quality/runs/{run_id}
+        name: read_quality_run
+        safety: read_only
+        chatbot_tool: true
+        response_model_present: true
+      - method: POST
+        path: /api/v1/ai-insights/market/explain
+        name: explain_market_data
+        safety: controlled_write
+        chatbot_tool: true
+        request_model_present: true
+        response_model_present: true
+      - method: POST
+        path: /api/v1/ai-insights/assistant/query
+        name: query_energy_assistant
+        safety: controlled_write
+        chatbot_tool: true
+        request_model_present: true
+        response_model_present: true
+
 refactor_backlog:
   - Split api/main.py into routers by domain.
   - Move Pydantic request/response models into api/schemas/.

@@ -20,6 +20,7 @@ from api.routers import (
     admin,
     ai,
     ai_foundation,
+    ai_insights,
     analytics,
     clients,
     energy_calculations,
@@ -101,6 +102,7 @@ app.include_router(analytics.router)
 app.include_router(reports.router)
 app.include_router(ai.router)
 app.include_router(ai_foundation.router)
+app.include_router(ai_insights.router)
 app.include_router(energy_calculations.router)
 app.include_router(energy_schedule.router)
 app.include_router(uploads.router)

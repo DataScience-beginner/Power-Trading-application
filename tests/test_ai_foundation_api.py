@@ -6,6 +6,7 @@ from fastapi import FastAPI
 import httpx
 
 from api.routers.ai_foundation import router
+from api.routers.ai_insights import router as insights_router
 
 
 def request(app: FastAPI, method: str, path: str, **kwargs) -> httpx.Response:
@@ -32,3 +33,21 @@ def test_capability_catalog_is_public_and_explicit() -> None:
     protected_operation = schema["paths"]["/api/v1/ai-foundation/entities"]["post"]
     header_names = {item["name"] for item in protected_operation["parameters"] if item["in"] == "header"}
     assert "x-ai-foundation-key" in header_names
+
+
+def test_ai_insights_openapi_is_typed_and_protected() -> None:
+    app = FastAPI()
+    app.include_router(insights_router)
+    schema = app.openapi()
+    expected_paths = [
+        "/api/v1/ai-insights/quality/analyze",
+        "/api/v1/ai-insights/quality/runs/{run_id}",
+        "/api/v1/ai-insights/market/explain",
+        "/api/v1/ai-insights/assistant/query",
+    ]
+    for path in expected_paths:
+        assert path in schema["paths"]
+        operation = next(iter(schema["paths"][path].values()))
+        assert operation["summary"]
+        headers = {item["name"] for item in operation.get("parameters", []) if item["in"] == "header"}
+        assert "x-ai-foundation-key" in headers

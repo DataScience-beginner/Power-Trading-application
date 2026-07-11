@@ -17,6 +17,7 @@ import type {
   NLDCFeesCalculation,
   EnergySavingsCalculation,
 } from '../types/energySchedule';
+import type { AssistantAnswer, MarketExplanation, QualityPolicy, QualityRun } from '../types/aiInsights';
 
 class ApiService {
   private api: AxiosInstance;
@@ -50,6 +51,10 @@ class ApiService {
       total_nldc_fees: day.total_nldc_fees ?? day.total_nldc_fee ?? 0,
       is_calculated: day.is_calculated ?? day.is_complete ?? false,
     };
+  }
+
+  private aiHeaders(serviceKey: string) {
+    return { 'X-AI-Foundation-Key': serviceKey };
   }
 
   // Client endpoints
@@ -212,6 +217,79 @@ class ApiService {
   async getEnergySavings(portfolioId: number, tradingDate: string): Promise<EnergySavingsCalculation> {
     const response = await this.api.get<EnergySavingsCalculation>(
       `/energy-schedule/calculations/energy-savings?portfolio_id=${portfolioId}&trading_date=${tradingDate}`
+    );
+    return response.data;
+  }
+
+  async runDataQualityAnalysis(params: {
+    serviceKey: string;
+    clientId: number;
+    portfolioId?: number;
+    startDate: string;
+    endDate: string;
+    dataClassification: 'synthetic' | 'actual' | 'mixed' | 'unknown';
+    policy: QualityPolicy;
+  }): Promise<QualityRun> {
+    const response = await this.api.post<QualityRun>(
+      '/v1/ai-insights/quality/analyze',
+      {
+        client_id: params.clientId,
+        portfolio_id: params.portfolioId,
+        start_date: params.startDate,
+        end_date: params.endDate,
+        correlation_id: crypto.randomUUID(),
+        data_classification: params.dataClassification,
+        policy: params.policy,
+      },
+      { headers: this.aiHeaders(params.serviceKey) }
+    );
+    return response.data;
+  }
+
+  async explainMarket(params: {
+    serviceKey: string;
+    clientId: number;
+    portfolioId?: number;
+    startDate: string;
+    endDate: string;
+    question: string;
+  }): Promise<MarketExplanation> {
+    const response = await this.api.post<MarketExplanation>(
+      '/v1/ai-insights/market/explain',
+      {
+        client_id: params.clientId,
+        portfolio_id: params.portfolioId,
+        start_date: params.startDate,
+        end_date: params.endDate,
+        question: params.question,
+        correlation_id: crypto.randomUUID(),
+      },
+      { headers: this.aiHeaders(params.serviceKey) }
+    );
+    return response.data;
+  }
+
+  async askInsightAssistant(params: {
+    serviceKey: string;
+    clientId: number;
+    portfolioId?: number;
+    startDate: string;
+    endDate: string;
+    question: string;
+    conversationId?: string;
+  }): Promise<AssistantAnswer> {
+    const response = await this.api.post<AssistantAnswer>(
+      '/v1/ai-insights/assistant/query',
+      {
+        client_id: params.clientId,
+        portfolio_id: params.portfolioId,
+        start_date: params.startDate,
+        end_date: params.endDate,
+        question: params.question,
+        correlation_id: crypto.randomUUID(),
+        conversation_id: params.conversationId,
+      },
+      { headers: this.aiHeaders(params.serviceKey) }
     );
     return response.data;
   }
