@@ -9,6 +9,8 @@ shape that future refactors and agents must preserve.
 from pathlib import Path
 import unittest
 
+import yaml
+
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -70,6 +72,79 @@ class ApiContractTests(unittest.TestCase):
         plan = read("planning/api_refactor_plan.md")
         self.assertIn("api/main.py", plan)
         self.assertIn("2,597 lines", plan)
+
+
+class ApiRegistryRuntimeContractTests(unittest.TestCase):
+    """Protect the API registry as the source of truth for agents/chatbots."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.registry = yaml.safe_load(read("api/endpoint_registry.yaml"))
+
+        from api.main import app
+
+        cls.route_by_method_and_path = {}
+        for route in cls.iter_fastapi_routes(app.routes):
+            path = getattr(route, "path", "")
+            for method in getattr(route, "methods", set()) or set():
+                if method in {"HEAD", "OPTIONS"}:
+                    continue
+                cls.route_by_method_and_path[(method, path)] = route
+
+    @classmethod
+    def iter_fastapi_routes(cls, routes):
+        """Yield concrete routes, including routers wrapped by FastAPI includes."""
+        for route in routes:
+            original_router = getattr(route, "original_router", None)
+            if original_router is not None:
+                yield from cls.iter_fastapi_routes(original_router.routes)
+                continue
+
+            yield route
+
+    @classmethod
+    def registry_endpoints(cls) -> list[dict[str, object]]:
+        endpoints: list[dict[str, object]] = []
+        for domain_name, domain in cls.registry["domains"].items():
+            for endpoint in domain["endpoints"]:
+                enriched_endpoint = dict(endpoint)
+                enriched_endpoint["domain"] = domain_name
+                enriched_endpoint["target_router"] = domain["target_router"]
+                endpoints.append(enriched_endpoint)
+        return endpoints
+
+    def test_registered_target_router_files_exist(self) -> None:
+        for domain_name, domain in self.registry["domains"].items():
+            target_router = domain["target_router"]
+            with self.subTest(domain=domain_name, target_router=target_router):
+                self.assertTrue((ROOT / target_router).exists())
+
+    def test_registered_endpoints_are_mounted_in_fastapi_app(self) -> None:
+        for endpoint in self.registry_endpoints():
+            method = endpoint["method"]
+            path = endpoint["path"]
+            with self.subTest(method=method, path=path):
+                self.assertIn((method, path), self.route_by_method_and_path)
+
+    def test_registered_endpoints_are_agent_readable(self) -> None:
+        for endpoint in self.registry_endpoints():
+            method = endpoint["method"]
+            path = endpoint["path"]
+
+            with self.subTest(method=method, path=path):
+                route = self.route_by_method_and_path[(method, path)]
+                self.assertTrue(getattr(route, "summary", None))
+                self.assertTrue(getattr(route, "description", None))
+
+    def test_active_api_python_files_stay_agent_maintainable(self) -> None:
+        """QC rule: keep active API files small enough for humans and agents."""
+        active_api_files = sorted((ROOT / "api").rglob("*.py"))
+
+        for path in active_api_files:
+            relative_path = path.relative_to(ROOT)
+            line_count = len(path.read_text(encoding="utf-8").splitlines())
+            with self.subTest(file=str(relative_path)):
+                self.assertLessEqual(line_count, 1000)
 
 
 class EnergyScheduleContractTests(unittest.TestCase):

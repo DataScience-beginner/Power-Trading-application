@@ -84,7 +84,7 @@ domains:
         chatbot_tool: false
 
   workbook_auth:
-    target_router: api/routers/workbook_auth.py
+    target_router: api/routers/workbooks.py
     endpoints:
       - method: POST
         path: /api/v1/auth/login
@@ -323,4 +323,3 @@ refactor_backlog:
   - Add route summary and description for all active endpoints.
   - Consolidate duplicate /api/energy-schedule/days route.
   - Add deterministic integration tests for each router.
-

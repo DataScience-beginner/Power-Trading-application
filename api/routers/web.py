@@ -18,6 +18,7 @@ REACT_DIST_DIR = PROJECT_ROOT / "frontend-react" / "dist"
     "/",
     summary="Serve frontend or API root",
     description="Serves the React application when built, falls back to the legacy dashboard, or returns API discovery metadata.",
+    response_model=None,
 )
 async def root() -> FileResponse | dict[str, Any]:
     """Serve the main web app or return basic API metadata."""
@@ -45,6 +46,7 @@ async def root() -> FileResponse | dict[str, Any]:
     "/parser",
     summary="Serve parser UI",
     description="Serves the legacy parser UI when available.",
+    response_model=None,
 )
 async def parser_ui() -> FileResponse | dict[str, str]:
     """Serve parser UI or a not-found message."""
@@ -58,6 +60,7 @@ async def parser_ui() -> FileResponse | dict[str, str]:
     "/energy-schedule",
     summary="Serve energy schedule page",
     description="Serves the legacy energy schedule dashboard page when available.",
+    response_model=None,
 )
 async def energy_schedule_page() -> FileResponse | dict[str, str]:
     """Serve energy schedule UI or a not-found message."""
@@ -65,4 +68,3 @@ async def energy_schedule_page() -> FileResponse | dict[str, str]:
     if energy_schedule_file.exists():
         return FileResponse(energy_schedule_file)
     return {"message": "Energy Schedule page not found"}
-
