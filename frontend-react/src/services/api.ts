@@ -18,6 +18,7 @@ import type {
   EnergySavingsCalculation,
 } from '../types/energySchedule';
 import type { AssistantAnswer, MarketExplanation, QualityPolicy, QualityRun } from '../types/aiInsights';
+import type { AuthToken, ChatAnswer, ChatConversation, ChatUser } from '../types/chatbot';
 
 class ApiService {
   private api: AxiosInstance;
@@ -55,6 +56,11 @@ class ApiService {
 
   private aiHeaders(serviceKey: string) {
     return { 'X-AI-Foundation-Key': serviceKey };
+  }
+
+  private authHeaders() {
+    const token = sessionStorage.getItem('innowatt_access_token');
+    return token ? { Authorization: `Bearer ${token}` } : {};
   }
 
   // Client endpoints
@@ -290,6 +296,54 @@ class ApiService {
         conversation_id: params.conversationId,
       },
       { headers: this.aiHeaders(params.serviceKey) }
+    );
+    return response.data;
+  }
+
+  async login(email: string, password: string): Promise<AuthToken> {
+    const response = await this.api.post<AuthToken>('/v1/auth/login', { email, password });
+    sessionStorage.setItem('innowatt_access_token', response.data.access_token);
+    sessionStorage.setItem('innowatt_user', JSON.stringify(response.data.user));
+    return response.data;
+  }
+
+  async bootstrapAdmin(serviceKey: string, email: string, password: string, displayName: string): Promise<ChatUser> {
+    const response = await this.api.post<ChatUser>(
+      '/v1/auth/bootstrap-admin',
+      { email, password, display_name: displayName },
+      { headers: this.aiHeaders(serviceKey) }
+    );
+    return response.data;
+  }
+
+  async getCurrentUser(): Promise<ChatUser> {
+    const response = await this.api.get<ChatUser>('/v1/auth/me', { headers: this.authHeaders() });
+    return response.data;
+  }
+
+  async createChatConversation(clientId: number, portfolioId?: number): Promise<ChatConversation> {
+    const response = await this.api.post<ChatConversation>(
+      '/v1/chat/conversations',
+      { client_id: clientId, portfolio_id: portfolioId, title: 'Energy assistant' },
+      { headers: this.authHeaders() }
+    );
+    return response.data;
+  }
+
+  async sendChatMessage(
+    conversationId: string,
+    question: string,
+    startDate?: string,
+    endDate?: string
+  ): Promise<ChatAnswer> {
+    const response = await this.api.post<ChatAnswer>(
+      `/v1/chat/conversations/${conversationId}/messages`,
+      {
+        question,
+        start_date: startDate ? `${startDate}T00:00:00` : null,
+        end_date: endDate ? `${endDate}T23:59:59` : null,
+      },
+      { headers: this.authHeaders() }
     );
     return response.data;
   }

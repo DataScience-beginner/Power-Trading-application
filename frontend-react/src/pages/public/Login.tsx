@@ -1,87 +1,65 @@
-import { FC } from 'react';
-import {
-  Alert,
-  Box,
-  Button,
-  Card,
-  CardContent,
-  Chip,
-  Container,
-  Grid,
-  Stack,
-  Typography,
-} from '@mui/material';
-import { AdminPanelSettings, Business, Lock } from '@mui/icons-material';
-import { Link as RouterLink } from 'react-router-dom';
+import { FC, FormEvent, useState } from 'react';
+import { Alert, Box, Button, Card, CardContent, Container, Divider, Stack, TextField, Typography } from '@mui/material';
+import { Lock } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 import PublicLayout from '../../layouts/PublicLayout';
+import apiService from '../../services/api';
 
 const Login: FC = () => {
+  const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [displayName, setDisplayName] = useState('Innowatt Administrator');
+  const [serviceKey, setServiceKey] = useState('');
+  const [setupOpen, setSetupOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
+
+  const login = async (event: FormEvent) => {
+    event.preventDefault();
+    setLoading(true); setError(''); setNotice('');
+    try {
+      await apiService.login(email, password);
+      navigate('/app');
+    } catch (reason: any) {
+      setError(String(reason?.response?.data?.detail || 'Login failed'));
+    } finally { setLoading(false); }
+  };
+
+  const bootstrap = async () => {
+    setLoading(true); setError(''); setNotice('');
+    try {
+      await apiService.bootstrapAdmin(serviceKey, email, password, displayName);
+      setNotice('First administrator created. You can now sign in.');
+      setSetupOpen(false);
+      setServiceKey('');
+    } catch (reason: any) {
+      setError(String(reason?.response?.data?.detail || 'Administrator setup failed'));
+    } finally { setLoading(false); }
+  };
+
   return (
     <PublicLayout>
-      <Container maxWidth="lg" sx={{ py: 10 }}>
-        <Stack spacing={4}>
-          <Box textAlign="center">
-            <Chip icon={<Lock />} label="Secure workspace login" color="primary" />
-            <Typography variant="h2" fontWeight={900} letterSpacing="-0.05em" sx={{ mt: 2 }}>
-              Continue to your Innowatt workspace
-            </Typography>
-            <Typography variant="h6" color="text.secondary" sx={{ mt: 2, maxWidth: 760, mx: 'auto' }}>
-              Admins can manage all clients. Client users should see only their own company,
-              portfolios, schedules, reports, and profile data.
-            </Typography>
-          </Box>
-
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={6}>
-              <Card sx={{ height: '100%', borderRadius: 5 }}>
-                <CardContent sx={{ p: 4 }}>
-                  <Stack spacing={3}>
-                    <AdminPanelSettings color="primary" sx={{ fontSize: 44 }} />
-                    <Box>
-                      <Typography variant="h5" fontWeight={900}>
-                        Admin Portal
-                      </Typography>
-                      <Typography color="text.secondary" sx={{ mt: 1 }}>
-                        For Innowatt operators who onboard clients, switch between clients,
-                        inspect data, upload files, and manage platform operations.
-                      </Typography>
-                    </Box>
-                    <Button component={RouterLink} to="/app?page=adminDatabase" variant="contained" size="large">
-                      Continue as Admin
-                    </Button>
-                  </Stack>
-                </CardContent>
-              </Card>
-            </Grid>
-
-            <Grid item xs={12} md={6}>
-              <Card sx={{ height: '100%', borderRadius: 5 }}>
-                <CardContent sx={{ p: 4 }}>
-                  <Stack spacing={3}>
-                    <Business color="secondary" sx={{ fontSize: 44 }} />
-                    <Box>
-                      <Typography variant="h5" fontWeight={900}>
-                        Client Portal
-                      </Typography>
-                      <Typography color="text.secondary" sx={{ mt: 1 }}>
-                        For enterprise clients who need portfolio-level dashboards, energy
-                        schedules, analytics, reports, and AI procurement insights.
-                      </Typography>
-                    </Box>
-                    <Button component={RouterLink} to="/app" variant="outlined" size="large">
-                      Continue to Client Workspace
-                    </Button>
-                  </Stack>
-                </CardContent>
-              </Card>
-            </Grid>
-          </Grid>
-
-          <Alert severity="info">
-            Phase 1 uses admin-led onboarding. Full client-specific authentication and row-level
-            data scoping should be implemented as the next backend security milestone.
-          </Alert>
-        </Stack>
+      <Container maxWidth="sm" sx={{ py: 10 }}>
+        <Card sx={{ borderRadius: 5 }}><CardContent sx={{ p: 5 }}>
+          <Stack component="form" spacing={3} onSubmit={login}>
+            <Box><Lock color="primary" sx={{ fontSize: 42 }} /><Typography variant="h4" fontWeight={900}>Sign in to Innowatt</Typography><Typography color="text.secondary">Your role controls which clients and portfolios the assistant can access.</Typography></Box>
+            {error && <Alert severity="error">{error}</Alert>}
+            {notice && <Alert severity="success">{notice}</Alert>}
+            <TextField label="Email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} required />
+            <TextField label="Password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} required helperText="Minimum 10 characters" />
+            <Button type="submit" variant="contained" size="large" disabled={loading}>Sign in</Button>
+            <Divider>First-time setup</Divider>
+            <Button variant="text" onClick={() => setSetupOpen(!setupOpen)}>Bootstrap first administrator</Button>
+            {setupOpen && <Stack spacing={2}>
+              <Alert severity="warning">This works only once and requires the internal AI Foundation service key.</Alert>
+              <TextField label="Display name" value={displayName} onChange={(event) => setDisplayName(event.target.value)} />
+              <TextField label="AI Foundation service key" type="password" value={serviceKey} onChange={(event) => setServiceKey(event.target.value)} />
+              <Button variant="outlined" onClick={bootstrap} disabled={loading || !serviceKey || password.length < 10}>Create first administrator</Button>
+            </Stack>}
+          </Stack>
+        </CardContent></Card>
       </Container>
     </PublicLayout>
   );

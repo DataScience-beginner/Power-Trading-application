@@ -425,6 +425,72 @@ domains:
         request_model_present: true
         response_model_present: true
 
+  saas_auth:
+    target_router: api/routers/chat_auth.py
+    endpoints:
+      - method: POST
+        path: /api/v1/auth/bootstrap-admin
+        name: bootstrap_first_admin
+        safety: controlled_write
+        chatbot_tool: false
+        request_model_present: true
+        response_model_present: true
+      - method: POST
+        path: /api/v1/auth/login
+        name: login
+        safety: controlled_write
+        chatbot_tool: false
+        request_model_present: true
+        response_model_present: true
+      - method: GET
+        path: /api/v1/auth/me
+        name: me
+        safety: read_only
+        chatbot_tool: false
+        response_model_present: true
+      - method: POST
+        path: /api/v1/auth/users
+        name: register_user
+        safety: controlled_write
+        chatbot_tool: false
+        request_model_present: true
+        response_model_present: true
+
+  chatbot:
+    target_router: api/routers/chatbot.py
+    contract_version: chatbot-v1
+    notes:
+      - Client and portfolio scope derives from JWT/database membership, never question text.
+      - Groq llama-3.1-8b-instant is optional narration; deterministic tools remain authoritative.
+      - Forecast, mutation, bid, trade, credential, prompt, and arbitrary SQL requests are blocked.
+    endpoints:
+      - method: POST
+        path: /api/v1/chat/conversations
+        name: start_conversation
+        safety: controlled_write
+        chatbot_tool: false
+        request_model_present: true
+        response_model_present: true
+      - method: GET
+        path: /api/v1/chat/conversations
+        name: conversations
+        safety: read_only
+        chatbot_tool: false
+        response_model_present: true
+      - method: GET
+        path: /api/v1/chat/conversations/{conversation_id}
+        name: conversation
+        safety: read_only
+        chatbot_tool: false
+        response_model_present: true
+      - method: POST
+        path: /api/v1/chat/conversations/{conversation_id}/messages
+        name: send_message
+        safety: controlled_write
+        chatbot_tool: false
+        request_model_present: true
+        response_model_present: true
+
 refactor_backlog:
   - Split api/main.py into routers by domain.
   - Move Pydantic request/response models into api/schemas/.

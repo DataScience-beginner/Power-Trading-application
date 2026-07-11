@@ -18,6 +18,8 @@ import CalculateEnergyScheduleDialog from '../components/CalculateEnergySchedule
 import { useAppDispatch } from '../hooks/useAppStore';
 import { fetchTransactions, fetchAnalytics, setFilter } from '../store/dashboardSlice';
 import NewDashboard from './NewDashboard';
+import ChatAssistant from '../components/chat/ChatAssistant';
+import { Navigate } from 'react-router-dom';
 
 const allowedPages: AppPage[] = [
   'dashboard',
@@ -34,6 +36,7 @@ const allowedPages: AppPage[] = [
 ];
 
 const AppShell: FC = () => {
+  const accessToken = sessionStorage.getItem('innowatt_access_token');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [calculateDialogOpen, setCalculateDialogOpen] = useState(false);
@@ -77,6 +80,10 @@ const AppShell: FC = () => {
   };
 
   const isAdmin = Boolean(localStorage.getItem('admin_jwt') || sessionStorage.getItem('admin_jwt'));
+
+  if (!accessToken) {
+    return <Navigate to="/login" replace />;
+  }
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -135,6 +142,7 @@ const AppShell: FC = () => {
         onClose={() => setCalculateDialogOpen(false)}
         onSuccess={handleUploadSuccess}
       />
+      <ChatAssistant />
     </Box>
   );
 };

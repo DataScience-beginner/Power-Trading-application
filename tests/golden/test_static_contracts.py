@@ -190,6 +190,7 @@ class AgentGovernanceContractTests(unittest.TestCase):
         self.assertIn("ai-governance", registry)
         self.assertIn("data-quality", registry)
         self.assertIn("market-insight", registry)
+        self.assertIn("conversational-assistant", registry)
 
     def test_ai_foundation_is_agent_and_human_readable(self) -> None:
         required_files = [
@@ -226,6 +227,30 @@ class AgentGovernanceContractTests(unittest.TestCase):
         assistant = read("api/services/insight_assistant_service.py")
         self.assertIn('return "unsupported"', assistant)
         self.assertIn("No forecast", assistant)
+
+    def test_authenticated_chatbot_contract_is_complete(self) -> None:
+        required_files = [
+            "api/security/chat_auth.py",
+            "api/schemas/chatbot.py",
+            "api/services/chatbot_service.py",
+            "api/services/chat_model_provider.py",
+            "api/routers/chat_auth.py",
+            "api/routers/chatbot.py",
+            "database/chatbot_models.py",
+            "database/migrations/chatbot_v1.sql",
+            "frontend-react/src/components/chat/ChatAssistant.tsx",
+            "prompts/chatbot_system_v1.md",
+        ]
+        for relative_path in required_files:
+            with self.subTest(file=relative_path):
+                self.assertTrue((ROOT / relative_path).exists())
+
+        auth = read("api/security/chat_auth.py")
+        self.assertIn("JWT_SECRET_KEY", auth)
+        self.assertIn("authorize_scope", auth)
+        provider = read("api/services/chat_model_provider.py")
+        self.assertIn("GROQ_API_KEY", provider)
+        self.assertIn("deterministic fallback", provider)
 
     def test_root_agent_policy_references_registry(self) -> None:
         policy = read("AGENTS.md")

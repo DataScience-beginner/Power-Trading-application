@@ -22,6 +22,8 @@ from api.routers import (
     ai_foundation,
     ai_insights,
     analytics,
+    chat_auth,
+    chatbot,
     clients,
     energy_calculations,
     energy_schedule,
@@ -103,6 +105,8 @@ app.include_router(reports.router)
 app.include_router(ai.router)
 app.include_router(ai_foundation.router)
 app.include_router(ai_insights.router)
+app.include_router(chat_auth.router)
+app.include_router(chatbot.router)
 app.include_router(energy_calculations.router)
 app.include_router(energy_schedule.router)
 app.include_router(uploads.router)

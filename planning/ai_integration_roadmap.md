@@ -83,6 +83,18 @@ Implemented foundation:
 
 ## Phase AI-2: Forecasting
 
+## Phase AI-1.5: Authenticated conversational assistant
+
+Implementation scope:
+
+- database-backed SaaS users and JWT authentication;
+- admin/client roles and portfolio restrictions;
+- fixed tenant-scoped conversation storage;
+- approved quality and market tools;
+- prompt-injection and consequential-action refusal;
+- optional Groq free-tier narration with deterministic fallback;
+- global chatbot UI with evidence, confidence, provider, and safety status.
+
 Deliver:
 
 - 15-minute demand forecast;
