@@ -1,27 +1,77 @@
-
 """
 FastAPI Backend for Power Trading Application
 Enterprise-level API with file upload and data retrieval
 Version: 1.0.1
 """
 
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 import os
 from pathlib import Path
 import sys
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 # Add project root to path
 sys.path.append(str(Path(__file__).parent.parent))
 
+from api.routers import (
+    admin,
+    ai,
+    analytics,
+    clients,
+    energy_calculations,
+    energy_schedule,
+    health,
+    reports,
+    uploads,
+    web,
+    workbooks,
+)
 from database.config import init_db
-from api.routers import admin, ai, analytics, clients, energy_calculations, energy_schedule, health, reports, uploads, web, workbooks
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Initialize database and optional mock data during application startup."""
+    print("🗄️  Initializing database...")
+    init_db()
+    print("✅ Database ready")
+
+    if os.getenv("AUTO_LOAD_MOCK_DATA", "false").lower() == "true":
+        try:
+            from database.config import SessionLocal
+            from database.services import get_all_clients
+
+            db = SessionLocal()
+            try:
+                clients = get_all_clients(db)
+                if len(clients) == 0:
+                    print("📊 Database is empty, loading mock data...")
+                    import subprocess
+                    subprocess.run([sys.executable, "scripts/data_generation/generate_mock_reports.py"], check=False)
+                    subprocess.run([sys.executable, "scripts/ingestion/upload_mock_reports.py"], check=False)
+                    subprocess.run([sys.executable, "scripts/energy_schedule/rebuild_energy_schedules.py"], check=False)
+                    print("✅ Mock data loaded")
+                else:
+                    print(f"✅ Database has {len(clients)} clients already")
+            finally:
+                db.close()
+        except Exception as e:
+            print(f"⚠️  Mock data load failed: {e}")
+            print("   You can upload files manually via the UI")
+    else:
+        print("ℹ️  AUTO_LOAD_MOCK_DATA is disabled")
+
+    yield
+
 
 app = FastAPI(
     title="Power Trading Data API",
     description="Enterprise API for parsing and managing power trading data",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan,
 )
 
 # CORS middleware for web access
@@ -55,39 +105,6 @@ app.include_router(energy_schedule.router)
 app.include_router(uploads.router)
 app.include_router(workbooks.router)
 app.include_router(admin.router)
-
-# Initialize database on startup
-@app.on_event("startup")
-async def startup_event():
-    """Initialize database when app starts"""
-    print("🗄️  Initializing database...")
-    init_db()
-    print("✅ Database ready")
-    
-    if os.getenv("AUTO_LOAD_MOCK_DATA", "false").lower() == "true":
-        try:
-            from database.config import SessionLocal
-            from database.services import get_all_clients
-            
-            db = SessionLocal()
-            try:
-                clients = get_all_clients(db)
-                if len(clients) == 0:
-                    print("📊 Database is empty, loading mock data...")
-                    import subprocess
-                    subprocess.run([sys.executable, "scripts/data_generation/generate_mock_reports.py"], check=False)
-                    subprocess.run([sys.executable, "scripts/ingestion/upload_mock_reports.py"], check=False)
-                    subprocess.run([sys.executable, "scripts/energy_schedule/rebuild_energy_schedules.py"], check=False)
-                    print("✅ Mock data loaded")
-                else:
-                    print(f"✅ Database has {len(clients)} clients already")
-            finally:
-                db.close()
-        except Exception as e:
-            print(f"⚠️  Mock data load failed: {e}")
-            print("   You can upload files manually via the UI")
-    else:
-        print("ℹ️  AUTO_LOAD_MOCK_DATA is disabled")
 
 if __name__ == "__main__":
     import uvicorn

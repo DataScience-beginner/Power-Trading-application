@@ -5,12 +5,12 @@ Supports both SQLite (local development) and PostgreSQL (production).
 DATABASE_URL environment variable determines which database to use.
 """
 
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
 import os
 from pathlib import Path
+
 from dotenv import load_dotenv
+from sqlalchemy import create_engine
+from sqlalchemy.orm import declarative_base, sessionmaker
 
 # Load local environment files. Prefer .env.railway when present so local runs
 # target the same Railway PostgreSQL instance as deployment.
