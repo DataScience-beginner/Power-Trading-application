@@ -44,9 +44,10 @@ class ApiContractTests(unittest.TestCase):
                 self.assertIn(route, api_sources)
 
     def test_app_uses_database_dependency(self) -> None:
-        api = read("api/main.py")
-        self.assertIn("Depends(get_db)", api)
-        self.assertIn("init_db", api)
+        api_sources = read_api_python_sources()
+        app = read("api/main.py")
+        self.assertIn("Depends(get_db)", api_sources)
+        self.assertIn("init_db", app)
 
     def test_endpoint_registry_exists_and_tracks_core_routes(self) -> None:
         registry = read("api/endpoint_registry.yaml")
