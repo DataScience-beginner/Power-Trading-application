@@ -1,11 +1,13 @@
 import { FC, useEffect, useState } from 'react';
-import { Alert, Box, Button, Chip, CircularProgress, Dialog, DialogContent, DialogTitle, Divider, Fab, MenuItem, Stack, TextField, Typography } from '@mui/material';
+import { Alert, Box, Button, Chip, CircularProgress, Divider, Drawer, Fab, IconButton, MenuItem, Stack, TextField, Typography, useMediaQuery, useTheme } from '@mui/material';
 import { Chat, Close, Send } from '@mui/icons-material';
 import apiService from '../../services/api';
 import { useAppSelector } from '../../hooks/useAppStore';
 import type { ChatConversation, ChatMessage, ChatUser } from '../../types/chatbot';
 
 const ChatAssistant: FC = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const clients = useAppSelector((state) => state.dashboard.clients);
   const [open, setOpen] = useState(false);
   const [user, setUser] = useState<ChatUser | null>(null);
@@ -45,10 +47,29 @@ const ChatAssistant: FC = () => {
   };
 
   return <>
-    <Fab color="primary" onClick={() => setOpen(true)} sx={{ position: 'fixed', right: 24, bottom: 24, zIndex: 1400 }}><Chat /></Fab>
-    <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="sm" PaperProps={{ sx: { height: '80vh' } }}>
-      <DialogTitle><Stack direction="row" justifyContent="space-between"><Box><Typography fontWeight={900}>Innowatt Energy Assistant</Typography><Typography variant="caption" color="text.secondary">Scoped tools • verified facts • read-only</Typography></Box><Button onClick={() => setOpen(false)}><Close /></Button></Stack></DialogTitle>
-      <DialogContent dividers sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+    {!open && <Fab color="primary" aria-label="Open energy assistant" onClick={() => setOpen(true)} sx={{ position: 'fixed', right: 24, bottom: 24, zIndex: 1400 }}><Chat /></Fab>}
+    <Drawer
+      anchor="right"
+      open={open}
+      onClose={() => setOpen(false)}
+      variant={isMobile ? 'temporary' : 'persistent'}
+      ModalProps={{ keepMounted: true }}
+      PaperProps={{
+        sx: {
+          width: { xs: '100%', sm: 440 },
+          maxWidth: '100vw',
+          top: { xs: 0, sm: 64 },
+          height: { xs: '100%', sm: 'calc(100% - 64px)' },
+          boxShadow: 8,
+        },
+      }}
+    >
+      <Stack direction="row" justifyContent="space-between" alignItems="flex-start" sx={{ px: 2.5, py: 2 }}>
+        <Box><Typography fontWeight={900}>Innowatt Energy Assistant</Typography><Typography variant="caption" color="text.secondary">Scoped tools • verified facts • read-only</Typography></Box>
+        <IconButton aria-label="Close energy assistant" onClick={() => setOpen(false)}><Close /></IconButton>
+      </Stack>
+      <Divider />
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, p: 2, minHeight: 0, flex: 1 }}>
         {user?.role === 'platform_admin' && <TextField select size="small" label="Client scope" value={clientId} onChange={(event) => { setClientId(Number(event.target.value)); setConversation(null); setMessages([]); }}>{clients.map((client) => <MenuItem key={client.id} value={client.id}>{client.entity_name}</MenuItem>)}</TextField>}
         {error && <Alert severity="error">{error}</Alert>}
         <Box sx={{ flex: 1, overflowY: 'auto' }}><Stack spacing={2}>
@@ -61,8 +82,8 @@ const ChatAssistant: FC = () => {
         </Stack></Box>
         <Divider />
         <Stack direction="row" spacing={1}><TextField fullWidth size="small" placeholder="Ask an energy data question…" value={question} onChange={(event) => setQuestion(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); send(); } }} /><Button variant="contained" onClick={() => send()} disabled={loading || !question.trim()}>{loading ? <CircularProgress size={20} /> : <Send />}</Button></Stack>
-      </DialogContent>
-    </Dialog>
+      </Box>
+    </Drawer>
   </>;
 };
 
