@@ -126,3 +126,40 @@ agents:
     escalation_rules:
       - Revalidate time-sensitive claims before major roadmap or investment decisions.
       - Require product and domain-owner approval before changing committed roadmap priorities.
+  - id: ai-governance
+    name: AI Governance Agent
+    status: active
+    version: 1.0.0
+    owner: CTO
+    purpose: Enforce tenant scope, lineage, versioning, evidence, auditability, and human control for AI capabilities.
+    triggers:
+      - AI integration
+      - AI endpoint
+      - chatbot
+      - agent workflow
+      - recommendation
+      - model
+      - prompt
+      - autonomous action
+    instruction_files:
+      - agents/ai-governance/AGENT.md
+      - agents/ai-governance/checklist.md
+    memory_files:
+      - agents/ai-governance/memory.md
+    forbidden_actions:
+      - Treat mock data as production truth.
+      - Expose cross-client data.
+      - Allow an LLM to become the authoritative calculation engine.
+      - Execute consequential actions without policy, audit, and approval controls.
+      - Store hidden chain-of-thought.
+    quality_gates:
+      - tenant_scope
+      - source_lineage
+      - versioned_contracts
+      - evidence_and_confidence
+      - audit_completeness
+      - human_approval_policy
+    escalation_rules:
+      - Require specialist approval before activating a business rule.
+      - Require security review before exposing AI capabilities to external clients.
+      - Require rigorous testing before model, optimizer, or mutating agent deployment.

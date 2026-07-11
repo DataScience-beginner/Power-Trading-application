@@ -33,6 +33,8 @@ Files / Email / Meters / Weather / IEX / Tariffs
 
 ## Phase AI-0: Trust foundation
 
+Implementation status: foundation implemented on 2026-07-11; production migration and SaaS JWT/RBAC promotion remain deployment follow-ups.
+
 Deliver:
 
 - canonical client/portfolio/site/meter/block data contracts;
@@ -42,6 +44,18 @@ Deliver:
 - tenant-safe authorization for every AI tool.
 
 Exit metric: every displayed or AI-referenced number is traceable to source and client scope.
+
+Implemented foundation:
+
+- additive canonical entities with versioned dynamic attributes;
+- immutable source-artifact lineage and synthetic-data marking;
+- processing-run provenance;
+- effective-dated and human-approved business-rule versions;
+- AI execution audit envelopes;
+- evidence-backed structured decisions and deterministic human narratives;
+- agent-readable capability catalog and endpoint registry;
+- fail-closed machine-to-machine authentication for protected operations;
+- isolated deterministic tests that never write to Railway.
 
 ## Phase AI-1: Read-only intelligence
 

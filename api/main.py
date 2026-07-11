@@ -19,6 +19,7 @@ sys.path.append(str(Path(__file__).parent.parent))
 from api.routers import (
     admin,
     ai,
+    ai_foundation,
     analytics,
     clients,
     energy_calculations,
@@ -99,6 +100,7 @@ app.include_router(clients.router)
 app.include_router(analytics.router)
 app.include_router(reports.router)
 app.include_router(ai.router)
+app.include_router(ai_foundation.router)
 app.include_router(energy_calculations.router)
 app.include_router(energy_schedule.router)
 app.include_router(uploads.router)

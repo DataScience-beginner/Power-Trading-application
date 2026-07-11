@@ -39,6 +39,7 @@ class ApiContractTests(unittest.TestCase):
             '"/api/calculate/energy-schedule"',
             '"/api/reports/daily-trading/pdf"',
             '"/api/reports/daily-trading/excel"',
+            '"/api/v1/ai-foundation/capabilities"',
         ]
 
         for route in required_routes:
@@ -62,6 +63,7 @@ class ApiContractTests(unittest.TestCase):
             "/api/calculate/energy-schedule",
             "/api/reports/daily-trading/pdf",
             "/api/reports/daily-trading/excel",
+            "/api/v1/ai-foundation/capabilities",
         ]
 
         for route in required_routes:
@@ -182,6 +184,25 @@ class AgentGovernanceContractTests(unittest.TestCase):
         registry = read("agents/registry.yaml")
         self.assertIn("codebase-qc", registry)
         self.assertIn("testing-qa", registry)
+        self.assertIn("competitive-intelligence", registry)
+        self.assertIn("ai-governance", registry)
+
+    def test_ai_foundation_is_agent_and_human_readable(self) -> None:
+        required_files = [
+            "api/schemas/ai_foundation.py",
+            "api/services/ai_foundation_service.py",
+            "api/routers/ai_foundation.py",
+            "database/ai_foundation_models.py",
+            "database/migrations/ai_foundation_v1.sql",
+        ]
+        for relative_path in required_files:
+            with self.subTest(file=relative_path):
+                self.assertTrue((ROOT / relative_path).exists())
+
+        schema = read("api/schemas/ai_foundation.py")
+        self.assertIn("EvidenceItem", schema)
+        self.assertIn("human_review_required", schema)
+        self.assertIn("is_synthetic", schema)
 
     def test_root_agent_policy_references_registry(self) -> None:
         policy = read("AGENTS.md")

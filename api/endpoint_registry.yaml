@@ -320,6 +320,75 @@ domains:
         request_model_needed: true
         response_model_needed: true
 
+  ai_foundation:
+    target_router: api/routers/ai_foundation.py
+    contract_version: ai-foundation-v1
+    notes:
+      - Additive compatibility layer; current V0 trading tables remain active.
+      - Mock data is explicitly synthetic and is not treated as production truth.
+      - Controlled writes require client scope and create versioned/auditable records.
+    endpoints:
+      - method: GET
+        path: /api/v1/ai-foundation/capabilities
+        name: get_capabilities
+        safety: read_only
+        chatbot_tool: true
+        response_model_present: true
+      - method: POST
+        path: /api/v1/ai-foundation/entities
+        name: register_canonical_entity
+        safety: controlled_write
+        chatbot_tool: false
+        request_model_present: true
+        response_model_present: true
+      - method: POST
+        path: /api/v1/ai-foundation/source-artifacts
+        name: register_source_artifact
+        safety: controlled_write
+        chatbot_tool: false
+        request_model_present: true
+        response_model_present: true
+      - method: POST
+        path: /api/v1/ai-foundation/processing-runs
+        name: record_processing_run
+        safety: controlled_write
+        chatbot_tool: false
+        request_model_present: true
+        response_model_present: true
+      - method: POST
+        path: /api/v1/ai-foundation/rules
+        name: register_business_rule
+        safety: controlled_write
+        chatbot_tool: false
+        request_model_present: true
+        response_model_present: true
+      - method: GET
+        path: /api/v1/ai-foundation/rules/effective
+        name: get_effective_business_rules
+        safety: read_only
+        chatbot_tool: true
+        response_model_present: true
+      - method: POST
+        path: /api/v1/ai-foundation/audit-events
+        name: record_ai_execution
+        safety: controlled_write
+        chatbot_tool: false
+        request_model_present: true
+        response_model_present: true
+      - method: POST
+        path: /api/v1/ai-foundation/decisions
+        name: record_decision
+        safety: controlled_write
+        chatbot_tool: false
+        request_model_present: true
+        response_model_present: true
+      - method: GET
+        path: /api/v1/ai-foundation/decisions/{decision_id}
+        name: read_decision
+        safety: read_only
+        chatbot_tool: true
+        response_model_present: true
+
 refactor_backlog:
   - Split api/main.py into routers by domain.
   - Move Pydantic request/response models into api/schemas/.
