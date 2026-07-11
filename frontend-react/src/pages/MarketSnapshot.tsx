@@ -42,6 +42,19 @@ const marketRows = [
   { block: '22:00', purchaseBid: 5200, sellBid: 1320, mcv: 1320, scheduled: 1320, mcp: 4100, solar: 0, iex: 860, tneb: 460 },
 ];
 
+const procurementAdvice = marketRows.map((row) => ({
+  ...row,
+  shortfall: Math.max(row.purchaseBid - row.scheduled, 0),
+  recommendation:
+    row.mcp <= 1500
+      ? 'Buy IEX aggressively'
+      : row.solar > row.iex
+        ? 'Prioritize solar consumption'
+        : row.mcp >= 3500
+          ? 'Avoid IEX unless required'
+          : 'Balanced procurement',
+}));
+
 const MarketSnapshot: FC = () => {
   const [tab, setTab] = useState(0);
   const metrics = useMemo(() => {
@@ -119,91 +132,174 @@ const MarketSnapshot: FC = () => {
         ))}
       </Grid>
 
-      <Grid container spacing={3}>
-        <Grid item xs={12} lg={7}>
-          <Card sx={{ borderRadius: 3 }}>
-            <CardContent>
-              <Typography variant="h6" fontWeight={900} gutterBottom>
-                MCP price trend by block
-              </Typography>
-              <Box sx={{ height: 320 }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={marketRows}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="block" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Line type="monotone" dataKey="mcp" name="MCP ₹/MWh" stroke="#2563eb" strokeWidth={3} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
+      {tab === 0 && (
+        <Grid container spacing={3}>
+          <Grid item xs={12} lg={7}>
+            <Card sx={{ borderRadius: 3 }}>
+              <CardContent>
+                <Typography variant="h6" fontWeight={900} gutterBottom>
+                  MCP price trend by block
+                </Typography>
+                <Box sx={{ height: 320 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={marketRows}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="block" />
+                      <YAxis />
+                      <Tooltip />
+                      <Legend />
+                      <Line type="monotone" dataKey="mcp" name="MCP ₹/MWh" stroke="#2563eb" strokeWidth={3} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
 
-        <Grid item xs={12} lg={5}>
-          <Card sx={{ borderRadius: 3 }}>
-            <CardContent>
-              <Typography variant="h6" fontWeight={900} gutterBottom>
-                Purchase bid vs sell bid
-              </Typography>
-              <Box sx={{ height: 320 }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={marketRows}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="block" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="purchaseBid" name="Purchase Bid MW" fill="#0ea5e9" />
-                    <Bar dataKey="sellBid" name="Sell Bid MW" fill="#10b981" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </Box>
-            </CardContent>
-          </Card>
+          <Grid item xs={12} lg={5}>
+            <Card sx={{ borderRadius: 3 }}>
+              <CardContent>
+                <Typography variant="h6" fontWeight={900} gutterBottom>
+                  Purchase bid vs sell bid
+                </Typography>
+                <Box sx={{ height: 320 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={marketRows}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="block" />
+                      <YAxis />
+                      <Tooltip />
+                      <Legend />
+                      <Bar dataKey="purchaseBid" name="Purchase Bid MW" fill="#0ea5e9" />
+                      <Bar dataKey="sellBid" name="Sell Bid MW" fill="#10b981" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
         </Grid>
+      )}
 
-        <Grid item xs={12}>
-          <Card sx={{ borderRadius: 3 }}>
-            <CardContent>
-              <Typography variant="h6" fontWeight={900} gutterBottom>
-                Solar / IEX / TNEB source mix with scheduled volume
-              </Typography>
-              <Box sx={{ height: 340 }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <ComposedChart data={marketRows}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="block" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="solar" stackId="source" name="Solar MW" fill="#22c55e" />
-                    <Bar dataKey="iex" stackId="source" name="IEX MW" fill="#3b82f6" />
-                    <Bar dataKey="tneb" stackId="source" name="TNEB MW" fill="#f97316" />
-                    <Line type="monotone" dataKey="scheduled" name="Scheduled MW" stroke="#111827" strokeWidth={3} />
-                  </ComposedChart>
-                </ResponsiveContainer>
-              </Box>
-            </CardContent>
-          </Card>
+      {tab === 1 && (
+        <Grid container spacing={3}>
+          <Grid item xs={12} lg={7}>
+            <Card sx={{ borderRadius: 3 }}>
+              <CardContent>
+                <Typography variant="h6" fontWeight={900} gutterBottom>
+                  Aggregate demand, supply, and shortfall
+                </Typography>
+                <Box sx={{ height: 340 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <ComposedChart data={procurementAdvice}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="block" />
+                      <YAxis />
+                      <Tooltip />
+                      <Legend />
+                      <Bar dataKey="purchaseBid" name="Demand / Purchase Bid MW" fill="#2563eb" />
+                      <Bar dataKey="sellBid" name="Supply / Sell Bid MW" fill="#10b981" />
+                      <Line type="monotone" dataKey="shortfall" name="Shortfall MW" stroke="#ef4444" strokeWidth={3} />
+                    </ComposedChart>
+                  </ResponsiveContainer>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+
+          <Grid item xs={12} lg={5}>
+            <Card sx={{ borderRadius: 3 }}>
+              <CardContent>
+                <Typography variant="h6" fontWeight={900} gutterBottom>
+                  MCV vs final scheduled volume
+                </Typography>
+                <Box sx={{ height: 340 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={marketRows}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="block" />
+                      <YAxis />
+                      <Tooltip />
+                      <Legend />
+                      <Line type="monotone" dataKey="mcv" name="MCV MW" stroke="#9333ea" strokeWidth={3} />
+                      <Line type="monotone" dataKey="scheduled" name="Final Scheduled MW" stroke="#111827" strokeWidth={3} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
         </Grid>
-      </Grid>
+      )}
+
+      {tab === 2 && (
+        <Grid container spacing={3}>
+          <Grid item xs={12} lg={8}>
+            <Card sx={{ borderRadius: 3 }}>
+              <CardContent>
+                <Typography variant="h6" fontWeight={900} gutterBottom>
+                  Solar / IEX / TNEB source mix with scheduled volume
+                </Typography>
+                <Box sx={{ height: 360 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <ComposedChart data={marketRows}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="block" />
+                      <YAxis />
+                      <Tooltip />
+                      <Legend />
+                      <Bar dataKey="solar" stackId="source" name="Solar MW" fill="#22c55e" />
+                      <Bar dataKey="iex" stackId="source" name="IEX MW" fill="#3b82f6" />
+                      <Bar dataKey="tneb" stackId="source" name="TNEB MW" fill="#f97316" />
+                      <Line type="monotone" dataKey="scheduled" name="Scheduled MW" stroke="#111827" strokeWidth={3} />
+                    </ComposedChart>
+                  </ResponsiveContainer>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+
+          <Grid item xs={12} lg={4}>
+            <Card sx={{ borderRadius: 3, height: '100%' }}>
+              <CardContent>
+                <Typography variant="h6" fontWeight={900} gutterBottom>
+                  Procurement rule of thumb
+                </Typography>
+                <Stack spacing={2}>
+                  <Chip color="success" label="Solar: cheapest, monthly validity" />
+                  <Chip color="primary" label="IEX: buy when MCP is favorable" />
+                  <Chip color="warning" label="TNEB: costly fallback" />
+                  <Typography color="text.secondary">
+                    This view is for deciding when to consume solar now, when to buy IEX, and
+                    when unavoidable TNEB exposure is increasing.
+                  </Typography>
+                </Stack>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+      )}
 
       <Card sx={{ borderRadius: 3 }}>
         <CardContent>
           <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
-            <Typography variant="h6" fontWeight={900}>
-              15-minute block table
-            </Typography>
+              <Typography variant="h6" fontWeight={900}>
+                {tab === 0 && '15-minute market snapshot table'}
+                {tab === 1 && 'Aggregate demand supply table'}
+                {tab === 2 && 'Source mix recommendation table'}
+              </Typography>
             <Chip label="Sample structure" size="small" />
           </Stack>
           <Box sx={{ overflowX: 'auto' }}>
             <Box component="table" sx={{ width: '100%', borderCollapse: 'collapse', minWidth: 900 }}>
               <Box component="thead" sx={{ bgcolor: '#f1f5f9' }}>
                 <Box component="tr">
-                  {['Time Block', 'Purchase Bid MW', 'Sell Bid MW', 'MCV MW', 'Scheduled MW', 'Solar MW', 'IEX MW', 'TNEB MW', 'MCP ₹/MWh'].map((head) => (
+                  {(tab === 0
+                    ? ['Time Block', 'Purchase Bid MW', 'Sell Bid MW', 'MCV MW', 'Scheduled MW', 'Solar MW', 'IEX MW', 'TNEB MW', 'MCP ₹/MWh']
+                    : tab === 1
+                      ? ['Time Block', 'Demand MW', 'Supply MW', 'Shortfall MW', 'MCV MW', 'Scheduled MW', 'MCP ₹/MWh']
+                      : ['Time Block', 'Solar MW', 'IEX MW', 'TNEB MW', 'Scheduled MW', 'MCP ₹/MWh', 'Recommendation']
+                  ).map((head) => (
                     <Box component="th" key={head} sx={{ p: 1.5, textAlign: 'left', fontSize: 13 }}>
                       {head}
                     </Box>
@@ -211,17 +307,43 @@ const MarketSnapshot: FC = () => {
                 </Box>
               </Box>
               <Box component="tbody">
-                {marketRows.map((row) => (
+                {procurementAdvice.map((row) => (
                   <Box component="tr" key={row.block} sx={{ borderTop: '1px solid #e2e8f0' }}>
-                    <Box component="td" sx={{ p: 1.5 }}>{row.block}</Box>
-                    <Box component="td" sx={{ p: 1.5 }}>{row.purchaseBid.toLocaleString()}</Box>
-                    <Box component="td" sx={{ p: 1.5 }}>{row.sellBid.toLocaleString()}</Box>
-                    <Box component="td" sx={{ p: 1.5 }}>{row.mcv.toLocaleString()}</Box>
-                    <Box component="td" sx={{ p: 1.5 }}>{row.scheduled.toLocaleString()}</Box>
-                    <Box component="td" sx={{ p: 1.5 }}>{row.solar.toLocaleString()}</Box>
-                    <Box component="td" sx={{ p: 1.5 }}>{row.iex.toLocaleString()}</Box>
-                    <Box component="td" sx={{ p: 1.5 }}>{row.tneb.toLocaleString()}</Box>
-                    <Box component="td" sx={{ p: 1.5 }}>₹{row.mcp.toLocaleString()}</Box>
+                    {tab === 0 && (
+                      <>
+                        <Box component="td" sx={{ p: 1.5 }}>{row.block}</Box>
+                        <Box component="td" sx={{ p: 1.5 }}>{row.purchaseBid.toLocaleString()}</Box>
+                        <Box component="td" sx={{ p: 1.5 }}>{row.sellBid.toLocaleString()}</Box>
+                        <Box component="td" sx={{ p: 1.5 }}>{row.mcv.toLocaleString()}</Box>
+                        <Box component="td" sx={{ p: 1.5 }}>{row.scheduled.toLocaleString()}</Box>
+                        <Box component="td" sx={{ p: 1.5 }}>{row.solar.toLocaleString()}</Box>
+                        <Box component="td" sx={{ p: 1.5 }}>{row.iex.toLocaleString()}</Box>
+                        <Box component="td" sx={{ p: 1.5 }}>{row.tneb.toLocaleString()}</Box>
+                        <Box component="td" sx={{ p: 1.5 }}>₹{row.mcp.toLocaleString()}</Box>
+                      </>
+                    )}
+                    {tab === 1 && (
+                      <>
+                        <Box component="td" sx={{ p: 1.5 }}>{row.block}</Box>
+                        <Box component="td" sx={{ p: 1.5 }}>{row.purchaseBid.toLocaleString()}</Box>
+                        <Box component="td" sx={{ p: 1.5 }}>{row.sellBid.toLocaleString()}</Box>
+                        <Box component="td" sx={{ p: 1.5 }}>{row.shortfall.toLocaleString()}</Box>
+                        <Box component="td" sx={{ p: 1.5 }}>{row.mcv.toLocaleString()}</Box>
+                        <Box component="td" sx={{ p: 1.5 }}>{row.scheduled.toLocaleString()}</Box>
+                        <Box component="td" sx={{ p: 1.5 }}>₹{row.mcp.toLocaleString()}</Box>
+                      </>
+                    )}
+                    {tab === 2 && (
+                      <>
+                        <Box component="td" sx={{ p: 1.5 }}>{row.block}</Box>
+                        <Box component="td" sx={{ p: 1.5 }}>{row.solar.toLocaleString()}</Box>
+                        <Box component="td" sx={{ p: 1.5 }}>{row.iex.toLocaleString()}</Box>
+                        <Box component="td" sx={{ p: 1.5 }}>{row.tneb.toLocaleString()}</Box>
+                        <Box component="td" sx={{ p: 1.5 }}>{row.scheduled.toLocaleString()}</Box>
+                        <Box component="td" sx={{ p: 1.5 }}>₹{row.mcp.toLocaleString()}</Box>
+                        <Box component="td" sx={{ p: 1.5 }}>{row.recommendation}</Box>
+                      </>
+                    )}
                   </Box>
                 ))}
               </Box>
