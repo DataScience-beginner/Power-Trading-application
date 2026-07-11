@@ -1,6 +1,7 @@
 """Tenant-scoped conversational orchestration over approved deterministic tools."""
 
 from datetime import date, timedelta
+import re
 from uuid import uuid4
 
 from fastapi import HTTPException
@@ -25,18 +26,41 @@ SUGGESTIONS = [
     "How much data is available for this portfolio?",
 ]
 
-BLOCKED_PHRASES = [
-    "ignore previous",
-    "ignore all instructions",
-    "system prompt",
-    "reveal the prompt",
-    "show api key",
-    "show password",
-    "database_url",
-    "drop table",
-    "select * from",
-    "execute sql",
-]
+SAFETY_PATTERNS = {
+    "credential_request": [
+        r"\b(password|credential|secret)\b",
+        r"\bapi[ _-]?key\b",
+        r"\bdatabase[ _-]?url\b",
+        r"\bconnection string\b",
+    ],
+    "prompt_injection": [
+        r"ignore (previous|all|the) instructions",
+        r"\bsystem prompt\b",
+        r"reveal (the |your )?prompt",
+    ],
+    "arbitrary_sql": [
+        r"\b(select|insert|update|delete|drop|alter|truncate)\b.+\b(from|into|table|database)\b",
+        r"\b(execute|run)\s+(raw\s+)?sql\b",
+    ],
+    "cross_tenant_request": [
+        r"\b(another|other|different) client\b",
+        r"\ball clients\b",
+        r"\bcross[- ]client\b",
+    ],
+    "consequential_action": [
+        r"\b(buy|purchase|sell)\b.+\b(mw|power|iex|market)\b",
+        r"\b(place|submit|execute)\b.+\b(bid|trade|order)\b",
+        r"\b(change|modify|update|delete|correct)\b.+\b(schedule|data|record|file)\b",
+    ],
+}
+
+SAFETY_RESPONSES = {
+    "credential_request": "I cannot reveal passwords, credentials, API keys, database URLs, or other secrets.",
+    "prompt_injection": "I cannot reveal internal prompts or ignore the assistant's security instructions.",
+    "arbitrary_sql": "I cannot execute user-supplied SQL or provide direct database access.",
+    "cross_tenant_request": "I cannot access another client's data. This conversation is restricted to its authorized client and portfolio scope.",
+    "consequential_action": "I cannot place bids or trades, buy or sell power, modify schedules, or change data. This assistant is read-only.",
+}
 
 
 def message_response(message: ChatMessage) -> ChatMessageResponse:
@@ -101,9 +125,13 @@ def resolve_date_range(db: Session, conversation: ChatConversation, payload: Cha
     return end - timedelta(days=29), end
 
 
-def blocked_question(question: str) -> bool:
-    text = question.lower()
-    return any(phrase in text for phrase in BLOCKED_PHRASES)
+def safety_violation(question: str) -> str | None:
+    """Return the first governed safety category matched by natural user wording."""
+    text = " ".join(question.lower().split())
+    for category, patterns in SAFETY_PATTERNS.items():
+        if any(re.search(pattern, text) for pattern in patterns):
+            return category
+    return None
 
 
 def persist_message(db: Session, conversation_id: str, role: str, content: str, **metadata) -> ChatMessage:
@@ -123,12 +151,13 @@ def answer_message(
     conversation = get_conversation(db, user, conversation_id)
     start_date, end_date = resolve_date_range(db, conversation, payload)
     user_message = persist_message(db, conversation.id, "user", payload.question, safety_status="submitted")
-    intent = "unsupported" if blocked_question(payload.question) else classify_intent(payload.question)
+    violation = safety_violation(payload.question)
+    intent = "unsupported" if violation else classify_intent(payload.question)
 
     if intent == "unsupported":
-        content = (
-            "I cannot execute or assist with that request. I can explain authorized data quality, coverage, "
-            "recorded cost, and DOR/SCH information without revealing credentials or changing data."
+        content = SAFETY_RESPONSES.get(
+            violation,
+            "That question is outside the approved read-only tools. Ask about authorized data quality, coverage, recorded cost, or DOR/SCH information.",
         )
         assistant = persist_message(
             db,
@@ -139,7 +168,7 @@ def answer_message(
             provider="deterministic",
             model="safety-router-v1",
             prompt_version="chatbot-system-v1",
-            limitations=["Request blocked by the read-only chatbot policy."],
+            limitations=[f"Request blocked by the read-only chatbot policy: {violation or 'unsupported_intent'}."],
             safety_status="blocked",
             confidence=100,
         )
