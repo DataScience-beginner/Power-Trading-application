@@ -4,12 +4,13 @@ import {
   Toolbar,
   Typography,
   IconButton,
-  Avatar,
   Menu,
   MenuItem,
   Box,
   Badge,
   Tooltip,
+  Button,
+  Stack,
 } from '@mui/material';
 import {
   Menu as MenuIcon,
@@ -18,8 +19,9 @@ import {
   UploadFile as UploadFileIcon,
   Calculate as CalculateIcon,
   OpenInNew as OpenInNewIcon,
-  // admin icon
   AdminPanelSettings as AdminPanelSettingsIcon,
+  CloudUpload as CloudUploadIcon,
+  Assessment as AssessmentIcon,
 } from '@mui/icons-material';
 
 interface NavbarProps {
@@ -28,6 +30,8 @@ interface NavbarProps {
   onCalculateClick: () => void;
   onWorkbookInputsClick?: () => void;
   onAdminClick?: () => void;
+  onUploadCenterClick?: () => void;
+  onExportClick?: () => void;
 }
 
 const Navbar: FC<NavbarProps> = ({
@@ -36,6 +40,8 @@ const Navbar: FC<NavbarProps> = ({
   onCalculateClick,
   onWorkbookInputsClick,
   onAdminClick,
+  onUploadCenterClick,
+  onExportClick,
 }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -60,26 +66,65 @@ const Navbar: FC<NavbarProps> = ({
           <MenuIcon />
         </IconButton>
 
-        <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-          Power Trading Dashboard
+        <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1, fontWeight: 800 }}>
+          Innowatt Energy AI
         </Typography>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Tooltip title="Upload Inputs">
-            <IconButton color="inherit" onClick={() => onWorkbookInputsClick && onWorkbookInputsClick()}>
-              <OpenInNewIcon />
-            </IconButton>
-          </Tooltip>
+          <Stack direction="row" spacing={1} sx={{ display: { xs: 'none', lg: 'flex' } }}>
+            <Button
+              color="inherit"
+              variant="outlined"
+              startIcon={<CloudUploadIcon />}
+              onClick={() => onUploadCenterClick && onUploadCenterClick()}
+              sx={{ borderColor: 'rgba(255,255,255,0.5)', textTransform: 'none', fontWeight: 700 }}
+            >
+              Upload Center
+            </Button>
+            <Button
+              color="inherit"
+              variant="outlined"
+              startIcon={<UploadFileIcon />}
+              onClick={onUploadClick}
+              sx={{ borderColor: 'rgba(255,255,255,0.5)', textTransform: 'none', fontWeight: 700 }}
+            >
+              DAM / RTM / GDAM
+            </Button>
+            <Button
+              color="inherit"
+              variant="outlined"
+              startIcon={<OpenInNewIcon />}
+              onClick={() => onWorkbookInputsClick && onWorkbookInputsClick()}
+              sx={{ borderColor: 'rgba(255,255,255,0.5)', textTransform: 'none', fontWeight: 700 }}
+            >
+              Workbook
+            </Button>
+            <Button
+              color="inherit"
+              variant="contained"
+              startIcon={<CalculateIcon />}
+              onClick={onCalculateClick}
+              sx={{ bgcolor: 'rgba(255,255,255,0.18)', textTransform: 'none', fontWeight: 800 }}
+            >
+              Calculate Schedule
+            </Button>
+            <Button
+              color="inherit"
+              startIcon={<AssessmentIcon />}
+              onClick={() => onExportClick && onExportClick()}
+              sx={{ textTransform: 'none', fontWeight: 700 }}
+            >
+              Export Report
+            </Button>
+          </Stack>
 
-          <Tooltip title="Calculate Energy Schedule">
-            <IconButton color="inherit" onClick={onCalculateClick}>
-              <CalculateIcon />
-            </IconButton>
-          </Tooltip>
-
-          <Tooltip title="Upload Trading Report">
-            <IconButton color="inherit" onClick={onUploadClick}>
-              <UploadFileIcon />
+          <Tooltip title="Upload Center">
+            <IconButton
+              color="inherit"
+              onClick={() => onUploadCenterClick && onUploadCenterClick()}
+              sx={{ display: { xs: 'inline-flex', lg: 'none' } }}
+            >
+              <CloudUploadIcon />
             </IconButton>
           </Tooltip>
 

@@ -15,6 +15,8 @@ import {
 import {
   Storage as StorageIcon,
   Dashboard as DashboardIcon,
+  ShowChart as ShowChartIcon,
+  CloudUpload as CloudUploadIcon,
   TrendingUp as TrendingUpIcon,
   Assessment as AssessmentIcon,
   Folder as FolderIcon,
@@ -30,6 +32,8 @@ import { fetchClients } from '../store/dashboardSlice';
 const drawerWidth = 260;
 export type AppPage =
   | 'dashboard'
+  | 'marketSnapshot'
+  | 'uploadCenter'
   | 'energySchedule'
   | 'analytics'
   | 'reports'
@@ -98,6 +102,30 @@ const Sidebar: FC<SidebarProps> = ({ open, onPortfolioSelect, currentPage, onPag
                 <DashboardIcon color={currentPage === 'dashboard' ? 'primary' : 'inherit'} />
               </ListItemIcon>
               <ListItemText primary="Dashboard" />
+            </ListItemButton>
+          </ListItem>
+
+          <ListItem disablePadding>
+            <ListItemButton
+              selected={currentPage === 'marketSnapshot'}
+              onClick={() => onPageChange('marketSnapshot')}
+            >
+              <ListItemIcon>
+                <ShowChartIcon color={currentPage === 'marketSnapshot' ? 'primary' : 'inherit'} />
+              </ListItemIcon>
+              <ListItemText primary="Market Snapshot" />
+            </ListItemButton>
+          </ListItem>
+
+          <ListItem disablePadding>
+            <ListItemButton
+              selected={currentPage === 'uploadCenter'}
+              onClick={() => onPageChange('uploadCenter')}
+            >
+              <ListItemIcon>
+                <CloudUploadIcon color={currentPage === 'uploadCenter' ? 'primary' : 'inherit'} />
+              </ListItemIcon>
+              <ListItemText primary="Upload Center" />
             </ListItemButton>
           </ListItem>
 

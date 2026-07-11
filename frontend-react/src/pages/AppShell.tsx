@@ -10,6 +10,8 @@ import AIPredict from './AIPredict';
 import AdminDatabase from './AdminDatabase';
 import AdminLogin from './AdminLogin';
 import WorkbookInputsPage from './WorkbookInputsPage';
+import MarketSnapshot from './MarketSnapshot';
+import UploadCenter from './UploadCenter';
 import FileUploadDialog from '../components/FileUploadDialog';
 import CalculateEnergyScheduleDialog from '../components/CalculateEnergyScheduleDialog';
 import { useAppDispatch } from '../hooks/useAppStore';
@@ -18,6 +20,8 @@ import NewDashboard from './NewDashboard';
 
 const allowedPages: AppPage[] = [
   'dashboard',
+  'marketSnapshot',
+  'uploadCenter',
   'energySchedule',
   'analytics',
   'reports',
@@ -79,6 +83,8 @@ const AppShell: FC = () => {
         onWorkbookInputsClick={() => handlePageChange('workbooks')}
         onUploadClick={() => setUploadDialogOpen(true)}
         onCalculateClick={() => setCalculateDialogOpen(true)}
+        onUploadCenterClick={() => handlePageChange('uploadCenter')}
+        onExportClick={() => handlePageChange('reports')}
         onAdminClick={() => handlePageChange('adminDatabase')}
       />
       <Sidebar
@@ -99,6 +105,15 @@ const AppShell: FC = () => {
       >
         <Toolbar />
         {currentPage === 'dashboard' && <Dashboard />}
+        {currentPage === 'marketSnapshot' && <MarketSnapshot />}
+        {currentPage === 'uploadCenter' && (
+          <UploadCenter
+            onTradingUpload={() => setUploadDialogOpen(true)}
+            onWorkbookUpload={() => handlePageChange('workbooks')}
+            onCalculateSchedule={() => setCalculateDialogOpen(true)}
+            onAdminOpen={() => handlePageChange('adminDatabase')}
+          />
+        )}
         {currentPage === 'energySchedule' && <EnergySchedule />}
         {currentPage === 'analytics' && <Analytics />}
         {currentPage === 'reports' && <Reports />}
