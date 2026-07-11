@@ -120,6 +120,12 @@ For risky releases, API refactors, database/model changes, parser changes, calcu
 python scripts/quality/golden_test.py --mode rigorous
 ```
 
+If rigorous mode reports missing test dependencies, install the development dependencies first:
+
+```bash
+pip install -r requirements-dev.txt
+```
+
 The golden gate includes the relevant checks:
 
 ```bash

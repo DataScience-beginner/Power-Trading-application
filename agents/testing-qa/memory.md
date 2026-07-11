@@ -15,7 +15,8 @@
   - Python compile.
   - Golden static contracts.
   - Frontend build.
-- Rigorous gate should later normalize and run the full test suite after old tests are made deterministic.
+- Historical manual tests were moved to `archive/legacy/tests/manual/` because they relied on localhost, Railway network, generated `Data/`, or mutable local DB state.
+- Rigorous gate currently runs the deterministic active suite; manual tests must be converted into isolated integration tests before returning to `tests/`.
 
 ## Follow-ups
 
@@ -23,4 +24,3 @@
 - Add a controlled test database profile.
 - Add API contract tests with explicit timeout and DB isolation.
 - Add chatbot/tool endpoint tests once assistant APIs are introduced.
-
