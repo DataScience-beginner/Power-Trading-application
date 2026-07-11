@@ -5,11 +5,16 @@ import apiService from '../../services/api';
 import { useAppSelector } from '../../hooks/useAppStore';
 import type { ChatConversation, ChatMessage, ChatUser } from '../../types/chatbot';
 
-const ChatAssistant: FC = () => {
+interface ChatAssistantProps {
+  open: boolean;
+  onOpen: () => void;
+  onClose: () => void;
+}
+
+const ChatAssistant: FC<ChatAssistantProps> = ({ open, onOpen, onClose }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const clients = useAppSelector((state) => state.dashboard.clients);
-  const [open, setOpen] = useState(false);
   const [user, setUser] = useState<ChatUser | null>(null);
   const [clientId, setClientId] = useState<number | ''>('');
   const [conversation, setConversation] = useState<ChatConversation | null>(null);
@@ -47,11 +52,11 @@ const ChatAssistant: FC = () => {
   };
 
   return <>
-    {!open && <Fab color="primary" aria-label="Open energy assistant" onClick={() => setOpen(true)} sx={{ position: 'fixed', right: 24, bottom: 24, zIndex: 1400 }}><Chat /></Fab>}
+    {!open && <Fab color="primary" aria-label="Open energy assistant" onClick={onOpen} sx={{ position: 'fixed', right: 24, bottom: 24, zIndex: 1400 }}><Chat /></Fab>}
     <Drawer
       anchor="right"
       open={open}
-      onClose={() => setOpen(false)}
+      onClose={onClose}
       variant={isMobile ? 'temporary' : 'persistent'}
       ModalProps={{ keepMounted: true }}
       PaperProps={{
@@ -66,7 +71,7 @@ const ChatAssistant: FC = () => {
     >
       <Stack direction="row" justifyContent="space-between" alignItems="flex-start" sx={{ px: 2.5, py: 2 }}>
         <Box><Typography fontWeight={900}>Innowatt Energy Assistant</Typography><Typography variant="caption" color="text.secondary">Scoped tools • verified facts • read-only</Typography></Box>
-        <IconButton aria-label="Close energy assistant" onClick={() => setOpen(false)}><Close /></IconButton>
+        <IconButton aria-label="Close energy assistant" onClick={onClose}><Close /></IconButton>
       </Stack>
       <Divider />
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, p: 2, minHeight: 0, flex: 1 }}>

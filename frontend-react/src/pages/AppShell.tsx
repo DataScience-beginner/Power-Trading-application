@@ -40,6 +40,7 @@ const AppShell: FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [calculateDialogOpen, setCalculateDialogOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState<AppPage>('dashboard');
   const dispatch = useAppDispatch();
 
@@ -107,9 +108,10 @@ const AppShell: FC = () => {
         sx={{
           flexGrow: 1,
           p: 3,
-          width: { sm: `calc(100% - ${sidebarOpen ? 260 : 0}px)` },
+          width: { sm: `calc(100% - ${sidebarOpen ? 260 : 0}px - ${chatOpen ? 440 : 0}px)` },
           ml: sidebarOpen ? '260px' : 0,
-          transition: 'margin-left 0.3s',
+          mr: { xs: 0, sm: chatOpen ? '440px' : 0 },
+          transition: 'margin-left 0.3s, margin-right 0.3s, width 0.3s',
         }}
       >
         <Toolbar />
@@ -142,7 +144,7 @@ const AppShell: FC = () => {
         onClose={() => setCalculateDialogOpen(false)}
         onSuccess={handleUploadSuccess}
       />
-      <ChatAssistant />
+      <ChatAssistant open={chatOpen} onOpen={() => setChatOpen(true)} onClose={() => setChatOpen(false)} />
     </Box>
   );
 };
