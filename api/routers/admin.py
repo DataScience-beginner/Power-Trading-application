@@ -1,77 +1,19 @@
-"""Admin authentication, database inspection, and reset routes."""
+"""Database inspection routes protected by the enterprise platform-admin identity."""
 
 import json
-from datetime import date, datetime, timedelta
+from datetime import date, datetime
+import os
 
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from jose import JWTError, jwt
-from pydantic import BaseModel
 from sqlalchemy import inspect, text
 from sqlalchemy.orm import Session
 
+from api.security.chat_auth import require_admin
+from database.chatbot_models import AppUser
 from database.config import get_db
 
 
 router = APIRouter(tags=["admin"])
-
-SECRET_KEY = "your-very-secret-key"  # Preserve current behavior; move to env later.
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/admin/login")
-
-ADMIN_USERNAME = "admin"
-ADMIN_PASSWORD = "admin123"  # Preserve current behavior; replace with DB-backed auth later.
-
-
-class Token(BaseModel):
-    """Admin access token response."""
-
-    access_token: str
-    token_type: str
-
-
-class TokenData(BaseModel):
-    """Decoded admin token payload."""
-
-    username: str | None = None
-
-
-def authenticate_admin(username: str, password: str) -> dict[str, str] | None:
-    """Authenticate demo admin credentials."""
-    if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
-        return {"username": username}
-    return None
-
-
-def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
-    """Create JWT access token for admin routes."""
-    to_encode = data.copy()
-    expire = datetime.utcnow() + (expires_delta if expires_delta else timedelta(minutes=15))
-    to_encode.update({"exp": expire})
-    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-
-
-async def get_current_admin(token: str = Depends(oauth2_scheme)) -> dict[str, str]:
-    """Resolve current admin from JWT bearer token."""
-    credentials_exception = HTTPException(
-        status_code=401,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get("sub")
-        if username is None:
-            raise credentials_exception
-        token_data = TokenData(username=username)
-    except JWTError as exc:
-        raise credentials_exception from exc
-    if token_data.username != ADMIN_USERNAME:
-        raise credentials_exception
-    return {"username": token_data.username}
-
 
 @router.get(
     "/api/admin/tables",
@@ -81,7 +23,7 @@ async def get_current_admin(token: str = Depends(oauth2_scheme)) -> dict[str, st
 )
 async def list_tables(
     db: Session = Depends(get_db),
-    current_admin: dict = Depends(get_current_admin),
+    _admin: AppUser = Depends(require_admin),
 ) -> dict[str, list[str]]:
     """Return database table names for the authenticated admin."""
     inspector = inspect(db.bind)
@@ -97,7 +39,7 @@ async def list_tables(
 async def get_table_data(
     table_name: str,
     db: Session = Depends(get_db),
-    current_admin: dict = Depends(get_current_admin),
+    _admin: AppUser = Depends(require_admin),
     limit: int = 100,
     offset: int = 0,
 ) -> dict[str, object]:
@@ -127,42 +69,18 @@ async def get_table_data(
 
 
 @router.post(
-    "/api/admin/login",
-    response_model=Token,
-    summary="Admin login",
-    description="Authenticates admin credentials and returns a bearer token for protected admin endpoints.",
-)
-async def admin_login(form_data: OAuth2PasswordRequestForm = Depends()) -> Token:
-    """Authenticate admin and return bearer token."""
-    user = authenticate_admin(form_data.username, form_data.password)
-    if not user:
-        raise HTTPException(status_code=401, detail="Incorrect username or password")
-    access_token = create_access_token(
-        data={"sub": user["username"]},
-        expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
-    )
-    return Token(access_token=access_token, token_type="bearer")
-
-
-@router.get(
-    "/api/admin/me",
-    response_model=dict[str, str],
-    summary="Get current admin",
-    description="Verifies the current admin bearer token and returns the username.",
-)
-async def read_admin_me(current_admin: dict = Depends(get_current_admin)) -> dict[str, str]:
-    """Return current admin identity."""
-    return {"username": current_admin["username"]}
-
-
-@router.post(
     "/api/admin/reset-database",
     response_model=dict[str, object],
     summary="Reset database",
     description="Destructive admin endpoint that deletes all demo/client trading data and calculations.",
 )
-async def reset_database(db: Session = Depends(get_db)) -> dict[str, object]:
+async def reset_database(
+    db: Session = Depends(get_db),
+    _admin: AppUser = Depends(require_admin),
+) -> dict[str, object]:
     """Reset database tables in dependency-safe order."""
+    if os.getenv("ENABLE_DATABASE_RESET", "false").lower() != "true":
+        raise HTTPException(status_code=404, detail="Database reset is disabled")
     from database.models import (
         Client,
         DailyFile,
@@ -204,4 +122,3 @@ async def reset_database(db: Session = Depends(get_db)) -> dict[str, object]:
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Database reset failed: {str(e)}") from e
-

@@ -85,3 +85,22 @@ def test_identity_migration_is_additive() -> None:
     for table in ["IDENTITY_PROFILES", "RECOVERY_CHALLENGES", "AUTH_SESSIONS", "SECURITY_EVENTS"]:
         assert f"CREATE TABLE IF NOT EXISTS {table}" in migration
     assert "DROP TABLE" not in migration
+
+
+def test_legacy_hardcoded_authentication_is_removed() -> None:
+    active_sources = "\n".join(
+        open(path, encoding="utf-8").read()
+        for path in ["api/routers/admin.py", "api/routers/workbooks.py"]
+    )
+    for forbidden in ["admin123", "your-very-secret-key", "Admin123!", "Tenant123!", "Client123!", "demo.local"]:
+        assert forbidden not in active_sources
+    assert 'Depends(require_admin)' in open("api/routers/admin.py", encoding="utf-8").read()
+
+
+def test_production_security_variables_are_documented() -> None:
+    example = open(".env.example", encoding="utf-8").read()
+    for variable in [
+        "IDENTITY_TOKEN_PEPPER", "ENVIRONMENT", "CORS_ALLOWED_ORIGINS", "APP_BASE_URL",
+        "ENABLE_DEMO_PROVISIONING", "ENABLE_DATABASE_RESET", "SMTP_HOST", "SMS_WEBHOOK_URL",
+    ]:
+        assert f"{variable}=" in example

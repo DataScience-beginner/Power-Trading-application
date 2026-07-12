@@ -9,7 +9,6 @@ import Reports from './Reports';
 import AIPredict from './AIPredict';
 import AIInsights from './AIInsights';
 import AdminDatabase from './AdminDatabase';
-import AdminLogin from './AdminLogin';
 import WorkbookInputsPage from './WorkbookInputsPage';
 import MarketSnapshot from './MarketSnapshot';
 import UploadCenter from './UploadCenter';
@@ -80,7 +79,8 @@ const AppShell: FC = () => {
     window.history.pushState({}, '', url.toString());
   };
 
-  const isAdmin = Boolean(localStorage.getItem('admin_jwt') || sessionStorage.getItem('admin_jwt'));
+  const storedUser = sessionStorage.getItem('innowatt_user');
+  const isAdmin = storedUser ? JSON.parse(storedUser).role === 'platform_admin' : false;
 
   if (!accessToken) {
     return <Navigate to="/login" replace />;
@@ -130,7 +130,7 @@ const AppShell: FC = () => {
         {currentPage === 'reports' && <Reports />}
         {currentPage === 'aiPredict' && <AIPredict />}
         {currentPage === 'aiInsights' && <AIInsights />}
-        {currentPage === 'adminDatabase' && (isAdmin ? <AdminDatabase /> : <AdminLogin onLogin={() => handlePageChange('adminDatabase')} />)}
+        {currentPage === 'adminDatabase' && (isAdmin ? <AdminDatabase /> : <Navigate to="/client/login" replace />)}
         {currentPage === 'newDashboard' && <NewDashboard />}
         {currentPage === 'workbooks' && <WorkbookInputsPage />}
       </Box>

@@ -4,6 +4,7 @@ from datetime import UTC, datetime, timedelta
 import hashlib
 import hmac
 import secrets
+import os
 
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
@@ -22,7 +23,12 @@ def _now() -> datetime:
 
 
 def _digest(value: str) -> str:
-    return hmac.new(jwt_secret().encode(), value.encode(), hashlib.sha256).hexdigest()
+    pepper = os.getenv("IDENTITY_TOKEN_PEPPER")
+    if not pepper or len(pepper) < 32:
+        if os.getenv("ENVIRONMENT", "development") == "production":
+            raise HTTPException(status_code=503, detail="Identity recovery is not configured")
+        pepper = jwt_secret()
+    return hmac.new(pepper.encode(), value.encode(), hashlib.sha256).hexdigest()
 
 
 def _role(portal: str) -> str:

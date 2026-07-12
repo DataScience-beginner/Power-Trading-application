@@ -57,9 +57,9 @@ const Reports: FC = () => {
           const latestDate = transactions[0].date; // assuming sorted
           params.append('date', latestDate);
         }
-        url = `http://localhost:8000/api/reports/daily-trading/${type}?${params.toString()}`;
+        url = `/api/reports/daily-trading/${type}?${params.toString()}`;
       } else if (reportType === 'energy-schedule') {
-        url = `http://localhost:8000/api/reports/energy-schedule/pdf?${params.toString()}`;
+        url = `/api/reports/energy-schedule/pdf?${params.toString()}`;
       }
       
       // Trigger download by opening URL in new window

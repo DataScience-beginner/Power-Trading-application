@@ -16,14 +16,14 @@ const detail = (reason: any, fallback: string) => {
 const Login: FC<LoginProps> = ({ portal }) => {
   const navigate = useNavigate();
   const isAdmin = portal === 'admin';
-  const [email, setEmail] = useState(isAdmin ? 'admin@innowattenergy.com' : '');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('Innowatt Administrator');
   const [serviceKey, setServiceKey] = useState('');
   const [setupOpen, setSetupOpen] = useState(false);
   const [recoveryOpen, setRecoveryOpen] = useState(false);
   const [channel, setChannel] = useState<'email' | 'sms'>('email');
-  const [identifier, setIdentifier] = useState(isAdmin ? 'admin@innowattenergy.com' : '');
+  const [identifier, setIdentifier] = useState('');
   const [code, setCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [codeRequested, setCodeRequested] = useState(false);

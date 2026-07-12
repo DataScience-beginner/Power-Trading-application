@@ -19,10 +19,7 @@ const AdminDatabase: React.FC = () => {
   const [showExcelView, setShowExcelView] = useState(false);
   const [summary, setSummary] = useState<any | null>(null);
 
-  useEffect(() => {
-    const t = localStorage.getItem('admin_jwt') || sessionStorage.getItem('admin_jwt');
-    setToken(t);
-  }, []);
+  useEffect(() => { setToken(sessionStorage.getItem('innowatt_access_token')); }, []);
 
   // Fetch table list
   useEffect(() => {

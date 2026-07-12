@@ -10,7 +10,6 @@ import {
   Divider,
   Grid,
   Stack,
-  TextField,
   Typography,
 } from '@mui/material';
 
@@ -66,14 +65,6 @@ type WorkbookResultsResponse = {
   rows: WorkbookRow[];
 };
 
-type LoginResult = {
-  access_token: string;
-  token_type: string;
-  user: AuthenticatedUser;
-};
-
-const SESSION_KEY = 'energy-platform-workbook-session';
-
 function resolveApiBaseUrl(): string {
   const meta = import.meta as ImportMeta & {
     env?: Record<string, string | undefined>;
@@ -103,13 +94,6 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   }
 
   return (await response.json()) as T;
-}
-
-async function login(portal: PortalType, email: string, password: string): Promise<LoginResult> {
-  return request<LoginResult>('/api/v1/auth/login', {
-    method: 'POST',
-    body: JSON.stringify({ email, password, portal }),
-  });
 }
 
 async function fetchWorkbookHistory(token: string): Promise<WorkbookListItem[]> {
@@ -149,29 +133,22 @@ async function uploadWorkbook(token: string, file: File): Promise<WorkbookUpload
 }
 
 function loadSession(): { token: string; user: AuthenticatedUser; portal: PortalType } | null {
-  const raw = localStorage.getItem(SESSION_KEY);
-  if (!raw) {
+  const token = sessionStorage.getItem('innowatt_access_token');
+  const rawUser = sessionStorage.getItem('innowatt_user');
+  if (!token || !rawUser) {
     return null;
   }
 
   try {
-    return JSON.parse(raw) as { token: string; user: AuthenticatedUser; portal: PortalType };
+    const identity = JSON.parse(rawUser) as { id: string; client_id: number | null; email: string; display_name: string; role: string };
+    return { token, portal: identity.role === 'platform_admin' ? 'admin' : 'client', user: { id: identity.id, tenant_id: identity.client_id ? String(identity.client_id) : null, email: identity.email, full_name: identity.display_name, role_codes: identity.role === 'platform_admin' ? ['platform_admin'] : ['client_viewer'] } };
   } catch {
-    localStorage.removeItem(SESSION_KEY);
     return null;
   }
 }
 
-function saveSession(session: { token: string; user: AuthenticatedUser; portal: PortalType }): void {
-  localStorage.setItem(SESSION_KEY, JSON.stringify(session));
-}
-
 export default function WorkbookInputsPage() {
   const [session, setSession] = useState(loadSession());
-  const [email, setEmail] = useState('client@demo.local');
-  const [password, setPassword] = useState('Client123!');
-  const [loginError, setLoginError] = useState('');
-  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const [workbooks, setWorkbooks] = useState<WorkbookListItem[]>([]);
   const [selectedWorkbookId, setSelectedWorkbookId] = useState<string | null>(null);
@@ -217,21 +194,6 @@ export default function WorkbookInputsPage() {
       .finally(() => setIsBusy(false));
   }, [selectedWorkbookId, session]);
 
-  const handleLogin = async () => {
-    setLoginError('');
-    setIsLoggingIn(true);
-    try {
-      const result = await login('client', email, password);
-      const nextSession = { token: result.access_token, user: result.user, portal: 'client' as const };
-      saveSession(nextSession);
-      setSession(nextSession);
-    } catch (error) {
-      setLoginError(error instanceof Error ? error.message : 'Login failed.');
-    } finally {
-      setIsLoggingIn(false);
-    }
-  };
-
   const handleUpload = async () => {
     if (!session || !uploadFile) {
       return;
@@ -265,20 +227,7 @@ export default function WorkbookInputsPage() {
         <Card sx={{ maxWidth: 520 }}>
           <CardContent>
             <Stack spacing={2}>
-              <Typography variant="body1">
-                Sign in to upload workbooks and review Solar Working results inside the same app.
-              </Typography>
-              <TextField label="Email" value={email} onChange={(event) => setEmail(event.target.value)} />
-              <TextField
-                label="Password"
-                type="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-              />
-              {loginError ? <Alert severity="error">{loginError}</Alert> : null}
-              <Button variant="contained" onClick={handleLogin} disabled={isLoggingIn}>
-                {isLoggingIn ? 'Signing in...' : 'Sign in'}
-              </Button>
+              <Alert severity="warning">Your enterprise session is missing. Return to the appropriate admin or client login portal.</Alert>
             </Stack>
           </CardContent>
         </Card>

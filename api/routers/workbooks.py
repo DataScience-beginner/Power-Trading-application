@@ -1,19 +1,20 @@
 """Workbook auth, upload, and solar-working routes."""
 
 import re
-from datetime import date, datetime, timedelta
+from datetime import date, datetime
 from io import BytesIO
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
-from fastapi import APIRouter, Depends, File, Header, HTTPException, UploadFile
-from jose import JWTError, jwt
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from openpyxl import load_workbook
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from database.config import get_db
+from api.security.chat_auth import get_current_user
+from database.chatbot_models import AppUser
 from database.models import WorkbookResultRow, WorkbookUploadRecord
 
 
@@ -23,19 +24,6 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 OUTPUT_DIR = PROJECT_ROOT / "output"
 OUTPUT_DIR.mkdir(exist_ok=True)
 
-SECRET_KEY = "your-very-secret-key"  # Preserve current behavior; move to env later.
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
-
-
-class WorkbookLoginRequest(BaseModel):
-    """Workbook portal login request."""
-
-    email: str
-    password: str
-    portal: str
-
-
 class WorkbookUserProfile(BaseModel):
     """Workbook portal user profile."""
 
@@ -44,14 +32,6 @@ class WorkbookUserProfile(BaseModel):
     email: str
     full_name: str
     role_codes: list[str]
-
-
-class WorkbookLoginResponse(BaseModel):
-    """Workbook portal login response."""
-
-    access_token: str
-    token_type: str
-    user: WorkbookUserProfile
 
 
 class ParsedSheetSummary(BaseModel):
@@ -108,56 +88,15 @@ class WorkbookResultsApiResponse(BaseModel):
     rows: list[WorkbookRowResponse]
 
 
-WORKBOOK_DEMO_USERS = {
-    "admin@demo.local": {
-        "password": "Admin123!",
-        "full_name": "Platform Admin",
-        "role_codes": ["platform_admin", "tenant_admin"],
-        "tenant_id": "demo-tenant",
-    },
-    "tenantadmin@demo.local": {
-        "password": "Tenant123!",
-        "full_name": "Tenant Admin",
-        "role_codes": ["tenant_admin"],
-        "tenant_id": "demo-tenant",
-    },
-    "client@demo.local": {
-        "password": "Client123!",
-        "full_name": "Client Viewer",
-        "role_codes": ["client_viewer"],
-        "tenant_id": "demo-tenant",
-    },
-}
-
-
-def create_workbook_access_token(user_email: str) -> str:
-    """Create a workbook JWT for the demo portal user."""
-    expires_at = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    return jwt.encode({"sub": user_email, "exp": expires_at}, SECRET_KEY, algorithm=ALGORITHM)
-
-
-def get_workbook_current_user(authorization: str | None = Header(default=None)) -> WorkbookUserProfile:
-    """Resolve current workbook portal user from a bearer token."""
-    if not authorization or not authorization.startswith("Bearer "):
-        raise HTTPException(status_code=401, detail="Missing bearer token.")
-
-    token = authorization.removeprefix("Bearer ").strip()
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        email = payload.get("sub")
-    except JWTError as exc:
-        raise HTTPException(status_code=401, detail="Invalid bearer token.") from exc
-
-    if not email or email not in WORKBOOK_DEMO_USERS:
-        raise HTTPException(status_code=401, detail="Unknown workbook user.")
-
-    user = WORKBOOK_DEMO_USERS[email]
+def get_workbook_current_user(user: AppUser = Depends(get_current_user)) -> WorkbookUserProfile:
+    """Map the enterprise identity into workbook permissions without a second login system."""
+    role_codes = ["platform_admin", "tenant_admin"] if user.role == "platform_admin" else ["client_viewer"]
     return WorkbookUserProfile(
-        id=email,
-        tenant_id=user["tenant_id"],
-        email=email,
-        full_name=user["full_name"],
-        role_codes=user["role_codes"],
+        id=user.id,
+        tenant_id=str(user.client_id) if user.client_id else None,
+        email=user.email,
+        full_name=user.display_name,
+        role_codes=role_codes,
     )
 
 
@@ -299,29 +238,6 @@ def _parse_workbook_rows(file_name: str, content: bytes) -> tuple[
     return sheet_summaries, parsed_rows, workbook_month
 
 
-@router.post(
-    "/api/v1/auth/login",
-    response_model=WorkbookLoginResponse,
-    summary="Workbook portal login",
-    description="Authenticates a workbook portal demo user and returns a bearer token.",
-)
-async def workbook_login(payload: WorkbookLoginRequest) -> WorkbookLoginResponse:
-    """Authenticate workbook portal user."""
-    user = WORKBOOK_DEMO_USERS.get(payload.email)
-    if not user or user["password"] != payload.password:
-        raise HTTPException(status_code=401, detail="Incorrect email or password")
-
-    profile = WorkbookUserProfile(
-        id=payload.email,
-        tenant_id=user["tenant_id"],
-        email=payload.email,
-        full_name=user["full_name"],
-        role_codes=user["role_codes"],
-    )
-    access_token = create_workbook_access_token(payload.email)
-    return WorkbookLoginResponse(access_token=access_token, token_type="bearer", user=profile)
-
-
 @router.get(
     "/api/v1/workbooks",
     response_model=list[WorkbookListItemResponse],
@@ -460,4 +376,3 @@ async def read_workbook_results(
             for row in rows
         ],
     )
-

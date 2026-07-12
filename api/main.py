@@ -81,12 +81,16 @@ app = FastAPI(
 )
 
 # CORS middleware for web access
+allowed_origins = [item.strip() for item in os.getenv("CORS_ALLOWED_ORIGINS", "").split(",") if item.strip()]
+if not allowed_origins and os.getenv("ENVIRONMENT", "development") != "production":
+    allowed_origins = ["http://localhost:5173", "http://localhost:8000"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, specify actual origins
+    allow_origins=allowed_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "X-AI-Foundation-Key"],
 )
 
 # Mount static files - check multiple possible locations

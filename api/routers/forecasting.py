@@ -1,5 +1,7 @@
 """Authenticated AI-2 solar forecasting and demo provisioning routes."""
 
+import os
+
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
@@ -57,4 +59,7 @@ async def provision_multi_tenant_demo(
     db: Session = Depends(get_db),
     _admin: AppUser = Depends(require_admin),
 ) -> DemoProvisionResponse:
+    if os.getenv("ENABLE_DEMO_PROVISIONING", "false").lower() != "true":
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="Demo provisioning is disabled")
     return provision_demo(db, payload)
