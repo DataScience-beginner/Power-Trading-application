@@ -3,6 +3,7 @@
 ## Always check
 
 - No tracked secrets or generated artifacts.
+- Versioned pre-push hook is installed for the active checkout.
 - Python files compile.
 - Golden static contracts pass.
 - Frontend builds when frontend or API response behavior changes.
@@ -12,6 +13,17 @@
 ```bash
 python scripts/quality/golden_test.py --mode standard
 ```
+
+## Push enforcement
+
+Install once after cloning:
+
+```bash
+bash scripts/quality/install_git_hooks.sh
+```
+
+The hook blocks a normal local push when the standard gate fails. The GitHub
+rigorous workflow remains the authoritative merge/deployment gate.
 
 ## Smoke command
 

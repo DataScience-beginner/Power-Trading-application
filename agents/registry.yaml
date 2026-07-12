@@ -84,6 +84,7 @@ agents:
       - Skip golden checks before committing code.
       - Hide skipped checks from the final report.
     quality_gates:
+      - pre_push_gate
       - golden_smoke
       - golden_standard
       - golden_rigorous

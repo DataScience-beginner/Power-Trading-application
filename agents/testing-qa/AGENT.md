@@ -30,6 +30,7 @@ The Testing QA Agent owns:
 - test classification by risk;
 - regression test planning;
 - release-level test recommendations.
+- the versioned local pre-push gate and CI quality workflow.
 
 ## Non-goals
 
@@ -107,6 +108,25 @@ For release or risky refactor work:
 python scripts/quality/golden_test.py --mode rigorous
 ```
 
+## Automatic push gate
+
+Install the versioned hook once per checkout:
+
+```bash
+bash scripts/quality/install_git_hooks.sh
+```
+
+After installation, every local `git push` runs:
+
+```bash
+python scripts/quality/golden_test.py --mode standard
+```
+
+GitHub also runs the rigorous gate on every push to `develop`, `staging`, and
+`V2`, plus pull requests. A hook can be bypassed locally with `--no-verify`,
+but that is a release-control exception and the CI gate must still pass before
+merge or deployment.
+
 ## Output rule
 
 Every testing report should state:
@@ -116,4 +136,3 @@ Every testing report should state:
 - pass/fail status;
 - skipped checks and why;
 - follow-up tests needed.
-

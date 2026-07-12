@@ -2,7 +2,18 @@
 
 This roadmap follows OWASP ASVS, OWASP automated-threat guidance, NIST CSF, and GitHub secure-use guidance. It is an engineering control plan, not a certification claim.
 
-## Phase 1 — application baseline (implemented in this increment)
+## Current status (2026-07-12)
+
+| Phase | Status | Evidence / gap |
+|---|---|---|
+| Phase 1 — application baseline | Partially implemented | Rate limits, headers, upload quarantine, optional scanner, pinned actions, dependency checks, CodeQL and idle logout are implemented. MFA and HttpOnly cookie sessions remain open. |
+| Phase 2 — public traffic | Not implemented | WAF/CDN challenge, Redis quotas, API monitoring and alerts require provider selection and configuration. |
+| Phase 3 — platform protection | Not implemented | Mandatory malware scanning, private object storage, encrypted backups/restore drills, SBOM/image scanning and centralized security logs remain open. |
+| Phase 4 — enterprise governance | Not implemented | Customer SSO/SAML, SCIM, passkeys/device policy, formal penetration testing and SOC 2/ISO evidence work remain open. |
+
+No phase is certified or production-complete solely because its design is documented.
+
+## Phase 1 — application baseline (partial implementation)
 
 - Configurable API rate limiting with stricter identity/upload limits.
 - Security response headers and API no-store behavior.

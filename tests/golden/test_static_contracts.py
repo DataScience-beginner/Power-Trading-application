@@ -195,6 +195,14 @@ class EnergyScheduleContractTests(unittest.TestCase):
         self.assertIn("ApiSecurityMiddleware", read("api/main.py"))
         self.assertIn("CLAMAV_SCAN_REQUIRED", read(".env.example"))
 
+    def test_testing_agent_has_versioned_push_gate(self) -> None:
+        hook = ROOT / ".githooks/pre-push"
+        installer = ROOT / "scripts/quality/install_git_hooks.sh"
+        self.assertTrue(hook.exists())
+        self.assertTrue(installer.exists())
+        self.assertIn("golden_test.py --mode standard", hook.read_text(encoding="utf-8"))
+        self.assertIn("core.hooksPath .githooks", installer.read_text(encoding="utf-8"))
+
 
 class AgentGovernanceContractTests(unittest.TestCase):
     def test_required_agents_are_registered(self) -> None:
