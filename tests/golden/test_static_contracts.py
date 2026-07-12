@@ -198,10 +198,31 @@ class EnergyScheduleContractTests(unittest.TestCase):
     def test_testing_agent_has_versioned_push_gate(self) -> None:
         hook = ROOT / ".githooks/pre-push"
         installer = ROOT / "scripts/quality/install_git_hooks.sh"
+        security_gate = ROOT / "scripts/quality/security_phase_gate.py"
         self.assertTrue(hook.exists())
         self.assertTrue(installer.exists())
+        self.assertTrue(security_gate.exists())
         self.assertIn("golden_test.py --mode standard", hook.read_text(encoding="utf-8"))
         self.assertIn("core.hooksPath .githooks", installer.read_text(encoding="utf-8"))
+        self.assertIn("security_phase_gate.py", hook.read_text(encoding="utf-8"))
+
+    def test_enterprise_security_phase_contracts_exist(self) -> None:
+        required = [
+            "api/security/mfa.py",
+            "api/routers/security_governance.py",
+            "database/migrations/identity_mfa_v1.sql",
+            "scripts/security/generate_control_evidence.py",
+            "compliance/disaster_recovery_exercise.md",
+            "compliance/penetration_test_scope.md",
+            "compliance/vendor_risk_template.md",
+        ]
+        for relative_path in required:
+            with self.subTest(file=relative_path):
+                self.assertTrue((ROOT / relative_path).exists())
+
+        environment = read(".env.example")
+        for variable in ["MFA_ENCRYPTION_KEY", "WAF_VERIFICATION_REQUIRED", "OIDC_ISSUER_URL", "SCIM_BEARER_TOKEN"]:
+            self.assertIn(f"{variable}=", environment)
 
 
 class AgentGovernanceContractTests(unittest.TestCase):

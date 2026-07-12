@@ -3,4 +3,5 @@ set -euo pipefail
 
 echo "Running the Testing QA Agent pre-push gate..."
 python scripts/quality/golden_test.py --mode standard
+python scripts/quality/security_phase_gate.py
 echo "Pre-push gate passed. Push may continue."

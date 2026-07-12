@@ -28,6 +28,7 @@ class ApiService {
   constructor() {
     this.api = axios.create({
       baseURL: import.meta.env.VITE_API_URL || '/api',
+      withCredentials: true,
       headers: {
         'Content-Type': 'application/json',
       },
@@ -48,7 +49,7 @@ class ApiService {
 
     this.api.interceptors.request.use((config) => {
       const token = sessionStorage.getItem('innowatt_access_token');
-      if (token) config.headers.Authorization = `Bearer ${token}`;
+      if (token && token !== 'cookie-session') config.headers.Authorization = `Bearer ${token}`;
       return config;
     });
   }
@@ -314,15 +315,29 @@ class ApiService {
 
   async login(email: string, password: string): Promise<AuthToken> {
     const response = await this.api.post<AuthToken>('/v1/auth/login', { email, password });
-    sessionStorage.setItem('innowatt_access_token', response.data.access_token);
+    sessionStorage.setItem('innowatt_access_token', (import.meta.env.VITE_COOKIE_AUTH_ONLY ?? 'true') === 'true' ? 'cookie-session' : response.data.access_token);
     sessionStorage.setItem('innowatt_user', JSON.stringify(response.data.user));
     return response.data;
   }
 
-  async identityLogin(email: string, password: string, portal: 'admin' | 'client'): Promise<AuthToken> {
-    const response = await this.api.post<AuthToken>('/v1/identity/login', { email, password, portal });
-    sessionStorage.setItem('innowatt_access_token', response.data.access_token);
+  async identityLogin(email: string, password: string, portal: 'admin' | 'client', mfaCode?: string): Promise<AuthToken> {
+    const response = await this.api.post<AuthToken>('/v1/identity/login', { email, password, portal, mfa_code: mfaCode || null });
+    sessionStorage.setItem('innowatt_access_token', (import.meta.env.VITE_COOKIE_AUTH_ONLY ?? 'true') === 'true' ? 'cookie-session' : response.data.access_token);
     sessionStorage.setItem('innowatt_user', JSON.stringify(response.data.user));
+    return response.data;
+  }
+
+  async logout(): Promise<void> {
+    await this.api.post('/v1/auth/logout');
+  }
+
+  async beginMfaEnrollment(): Promise<{ factor_id: string; secret: string; provisioning_uri: string; message: string }> {
+    const response = await this.api.post('/v1/identity/mfa/enroll');
+    return response.data;
+  }
+
+  async verifyMfaEnrollment(code: string): Promise<{ enabled: boolean; recovery_codes: string[]; message: string }> {
+    const response = await this.api.post('/v1/identity/mfa/verify', { code });
     return response.data;
   }
 

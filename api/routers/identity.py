@@ -1,12 +1,12 @@
 """Enterprise role login and channel-based account recovery endpoints."""
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Response
 from sqlalchemy.orm import Session
 
 from api.schemas.chatbot import TokenResponse
-from api.schemas.identity import OnboardingInviteRequest, OnboardingInviteResponse, OnboardingStatusResponse, OnboardingVerifyRequest, OnboardingVerifyResponse, RecoveryConfirmRequest, RecoveryConfirmResponse, RecoveryRequest, RecoveryRequestResponse, RoleLoginRequest
-from api.security.chat_auth import require_admin
-from api.services.identity_service import confirm_recovery, invite_client, onboarding_status, request_recovery, role_login, verify_onboarding
+from api.schemas.identity import MfaEnrollmentResponse, MfaVerifyRequest, MfaVerifyResponse, OnboardingInviteRequest, OnboardingInviteResponse, OnboardingStatusResponse, OnboardingVerifyRequest, OnboardingVerifyResponse, RecoveryConfirmRequest, RecoveryConfirmResponse, RecoveryRequest, RecoveryRequestResponse, RoleLoginRequest
+from api.security.chat_auth import get_current_user, require_admin, set_auth_cookie
+from api.services.identity_service import begin_mfa_enrollment, confirm_recovery, invite_client, onboarding_status, request_recovery, role_login, verify_mfa_enrollment, verify_onboarding
 from database.chatbot_models import AppUser
 from database.config import get_db
 
@@ -15,8 +15,20 @@ router = APIRouter(prefix="/api/v1/identity", tags=["identity"])
 
 
 @router.post("/login", response_model=TokenResponse, summary="Role-aware portal login", description="Authenticates only when the selected admin/client portal matches the user's database role.")
-async def login(payload: RoleLoginRequest, db: Session = Depends(get_db)) -> TokenResponse:
-    return role_login(db, payload)
+async def login(payload: RoleLoginRequest, response: Response, db: Session = Depends(get_db)) -> TokenResponse:
+    result = role_login(db, payload)
+    set_auth_cookie(response, result.access_token, result.expires_at)
+    return result
+
+
+@router.post("/mfa/enroll", response_model=MfaEnrollmentResponse, summary="Begin TOTP MFA enrollment", description="Creates an encrypted TOTP factor and returns its secret once to the authenticated user for authenticator setup.")
+async def mfa_enroll(db: Session = Depends(get_db), user: AppUser = Depends(get_current_user)) -> MfaEnrollmentResponse:
+    return begin_mfa_enrollment(db, user)
+
+
+@router.post("/mfa/verify", response_model=MfaVerifyResponse, summary="Verify and enable TOTP MFA", description="Verifies an authenticator code, enables MFA, and returns single-use recovery codes once.")
+async def mfa_verify(payload: MfaVerifyRequest, db: Session = Depends(get_db), user: AppUser = Depends(get_current_user)) -> MfaVerifyResponse:
+    return verify_mfa_enrollment(db, user, payload.code)
 
 
 @router.post("/recovery/request", response_model=RecoveryRequestResponse, summary="Request account recovery", description="Returns a generic response and sends a rate-limited, ten-minute code through an eligible verified channel.")

@@ -98,6 +98,7 @@ The golden test command is:
 
 ```bash
 python scripts/quality/golden_test.py --mode standard
+python scripts/quality/security_phase_gate.py
 ```
 
 This command is the default checkpoint before committing code.

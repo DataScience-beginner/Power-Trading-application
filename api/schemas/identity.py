@@ -9,6 +9,24 @@ class RoleLoginRequest(BaseModel):
     email: EmailStr
     password: str = Field(..., min_length=10, max_length=200)
     portal: Literal["admin", "client"]
+    mfa_code: str | None = Field(None, min_length=6, max_length=40)
+
+
+class MfaEnrollmentResponse(BaseModel):
+    factor_id: str
+    secret: str
+    provisioning_uri: str
+    message: str = "Store the secret securely and verify one code before MFA becomes active."
+
+
+class MfaVerifyRequest(BaseModel):
+    code: str = Field(..., pattern=r"^[0-9]{6}$")
+
+
+class MfaVerifyResponse(BaseModel):
+    enabled: bool
+    recovery_codes: list[str]
+    message: str = "MFA enabled. Store recovery codes offline; they are shown only once."
 
 
 class RecoveryRequest(BaseModel):

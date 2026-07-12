@@ -9,11 +9,12 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from api.schemas.identity import OnboardingInviteRequest, OnboardingVerifyRequest, RecoveryConfirmRequest, RecoveryRequest, RoleLoginRequest
+from api.security.mfa import totp
 from api.security.chat_auth import hash_password, verify_password
-from api.services.identity_service import confirm_recovery, invite_client, request_recovery, role_login, verify_onboarding
+from api.services.identity_service import begin_mfa_enrollment, confirm_recovery, invite_client, request_recovery, role_login, verify_mfa_enrollment, verify_onboarding
 from database.chatbot_models import AppUser
 from database.config import Base
-from database.identity_models import AuthSession, RecoveryChallenge, SecurityEvent
+from database.identity_models import AuthSession, MfaFactor, RecoveryChallenge, SecurityEvent
 
 
 class CapturingDelivery:
@@ -155,3 +156,23 @@ def test_onboarding_wrong_code_does_not_activate_user(db) -> None:
         ))
     assert error.value.status_code == 400
     assert db.query(AppUser).filter(AppUser.id == invited.user_id, AppUser.is_active.is_(False)).count() == 1
+
+
+def test_totp_mfa_enrollment_and_login(db, monkeypatch) -> None:
+    monkeypatch.setenv("MFA_ENCRYPTION_KEY", "MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA=")
+    admin = db.query(AppUser).filter(AppUser.role == "platform_admin").one()
+    enrollment = begin_mfa_enrollment(db, admin)
+    assert enrollment.secret not in db.query(MfaFactor).one().secret_ciphertext
+    verification = verify_mfa_enrollment(db, admin, totp(enrollment.secret))
+    assert verification.enabled is True
+    assert len(verification.recovery_codes) == 10
+    with pytest.raises(HTTPException) as missing:
+        role_login(db, RoleLoginRequest(email=admin.email, password="AdminPassphrase#2026", portal="admin"))
+    assert missing.value.status_code == 401
+    response = role_login(db, RoleLoginRequest(email=admin.email, password="AdminPassphrase#2026", portal="admin", mfa_code=totp(enrollment.secret)))
+    assert response.user.id == admin.id
+
+
+def test_totp_known_vector(monkeypatch) -> None:
+    monkeypatch.setenv("MFA_ENCRYPTION_KEY", "MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA=")
+    assert totp("GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ", 59) == "287082"

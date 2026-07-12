@@ -16,6 +16,8 @@ from api.schemas.identity import (
     OnboardingStatusResponse,
     OnboardingVerifyRequest,
     OnboardingVerifyResponse,
+    MfaEnrollmentResponse,
+    MfaVerifyResponse,
     RecoveryConfirmRequest,
     RecoveryRequest,
     RoleLoginRequest,
@@ -24,7 +26,8 @@ from api.security.chat_auth import create_access_token, hash_password, jwt_secre
 from api.services.chat_auth_service import user_response
 from api.services.identity_delivery_service import IdentityDeliveryService
 from database.chatbot_models import AppUser
-from database.identity_models import AuthSession, IdentityProfile, OnboardingChallenge, RecoveryChallenge, SecurityEvent
+from database.identity_models import AuthSession, IdentityProfile, MfaFactor, OnboardingChallenge, RecoveryChallenge, SecurityEvent
+from api.security.mfa import decrypt_secret, encrypt_secret, new_secret, provisioning_uri, recovery_codes, utc_now as mfa_now, verify_totp, consume_recovery_code
 
 
 def _now() -> datetime:
@@ -63,10 +66,59 @@ def role_login(db: Session, payload: RoleLoginRequest) -> TokenResponse:
         _event(db, "login", "denied", f"login-{secrets.token_hex(8)}", user, str(payload.email), portal=payload.portal)
         db.commit()
         raise HTTPException(status_code=401, detail="Incorrect email, password, or portal")
+    factor = db.query(MfaFactor).filter(MfaFactor.user_id == user.id, MfaFactor.enabled.is_(True)).first()
+    mfa_required = user.role == "platform_admin" and os.getenv("MFA_REQUIRED_FOR_ADMIN", "false").lower() == "true"
+    if factor:
+        code = payload.mfa_code or ""
+        secret = decrypt_secret(factor.secret_ciphertext)
+        valid_totp = len(code) == 6 and code.isdigit() and verify_totp(secret, code)
+        valid_recovery, remaining = consume_recovery_code(code, factor.recovery_code_hashes or [])
+        if not valid_totp and not valid_recovery:
+            _event(db, "mfa", "denied", f"mfa-{secrets.token_hex(8)}", user, user.email, portal=payload.portal)
+            db.commit()
+            raise HTTPException(status_code=401, detail="A valid MFA or recovery code is required")
+        if valid_recovery:
+            factor.recovery_code_hashes = remaining
+        factor.last_used_at = mfa_now()
+    elif mfa_required:
+        _event(db, "mfa", "enrollment_required", f"mfa-{secrets.token_hex(8)}", user, user.email, portal=payload.portal)
+        db.commit()
+        raise HTTPException(status_code=403, detail="Administrator MFA enrollment is required")
     token, expires_at = create_access_token(user, db=db)
     _event(db, "login", "success", f"login-{secrets.token_hex(8)}", user, user.email, portal=payload.portal)
     db.commit()
     return TokenResponse(access_token=token, expires_at=expires_at, user=user_response(db, user))
+
+
+def begin_mfa_enrollment(db: Session, user: AppUser) -> MfaEnrollmentResponse:
+    """Create or replace a disabled encrypted TOTP factor for the current user."""
+    secret = new_secret()
+    factor = db.query(MfaFactor).filter(MfaFactor.user_id == user.id).first()
+    if not factor:
+        factor = MfaFactor(user_id=user.id, secret_ciphertext=encrypt_secret(secret), enabled=False)
+        db.add(factor)
+    else:
+        factor.secret_ciphertext = encrypt_secret(secret)
+        factor.enabled = False
+        factor.recovery_code_hashes = []
+        factor.verified_at = None
+    db.commit()
+    db.refresh(factor)
+    return MfaEnrollmentResponse(factor_id=factor.id, secret=secret, provisioning_uri=provisioning_uri(secret, user.email))
+
+
+def verify_mfa_enrollment(db: Session, user: AppUser, code: str) -> MfaVerifyResponse:
+    """Verify one TOTP code, enable the factor, and issue one-time recovery codes."""
+    factor = db.query(MfaFactor).filter(MfaFactor.user_id == user.id).first()
+    if not factor or not verify_totp(decrypt_secret(factor.secret_ciphertext), code):
+        raise HTTPException(status_code=400, detail="MFA verification code is invalid")
+    plain, hashed = recovery_codes()
+    factor.enabled = True
+    factor.verified_at = mfa_now()
+    factor.recovery_code_hashes = hashed
+    _event(db, "mfa_enrollment", "success", f"mfa-{secrets.token_hex(8)}", user, user.email)
+    db.commit()
+    return MfaVerifyResponse(enabled=True, recovery_codes=plain)
 
 
 def _verification_code() -> str:

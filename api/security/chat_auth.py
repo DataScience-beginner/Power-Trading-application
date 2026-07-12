@@ -6,7 +6,7 @@ import hmac
 import os
 import secrets
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, Response, status
 from fastapi.security import OAuth2PasswordBearer
 import jwt
 from sqlalchemy.orm import Session
@@ -17,7 +17,31 @@ from database.models import Portfolio
 
 
 ALGORITHM = "HS256"
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login", auto_error=False)
+
+
+def auth_cookie_name() -> str:
+    return os.getenv("AUTH_COOKIE_NAME", "innowatt_session")
+
+
+def set_auth_cookie(response: Response, token: str, expires_at: datetime) -> None:
+    """Set a host-only HttpOnly session cookie when cookie auth is enabled."""
+    if os.getenv("AUTH_COOKIE_ENABLED", "true").lower() != "true":
+        return
+    max_age = max(0, int((expires_at - datetime.now(UTC)).total_seconds()))
+    response.set_cookie(
+        key=auth_cookie_name(),
+        value=token,
+        max_age=max_age,
+        httponly=True,
+        secure=os.getenv("AUTH_COOKIE_SECURE", "true").lower() == "true",
+        samesite=os.getenv("AUTH_COOKIE_SAMESITE", "lax"),
+        path="/",
+    )
+
+
+def clear_auth_cookie(response: Response) -> None:
+    response.delete_cookie(auth_cookie_name(), path="/")
 
 
 def hash_password(password: str) -> str:
@@ -59,9 +83,12 @@ def create_access_token(user: AppUser, db: Session | None = None) -> tuple[str, 
     return jwt.encode(payload, jwt_secret(), algorithm=ALGORITHM), expires_at
 
 
-def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> AppUser:
+def get_current_user(request: Request, token: str | None = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> AppUser:
     """Resolve an active user from a signed token and current database state."""
     error = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired access token")
+    token = token or request.cookies.get(auth_cookie_name())
+    if not token:
+        raise error
     try:
         payload = jwt.decode(token, jwt_secret(), algorithms=[ALGORITHM])
         user_id = payload.get("sub")

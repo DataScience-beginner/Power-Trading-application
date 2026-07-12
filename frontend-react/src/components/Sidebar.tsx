@@ -26,6 +26,7 @@ import {
   CalendarMonth as CalendarIcon,
   Psychology as PsychologyIcon,
   AutoAwesome as AutoAwesomeIcon,
+  Security as SecurityIcon,
 } from '@mui/icons-material';
 import { useAppDispatch, useAppSelector } from '../hooks/useAppStore';
 import { fetchClients } from '../store/dashboardSlice';
@@ -42,7 +43,8 @@ export type AppPage =
   | 'aiInsights'
   | 'adminDatabase'
   | 'newDashboard'
-  | 'workbooks';
+  | 'workbooks'
+  | 'securitySettings';
 
 interface SidebarProps {
   open: boolean;
@@ -188,6 +190,18 @@ const Sidebar: FC<SidebarProps> = ({ open, onPortfolioSelect, currentPage, onPag
                 <PsychologyIcon color={currentPage === 'aiPredict' ? 'primary' : 'inherit'} />
               </ListItemIcon>
               <ListItemText primary="🤖 AI Predict" />
+            </ListItemButton>
+          </ListItem>
+
+          <ListItem disablePadding>
+            <ListItemButton
+              selected={currentPage === 'securitySettings'}
+              onClick={() => onPageChange('securitySettings')}
+            >
+              <ListItemIcon>
+                <SecurityIcon color={currentPage === 'securitySettings' ? 'primary' : 'inherit'} />
+              </ListItemIcon>
+              <ListItemText primary="Security" />
             </ListItemButton>
           </ListItem>
         </List>

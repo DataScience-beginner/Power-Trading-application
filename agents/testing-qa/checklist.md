@@ -25,6 +25,12 @@ bash scripts/quality/install_git_hooks.sh
 The hook blocks a normal local push when the standard gate fails. The GitHub
 rigorous workflow remains the authoritative merge/deployment gate.
 
+Security-sensitive changes must also pass:
+
+```bash
+python scripts/quality/security_phase_gate.py
+```
+
 ## Smoke command
 
 ```bash

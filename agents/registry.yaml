@@ -394,6 +394,10 @@ agents:
       - dependency_scan
       - least_privilege
       - tenant_isolation
+      - mfa_and_cookie_security
+      - edge_and_quota_controls
+      - enterprise_identity_secret_hygiene
+      - compliance_evidence
       - evidence
     escalation_rules:
       - Require explicit risk acceptance for unresolved high findings.

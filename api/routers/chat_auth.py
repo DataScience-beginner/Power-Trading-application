@@ -1,11 +1,11 @@
 """SaaS authentication and admin-led user onboarding routes."""
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Response, status
 from sqlalchemy.orm import Session
 
 from api.schemas.chatbot import AdminRecoveryRequest, BootstrapAdminRequest, LoginRequest, PasswordChangeRequest, PasswordOperationResponse, TokenResponse, UserCreateRequest, UserResponse
 from api.security.ai_foundation import require_ai_foundation_access
-from api.security.chat_auth import create_access_token, get_current_user, require_admin
+from api.security.chat_auth import clear_auth_cookie, create_access_token, get_current_user, require_admin, set_auth_cookie
 from api.services.chat_auth_service import authenticate, bootstrap_admin, change_password, create_user, recover_platform_admin, user_response
 from database.chatbot_models import AppUser
 from database.config import get_db
@@ -35,10 +35,11 @@ async def bootstrap_first_admin(
     summary="Login to Innowatt workspace",
     description="Authenticates an active SaaS user and returns a signed role-aware access token.",
 )
-async def login(payload: LoginRequest, db: Session = Depends(get_db)) -> TokenResponse:
+async def login(payload: LoginRequest, response: Response, db: Session = Depends(get_db)) -> TokenResponse:
     user = authenticate(db, str(payload.email), payload.password)
     token, expires_at = create_access_token(user, db=db)
     db.commit()
+    set_auth_cookie(response, token, expires_at)
     return TokenResponse(access_token=token, expires_at=expires_at, user=user_response(db, user))
 
 
@@ -50,6 +51,24 @@ async def login(payload: LoginRequest, db: Session = Depends(get_db)) -> TokenRe
 )
 async def me(user: AppUser = Depends(get_current_user), db: Session = Depends(get_db)) -> UserResponse:
     return user_response(db, user)
+
+
+@router.post(
+    "/logout",
+    response_model=PasswordOperationResponse,
+    summary="Logout and revoke active sessions",
+    description="Clears the secure browser cookie and revokes active server-side sessions for the authenticated user.",
+)
+async def logout(response: Response, user: AppUser = Depends(get_current_user), db: Session = Depends(get_db)) -> PasswordOperationResponse:
+    from datetime import UTC, datetime
+    from database.identity_models import AuthSession
+
+    db.query(AuthSession).filter(AuthSession.user_id == user.id, AuthSession.revoked_at.is_(None)).update(
+        {"revoked_at": datetime.now(UTC).replace(tzinfo=None)}
+    )
+    db.commit()
+    clear_auth_cookie(response)
+    return PasswordOperationResponse(success=True, message="Signed out successfully.")
 
 
 @router.post(

@@ -88,3 +88,19 @@ class SecurityEvent(Base):
     correlation_id = Column(String(100), nullable=False, index=True)
     event_metadata = Column(JSON, nullable=False, default=dict)
     created_at = Column(DateTime, nullable=False, default=utc_now)
+
+
+class MfaFactor(Base):
+    """Encrypted TOTP factor and one-way recovery-code hashes."""
+
+    __tablename__ = "mfa_factors"
+
+    id = Column(String(36), primary_key=True, default=new_id)
+    user_id = Column(String(36), ForeignKey("app_users.id"), nullable=False, unique=True, index=True)
+    factor_type = Column(String(20), nullable=False, default="totp")
+    secret_ciphertext = Column(String(1000), nullable=False)
+    recovery_code_hashes = Column(JSON, nullable=False, default=list)
+    enabled = Column(Boolean, nullable=False, default=False)
+    verified_at = Column(DateTime, nullable=True)
+    last_used_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, nullable=False, default=utc_now)

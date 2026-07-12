@@ -18,6 +18,7 @@ const Login: FC<LoginProps> = ({ portal }) => {
   const isAdmin = portal === 'admin';
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [mfaCode, setMfaCode] = useState('');
   const [displayName, setDisplayName] = useState('Innowatt Administrator');
   const [serviceKey, setServiceKey] = useState('');
   const [setupOpen, setSetupOpen] = useState(false);
@@ -33,7 +34,7 @@ const Login: FC<LoginProps> = ({ portal }) => {
 
   const login = async (event: FormEvent) => {
     event.preventDefault(); setLoading(true); setError(''); setNotice('');
-    try { await apiService.identityLogin(email, password, portal); navigate('/app'); }
+    try { await apiService.identityLogin(email, password, portal, mfaCode); navigate('/app'); }
     catch (reason) { setError(detail(reason, 'Login failed')); }
     finally { setLoading(false); }
   };
@@ -71,6 +72,7 @@ const Login: FC<LoginProps> = ({ portal }) => {
       {error && <Alert severity="error">{error}</Alert>}{notice && <Alert severity="success">{notice}</Alert>}
       <TextField label="Email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} required />
       <TextField label="Password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} required helperText="Use a long, unique passphrase" />
+      <TextField label="MFA or recovery code (when enabled)" value={mfaCode} onChange={(event) => setMfaCode(event.target.value.trim())} inputProps={{ autoComplete: 'one-time-code' }} />
       <Button type="submit" variant="contained" size="large" disabled={loading} startIcon={<Lock />}>Sign in</Button>
       <Button variant="text" onClick={() => setRecoveryOpen(!recoveryOpen)}>Forgot password?</Button>
       {recoveryOpen && <Stack spacing={2}>

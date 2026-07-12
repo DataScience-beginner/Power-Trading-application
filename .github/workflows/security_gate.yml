@@ -32,7 +32,7 @@ jobs:
           cache: pip
 
       - name: Install Python audit tooling
-        run: python -m pip install --upgrade pip pip-audit
+        run: python -m pip install --upgrade pip pip-audit cyclonedx-bom && python -m pip install -r requirements-dev.txt
 
       - name: Audit Python dependencies
         run: pip-audit -r requirements.txt
@@ -49,3 +49,21 @@ jobs:
         run: |
           npm ci
           npm audit --audit-level=high
+
+      - name: Run security phase gate
+        run: python scripts/quality/security_phase_gate.py
+
+      - name: Generate software bills of materials
+        run: |
+          mkdir -p test-results
+          cyclonedx-py requirements requirements.txt --output-format JSON --output-file test-results/python-sbom.json
+          cd frontend-react
+          npm sbom --sbom-format cyclonedx > ../test-results/frontend-sbom.json
+
+      - name: Upload security evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: security-evidence-${{ github.sha }}
+          path: test-results/**
+          if-no-files-found: ignore

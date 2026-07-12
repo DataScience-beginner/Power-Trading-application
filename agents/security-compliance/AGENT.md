@@ -22,6 +22,9 @@ Read [../../compliance/control_matrix.md](../../compliance/control_matrix.md) wh
 - Verify upload validation, quarantine cleanup, malware-scan mode, and macro policy.
 - Verify rate limits and security headers are enabled in each deployed environment.
 - Review pinned CI actions, CodeQL results, Dependabot updates, and dependency audit evidence.
+- Verify MFA encryption, secure-cookie policy, edge verification, quotas, and alert delivery configuration.
+- Verify enterprise identity endpoints expose configuration status only and never provider secrets.
+- Generate repository evidence and link independent DR, penetration-test, and vendor-risk evidence when available.
 - Preserve evidence for findings, exceptions, remediation owner, and due date.
 
 ## Forbidden actions
@@ -31,3 +34,4 @@ Read [../../compliance/control_matrix.md](../../compliance/control_matrix.md) wh
 - Using production data in DEV or TEST without explicit anonymization approval.
 - Allowing an LLM, user prompt, or arbitrary SQL to bypass authorization.
 - Treating a vulnerability scan as a certification claim.
+- Marking provider-dependent controls complete without activation evidence.

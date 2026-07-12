@@ -20,6 +20,10 @@ This is the lightweight control register for the DEV → TEST → PROD delivery 
 | API abuse resistance | Scoped rate limits, security headers and API no-store responses | Security control tests and deployment variables | Security Compliance Agent | DEV/TEST |
 | Upload safety | Type/signature/archive validation, quarantine names, macro policy and optional AV scan | Upload security tests and scanner evidence | Security Compliance Agent | DEV/TEST |
 | Supply-chain integrity | Pinned workflow actions, dependency audits, CodeQL and Dependabot | Workflow results and dependency updates | Security Compliance Agent | Merge |
+| Strong authentication | Encrypted TOTP factors, recovery codes, secure cookies, session revocation | Identity tests and environment policy | Security Compliance Agent | DEV/TEST |
+| Edge protection | WAF verification contract, rate limits, daily quotas, request IDs and alert webhook | Middleware tests and provider evidence | Security Compliance Agent | TEST/PROD |
+| Enterprise federation | OIDC/SAML/SCIM/passkey configuration contract and device policy | IdP metadata review and federation tests | Identity specialist | TEST/PROD |
+| Compliance readiness | Control evidence, DR exercise, penetration-test scope and vendor-risk review | Signed exercise/review reports | CTO/Security owner | Quarterly |
 
 ## Review cadence
 

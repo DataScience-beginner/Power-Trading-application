@@ -262,6 +262,38 @@ domains:
         safety: read_only
         chatbot_tool: false
 
+  security_governance:
+    target_router: api/routers/security_governance.py
+    contract_version: security-governance-v1
+    notes:
+      - Every endpoint is platform-admin only and returns no secret values.
+      - Provider integrations remain fail closed until environment configuration is complete.
+    endpoints:
+      - method: GET
+        path: /api/v1/security/posture
+        name: security_posture
+        safety: read_only
+        chatbot_tool: false
+        response_model_present: true
+      - method: GET
+        path: /api/v1/security/enterprise-identity
+        name: enterprise_identity_status
+        safety: read_only
+        chatbot_tool: false
+        response_model_present: true
+      - method: GET
+        path: /api/v1/security/device-policy
+        name: device_policy
+        safety: read_only
+        chatbot_tool: false
+        response_model_present: true
+      - method: GET
+        path: /api/v1/security/audit/events
+        name: security_audit_export
+        safety: read_only
+        chatbot_tool: false
+        response_model_present: true
+
   ai_forecasting:
     target_router: api/routers/ai.py
     endpoints:
@@ -419,6 +451,13 @@ domains:
         chatbot_tool: false
         request_model_present: true
         response_model_present: true
+      - method: POST
+        path: /api/v1/auth/logout
+        name: revoke_session_logout
+        safety: controlled_write
+        chatbot_tool: false
+        request_model_present: false
+        response_model_present: true
       - method: GET
         path: /api/v1/auth/me
         name: me
@@ -475,6 +514,20 @@ domains:
       - method: POST
         path: /api/v1/identity/login
         name: role_aware_login
+        safety: controlled_write
+        chatbot_tool: false
+        request_model_present: true
+        response_model_present: true
+      - method: POST
+        path: /api/v1/identity/mfa/enroll
+        name: begin_totp_mfa_enrollment
+        safety: controlled_write
+        chatbot_tool: false
+        request_model_present: false
+        response_model_present: true
+      - method: POST
+        path: /api/v1/identity/mfa/verify
+        name: verify_totp_mfa_enrollment
         safety: controlled_write
         chatbot_tool: false
         request_model_present: true

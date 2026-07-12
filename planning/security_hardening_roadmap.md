@@ -6,14 +6,14 @@ This roadmap follows OWASP ASVS, OWASP automated-threat guidance, NIST CSF, and 
 
 | Phase | Status | Evidence / gap |
 |---|---|---|
-| Phase 1 — application baseline | Partially implemented | Rate limits, headers, upload quarantine, optional scanner, pinned actions, dependency checks, CodeQL and idle logout are implemented. MFA and HttpOnly cookie sessions remain open. |
-| Phase 2 — public traffic | Not implemented | WAF/CDN challenge, Redis quotas, API monitoring and alerts require provider selection and configuration. |
-| Phase 3 — platform protection | Not implemented | Mandatory malware scanning, private object storage, encrypted backups/restore drills, SBOM/image scanning and centralized security logs remain open. |
-| Phase 4 — enterprise governance | Not implemented | Customer SSO/SAML, SCIM, passkeys/device policy, formal penetration testing and SOC 2/ISO evidence work remain open. |
+| Phase 1 — secure application | Code complete; activation pending | TOTP MFA, recovery codes, secure cookies, rate limits, headers, quarantine, scanner adapter and pinned actions are implemented. Production MFA encryption and mandatory antivirus must be activated after migration/scanner installation. |
+| Phase 2 — public traffic | Integration complete; provider pending | Edge verification, bot-sensitive route enforcement, daily quotas, request IDs, structured alerts and webhook integration are implemented. A WAF/CDN and monitoring destination must inject/configure the production values. |
+| Phase 3 — enterprise identity | Contract complete; provider pending | OIDC/SAML/SCIM/passkey/device-policy configuration contracts, posture reporting, tenant authorization and audit exports exist. Real federation and passkeys require customer IdP metadata and a selected WebAuthn implementation/provider. |
+| Phase 4 — compliance readiness | Framework complete; independent evidence pending | Control matrix, evidence generator, DR exercise, penetration-test scope and vendor-risk template exist. Independent penetration testing, restore exercises and SOC 2/ISO assurance remain organizational activities. |
 
 No phase is certified or production-complete solely because its design is documented.
 
-## Phase 1 — application baseline (partial implementation)
+## Phase 1 — secure application
 
 - Configurable API rate limiting with stricter identity/upload limits.
 - Security response headers and API no-store behavior.
@@ -24,34 +24,39 @@ No phase is certified or production-complete solely because its design is docume
 - Immutable GitHub Action references.
 - Dependabot for Python, npm and GitHub Actions.
 - Configurable inactivity logout and JWT/session expiry.
+- Encrypted RFC 6238 TOTP enrollment, one-time recovery codes, and administrator MFA policy.
+- HttpOnly, Secure, SameSite browser-session cookies with bearer compatibility during migration.
 
-## Phase 2 — identity and anti-automation hardening
+## Phase 2 — public traffic protection
 
-- Replace browser-readable bearer-token storage with HttpOnly Secure SameSite cookie sessions.
-- Add admin TOTP/passkey MFA and recovery-code lifecycle.
 - Add Redis-backed rate limits before multi-replica deployment.
 - Add WAF/CDN bot challenge for login, recovery, onboarding and upload routes.
-- Add suspicious-login alerts and device/session management.
-- Add API tenant quotas and request correlation IDs.
+- Structured security alerts with an optional webhook destination.
+- Add API daily quotas and request correlation IDs.
 
 Provider-dependent controls in Phase 2 require a selected WAF/CDN, Redis service, and verified identity provider. They must be configured in DEV/TEST before production.
 
-## Phase 3 — data and platform protection
+## Phase 3 — enterprise identity and platform protection
 
 - Enable mandatory ClamAV or managed malware scanning in TEST and PROD.
 - Store uploads in private object storage rather than application disk.
 - Encrypt sensitive data and restrict database/network access.
 - Add external encrypted PostgreSQL backups and restore drills.
 - Add container image scanning and SBOM publication.
+- CI publishes Python and frontend CycloneDX SBOM evidence; container image scanning remains open.
 - Add centralized logs, alerting and security-event retention.
+- Environment-scoped OIDC/SAML/SCIM integration contracts and non-secret posture reporting.
+- Device/session policy reporting and administrator-only audit export.
+- Passkey activation remains provider/library dependent and disabled by default.
 
-## Phase 4 — enterprise identity and governance
+## Phase 4 — compliance readiness
 
 - SAML/OIDC SSO with a customer identity provider.
 - SCIM user and group provisioning.
 - Role/tenant mapping from signed identity claims plus server-side authorization.
 - Security review, penetration test, vendor risk review and incident exercises.
 - SOC 2/ISO 27001 evidence mapping if commercially required.
+- Machine-readable repository control evidence, DR exercise procedure, penetration-test scope, and vendor-risk template.
 
 ## Release gates
 

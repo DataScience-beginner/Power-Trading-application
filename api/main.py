@@ -31,6 +31,7 @@ from api.routers import (
     identity,
     health,
     reports,
+    security_governance,
     uploads,
     web,
     workbooks,
@@ -110,6 +111,7 @@ app.include_router(health.router)
 app.include_router(clients.router)
 app.include_router(analytics.router)
 app.include_router(reports.router)
+app.include_router(security_governance.router)
 app.include_router(ai.router)
 app.include_router(ai_foundation.router)
 app.include_router(ai_insights.router)

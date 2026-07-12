@@ -11,6 +11,7 @@ import AIInsights from './AIInsights';
 import AdminDatabase from './AdminDatabase';
 import WorkbookInputsPage from './WorkbookInputsPage';
 import MarketSnapshot from './MarketSnapshot';
+import SecuritySettings from './SecuritySettings';
 import UploadCenter from './UploadCenter';
 import FileUploadDialog from '../components/FileUploadDialog';
 import CalculateEnergyScheduleDialog from '../components/CalculateEnergyScheduleDialog';
@@ -21,6 +22,7 @@ import ChatAssistant from '../components/chat/ChatAssistant';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useIdleLogout } from '../hooks/useIdleLogout';
 import { clearAuthSession } from '../security/session';
+import apiService from '../services/api';
 
 const allowedPages: AppPage[] = [
   'dashboard',
@@ -34,6 +36,7 @@ const allowedPages: AppPage[] = [
   'adminDatabase',
   'newDashboard',
   'workbooks',
+  'securitySettings',
 ];
 
 const AppShell: FC = () => {
@@ -47,6 +50,7 @@ const AppShell: FC = () => {
   const dispatch = useAppDispatch();
 
   const logout = () => {
+    void apiService.logout().catch(() => undefined);
     clearAuthSession();
     navigate('/client/login', { replace: true });
   };
@@ -141,6 +145,7 @@ const AppShell: FC = () => {
         {currentPage === 'reports' && <Reports />}
         {currentPage === 'aiPredict' && <AIPredict />}
         {currentPage === 'aiInsights' && <AIInsights />}
+        {currentPage === 'securitySettings' && <SecuritySettings />}
         {currentPage === 'adminDatabase' && (isAdmin ? <AdminDatabase /> : <Navigate to="/client/login" replace />)}
         {currentPage === 'newDashboard' && <NewDashboard />}
         {currentPage === 'workbooks' && <WorkbookInputsPage />}
