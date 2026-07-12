@@ -1,11 +1,12 @@
 """Deterministic application security control tests."""
 
+import asyncio
 from io import BytesIO
 import zipfile
 
 import pytest
 from fastapi import FastAPI, HTTPException
-from fastapi.testclient import TestClient
+import httpx
 
 from api.security.http_security import ApiSecurityMiddleware
 from api.security.upload_security import validate_workbook
@@ -63,7 +64,7 @@ def test_enterprise_identity_status_is_fail_closed(monkeypatch) -> None:
     assert status.scim_configured is False
 
 
-def security_client() -> TestClient:
+def security_app() -> FastAPI:
     app = FastAPI()
     app.add_middleware(ApiSecurityMiddleware)
 
@@ -75,29 +76,36 @@ def security_client() -> TestClient:
     async def identity_check() -> dict[str, bool]:
         return {"ok": True}
 
-    return TestClient(app)
+    return app
+
+
+async def request_security_app(app: FastAPI, method: str, path: str, headers: dict[str, str] | None = None) -> httpx.Response:
+    transport = httpx.ASGITransport(app=app)
+    async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as client:
+        return await client.request(method, path, headers=headers)
 
 
 def test_security_middleware_adds_headers_and_request_id(monkeypatch) -> None:
     monkeypatch.setenv("API_TENANT_DAILY_QUOTA", "100")
-    response = security_client().get("/api/check")
+    response = asyncio.run(request_security_app(security_app(), "GET", "/api/check"))
     assert response.status_code == 200
     assert response.headers["x-content-type-options"] == "nosniff"
     assert response.headers["x-frame-options"] == "DENY"
     assert response.headers["x-request-id"]
     assert "frame-ancestors 'none'" in response.headers["content-security-policy"]
+    assert "style-src 'self' 'unsafe-inline'" in response.headers["content-security-policy"]
 
 
 def test_waf_verification_fails_closed(monkeypatch) -> None:
     monkeypatch.setenv("WAF_VERIFICATION_REQUIRED", "true")
     monkeypatch.setenv("WAF_VERIFICATION_SECRET", "edge-secret")
-    client = security_client()
-    assert client.post("/api/v1/identity/check").status_code == 403
-    assert client.post("/api/v1/identity/check", headers={"X-WAF-Verified": "edge-secret"}).status_code == 200
+    app = security_app()
+    assert asyncio.run(request_security_app(app, "POST", "/api/v1/identity/check")).status_code == 403
+    assert asyncio.run(request_security_app(app, "POST", "/api/v1/identity/check", {"X-WAF-Verified": "edge-secret"})).status_code == 200
 
 
 def test_daily_api_quota_is_enforced(monkeypatch) -> None:
     monkeypatch.setenv("API_TENANT_DAILY_QUOTA", "1")
-    client = security_client()
-    assert client.get("/api/check").status_code == 200
-    assert client.get("/api/check").status_code == 429
+    app = security_app()
+    assert asyncio.run(request_security_app(app, "GET", "/api/check")).status_code == 200
+    assert asyncio.run(request_security_app(app, "GET", "/api/check")).status_code == 429

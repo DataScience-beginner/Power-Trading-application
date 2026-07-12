@@ -107,7 +107,9 @@ class ApiSecurityMiddleware(BaseHTTPMiddleware):
         response.headers.setdefault("X-Frame-Options", "DENY")
         response.headers.setdefault("Referrer-Policy", "no-referrer")
         response.headers.setdefault("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
-        response.headers.setdefault("Content-Security-Policy", "default-src 'self'; frame-ancestors 'none'; object-src 'none'; base-uri 'self'")
+        # MUI/Emotion injects scoped style tags at runtime. Keep script and
+        # frame restrictions strict while allowing the framework's styles.
+        response.headers.setdefault("Content-Security-Policy", "default-src 'self'; style-src 'self' 'unsafe-inline'; frame-ancestors 'none'; object-src 'none'; base-uri 'self'")
         response.headers.setdefault("X-Request-ID", correlation_id)
         if request.url.path.startswith("/api/"):
             response.headers.setdefault("Cache-Control", "no-store")
