@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: quality-${{ github.workflow }}-${{ github.ref }}
@@ -61,3 +61,25 @@ jobs:
             .coverage
             test-results/**
           if-no-files-found: ignore
+
+  promote-staging:
+    name: Promote exact tested commit to staging
+    needs: quality
+    if: >-
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/develop' &&
+      needs.quality.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out the tested commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Promote exact commit to staging
+        run: |
+          git config user.name "innowatt-release-bot"
+          git config user.email "release-bot@users.noreply.github.com"
+          git push origin "HEAD:staging"
