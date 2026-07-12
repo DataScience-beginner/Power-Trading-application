@@ -52,6 +52,11 @@ class ApiContractTests(unittest.TestCase):
         self.assertIn("Depends(get_db)", api_sources)
         self.assertIn("init_db", app)
 
+    def test_frontend_static_json_assets_have_direct_routes(self) -> None:
+        web = read("api/routers/web.py")
+        self.assertIn('"/manifest.json"', web)
+        self.assertIn('"/vite.svg"', web)
+
     def test_endpoint_registry_exists_and_tracks_core_routes(self) -> None:
         registry = read("api/endpoint_registry.yaml")
         required_routes = [

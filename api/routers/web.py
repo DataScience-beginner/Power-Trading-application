@@ -57,6 +57,34 @@ async def parser_ui() -> FileResponse | dict[str, str]:
 
 
 @router.get(
+    "/manifest.json",
+    summary="Serve frontend manifest",
+    description="Returns the React progressive-web-app manifest as JSON instead of the SPA fallback document.",
+    response_model=None,
+)
+async def manifest() -> FileResponse | dict[str, str]:
+    """Serve the manifest file directly so browser parsers receive JSON."""
+    manifest_file = REACT_DIST_DIR / "manifest.json"
+    if manifest_file.exists():
+        return FileResponse(manifest_file, media_type="application/manifest+json")
+    return {"message": "Frontend manifest not found"}
+
+
+@router.get(
+    "/vite.svg",
+    summary="Serve frontend icon",
+    description="Returns the frontend icon without routing it through the SPA fallback.",
+    response_model=None,
+)
+async def vite_icon() -> FileResponse | dict[str, str]:
+    """Serve the Vite icon when present in the public build directory."""
+    icon_file = REACT_DIST_DIR / "vite.svg"
+    if icon_file.exists():
+        return FileResponse(icon_file, media_type="image/svg+xml")
+    return {"message": "Frontend icon not found"}
+
+
+@router.get(
     "/energy-schedule",
     summary="Serve energy schedule page",
     description="Serves the legacy energy schedule dashboard page when available.",
