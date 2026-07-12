@@ -37,7 +37,8 @@ async def bootstrap_first_admin(
 )
 async def login(payload: LoginRequest, db: Session = Depends(get_db)) -> TokenResponse:
     user = authenticate(db, str(payload.email), payload.password)
-    token, expires_at = create_access_token(user)
+    token, expires_at = create_access_token(user, db=db)
+    db.commit()
     return TokenResponse(access_token=token, expires_at=expires_at, user=user_response(db, user))
 
 

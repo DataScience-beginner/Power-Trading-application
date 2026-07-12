@@ -102,5 +102,6 @@ def init_db():
     from database import ai_insights_models  # noqa: F401
     from database import chatbot_models  # noqa: F401
     from database import forecasting_models  # noqa: F401
+    from database import identity_models  # noqa: F401
     Base.metadata.create_all(bind=engine)
     print(f"✅ Database initialized successfully")

@@ -293,3 +293,37 @@ agents:
     escalation_rules:
       - Require specialist review before champion-model promotion.
       - Escalate missing history, high error, provider fallback, or low confidence.
+  - id: identity-security
+    name: Identity Security Agent
+    status: active
+    version: 1.0.0
+    owner: Security Specialist
+    purpose: Govern authentication, tenant-aware authorization, recovery channels, sessions, and security audit controls.
+    triggers:
+      - login
+      - password recovery
+      - MFA
+      - OTP
+      - session
+      - identity
+      - cybersecurity
+    instruction_files:
+      - agents/identity-security/AGENT.md
+      - agents/identity-security/checklist.md
+    memory_files:
+      - agents/identity-security/memory.md
+    forbidden_actions:
+      - Reveal password hashes, recovery codes, API keys, or session tokens.
+      - Trust a requested role or tenant without database authorization.
+      - Return different public recovery responses for existing and missing accounts.
+      - Activate an unverified recovery channel.
+    quality_gates:
+      - role_bound_portals
+      - generic_recovery_response
+      - hashed_single_use_challenges
+      - rate_limits
+      - session_revocation
+      - security_audit
+    escalation_rules:
+      - Require security review before enabling a delivery provider in production.
+      - Require incident review after privileged recovery or repeated abuse signals.

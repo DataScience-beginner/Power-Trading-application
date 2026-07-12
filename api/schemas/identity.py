@@ -1,0 +1,42 @@
+"""Enterprise identity login and account-recovery contracts."""
+
+from typing import Literal
+
+from pydantic import BaseModel, EmailStr, Field, model_validator
+
+
+class RoleLoginRequest(BaseModel):
+    email: EmailStr
+    password: str = Field(..., min_length=10, max_length=200)
+    portal: Literal["admin", "client"]
+
+
+class RecoveryRequest(BaseModel):
+    identifier: str = Field(..., min_length=5, max_length=320)
+    channel: Literal["email", "sms"]
+    portal: Literal["admin", "client"]
+    correlation_id: str = Field(..., min_length=8, max_length=100)
+
+
+class RecoveryRequestResponse(BaseModel):
+    accepted: bool = True
+    message: str = "If the account and recovery channel are eligible, a recovery code will be sent."
+
+
+class RecoveryConfirmRequest(BaseModel):
+    identifier: str = Field(..., min_length=5, max_length=320)
+    portal: Literal["admin", "client"]
+    code: str = Field(..., pattern=r"^[0-9]{6}$")
+    new_password: str = Field(..., min_length=15, max_length=200)
+    correlation_id: str = Field(..., min_length=8, max_length=100)
+
+    @model_validator(mode="after")
+    def password_not_identifier(self):
+        if self.identifier.lower() in self.new_password.lower():
+            raise ValueError("Password must not contain the account identifier")
+        return self
+
+
+class RecoveryConfirmResponse(BaseModel):
+    success: bool
+    message: str

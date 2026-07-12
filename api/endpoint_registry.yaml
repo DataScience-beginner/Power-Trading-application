@@ -485,6 +485,37 @@ domains:
         chatbot_tool: false
         request_model_present: true
         response_model_present: true
+
+  identity:
+    target_router: api/routers/identity.py
+    contract_version: identity-v1
+    notes:
+      - Admin and client portals share one identity service but enforce database roles server-side.
+      - Recovery responses resist account enumeration; codes are hashed, single-use, rate-limited, and expire in ten minutes.
+      - Password recovery revokes active sessions and records security events.
+      - Email SMTP and SMS webhook delivery fail closed until environment credentials are configured.
+    endpoints:
+      - method: POST
+        path: /api/v1/identity/login
+        name: role_aware_login
+        safety: controlled_write
+        chatbot_tool: false
+        request_model_present: true
+        response_model_present: true
+      - method: POST
+        path: /api/v1/identity/recovery/request
+        name: request_account_recovery
+        safety: controlled_write
+        chatbot_tool: false
+        request_model_present: true
+        response_model_present: true
+      - method: POST
+        path: /api/v1/identity/recovery/confirm
+        name: confirm_account_recovery
+        safety: controlled_write
+        chatbot_tool: false
+        request_model_present: true
+        response_model_present: true
       - method: GET
         path: /api/v1/chat/conversations
         name: conversations

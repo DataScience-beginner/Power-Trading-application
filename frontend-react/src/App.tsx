@@ -36,7 +36,9 @@ const App: FC = () => {
           <Route path="/careers" element={<SaasHome page="careers" />} />
           <Route path="/contact" element={<SaasHome page="contact" />} />
           <Route path="/pricing" element={<Pricing />} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/login" element={<Navigate to="/client/login" replace />} />
+          <Route path="/client/login" element={<Login portal="client" />} />
+          <Route path="/admin/login" element={<Login portal="admin" />} />
           <Route path="/app/*" element={<AppShell />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

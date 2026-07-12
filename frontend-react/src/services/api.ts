@@ -314,6 +314,27 @@ class ApiService {
     return response.data;
   }
 
+  async identityLogin(email: string, password: string, portal: 'admin' | 'client'): Promise<AuthToken> {
+    const response = await this.api.post<AuthToken>('/v1/identity/login', { email, password, portal });
+    sessionStorage.setItem('innowatt_access_token', response.data.access_token);
+    sessionStorage.setItem('innowatt_user', JSON.stringify(response.data.user));
+    return response.data;
+  }
+
+  async requestPasswordRecovery(identifier: string, channel: 'email' | 'sms', portal: 'admin' | 'client'): Promise<string> {
+    const response = await this.api.post<{ accepted: boolean; message: string }>('/v1/identity/recovery/request', {
+      identifier, channel, portal, correlation_id: crypto.randomUUID(),
+    });
+    return response.data.message;
+  }
+
+  async confirmPasswordRecovery(identifier: string, code: string, newPassword: string, portal: 'admin' | 'client'): Promise<string> {
+    const response = await this.api.post<{ success: boolean; message: string }>('/v1/identity/recovery/confirm', {
+      identifier, code, new_password: newPassword, portal, correlation_id: crypto.randomUUID(),
+    });
+    return response.data.message;
+  }
+
   async bootstrapAdmin(serviceKey: string, email: string, password: string, displayName: string): Promise<ChatUser> {
     const response = await this.api.post<ChatUser>(
       '/v1/auth/bootstrap-admin',

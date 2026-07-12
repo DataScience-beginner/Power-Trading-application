@@ -47,10 +47,15 @@ def jwt_secret() -> str:
     return secret
 
 
-def create_access_token(user: AppUser) -> tuple[str, datetime]:
+def create_access_token(user: AppUser, db: Session | None = None) -> tuple[str, datetime]:
     """Create a signed token containing identity and role, not trusted scope input."""
     expires_at = datetime.now(UTC) + timedelta(minutes=int(os.getenv("JWT_EXPIRE_MINUTES", "480")))
-    payload = {"sub": user.id, "role": user.role, "exp": expires_at}
+    session_id = secrets.token_hex(18)
+    payload = {"sub": user.id, "role": user.role, "jti": session_id, "exp": expires_at}
+    if db is not None:
+        from database.identity_models import AuthSession
+        db.add(AuthSession(id=session_id, user_id=user.id, role=user.role, expires_at=expires_at.replace(tzinfo=None)))
+        db.flush()
     return jwt.encode(payload, jwt_secret(), algorithm=ALGORITHM), expires_at
 
 
@@ -60,6 +65,7 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     try:
         payload = jwt.decode(token, jwt_secret(), algorithms=[ALGORITHM])
         user_id = payload.get("sub")
+        session_id = payload.get("jti")
         if not user_id:
             raise error
     except JWTError as exc:
@@ -67,6 +73,11 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     user = db.query(AppUser).filter(AppUser.id == user_id, AppUser.is_active.is_(True)).first()
     if not user:
         raise error
+    if session_id:
+        from database.identity_models import AuthSession
+        session = db.query(AuthSession).filter(AuthSession.id == session_id, AuthSession.user_id == user.id, AuthSession.revoked_at.is_(None)).first()
+        if not session:
+            raise error
     return user
 
 

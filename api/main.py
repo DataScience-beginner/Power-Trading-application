@@ -28,6 +28,7 @@ from api.routers import (
     energy_calculations,
     energy_schedule,
     forecasting,
+    identity,
     health,
     reports,
     uploads,
@@ -111,6 +112,7 @@ app.include_router(chatbot.router)
 app.include_router(energy_calculations.router)
 app.include_router(energy_schedule.router)
 app.include_router(forecasting.router)
+app.include_router(identity.router)
 app.include_router(uploads.router)
 app.include_router(workbooks.router)
 app.include_router(admin.router)

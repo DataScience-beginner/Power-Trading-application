@@ -90,6 +90,11 @@ def change_password(db: Session, user: AppUser, payload: PasswordChangeRequest) 
     if verify_password(payload.new_password, user.password_hash):
         raise HTTPException(status_code=400, detail="New password must be different from the current password")
     user.password_hash = hash_password(payload.new_password)
+    from database.identity_models import AuthSession
+    from datetime import UTC, datetime
+    db.query(AuthSession).filter(AuthSession.user_id == user.id, AuthSession.revoked_at.is_(None)).update(
+        {"revoked_at": datetime.now(UTC).replace(tzinfo=None)}
+    )
     db.commit()
 
 
@@ -103,4 +108,9 @@ def recover_platform_admin(db: Session, payload: AdminRecoveryRequest) -> None:
     if not user:
         raise HTTPException(status_code=404, detail="Active platform administrator not found")
     user.password_hash = hash_password(payload.new_password)
+    from database.identity_models import AuthSession
+    from datetime import UTC, datetime
+    db.query(AuthSession).filter(AuthSession.user_id == user.id, AuthSession.revoked_at.is_(None)).update(
+        {"revoked_at": datetime.now(UTC).replace(tzinfo=None)}
+    )
     db.commit()
