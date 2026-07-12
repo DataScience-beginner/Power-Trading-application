@@ -455,6 +455,20 @@ domains:
         chatbot_tool: false
         request_model_present: true
         response_model_present: true
+      - method: POST
+        path: /api/v1/auth/change-password
+        name: change_authenticated_password
+        safety: controlled_write
+        chatbot_tool: false
+        request_model_present: true
+        response_model_present: true
+      - method: POST
+        path: /api/v1/auth/recover-admin
+        name: recover_platform_administrator
+        safety: controlled_write
+        chatbot_tool: false
+        request_model_present: true
+        response_model_present: true
 
   chatbot:
     target_router: api/routers/chatbot.py

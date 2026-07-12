@@ -323,6 +323,23 @@ class ApiService {
     return response.data;
   }
 
+  async recoverAdmin(serviceKey: string, email: string, newPassword: string): Promise<string> {
+    const response = await this.api.post<{ success: boolean; message: string }>(
+      '/v1/auth/recover-admin',
+      { email, new_password: newPassword },
+      { headers: this.aiHeaders(serviceKey) }
+    );
+    return response.data.message;
+  }
+
+  async changePassword(currentPassword: string, newPassword: string): Promise<string> {
+    const response = await this.api.post<{ success: boolean; message: string }>('/v1/auth/change-password', {
+      current_password: currentPassword,
+      new_password: newPassword,
+    });
+    return response.data.message;
+  }
+
   async getCurrentUser(): Promise<ChatUser> {
     const response = await this.api.get<ChatUser>('/v1/auth/me', { headers: this.authHeaders() });
     return response.data;

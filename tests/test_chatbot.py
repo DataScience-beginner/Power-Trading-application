@@ -8,9 +8,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from api.schemas.chatbot import ChatQueryRequest, ConversationCreateRequest, UserCreateRequest
+from api.schemas.chatbot import AdminRecoveryRequest, ChatQueryRequest, ConversationCreateRequest, PasswordChangeRequest, UserCreateRequest
 from api.security.chat_auth import authorize_scope, create_access_token, hash_password, verify_password
-from api.services.chat_auth_service import create_user
+from api.services.chat_auth_service import authenticate, change_password, create_user, recover_platform_admin
 from api.services.chat_model_provider import GroqNarrativeProvider
 from api.services.chatbot_service import answer_message, create_conversation, get_conversation, safety_violation
 from api.services.insight_assistant_service import classify_intent
@@ -72,6 +72,33 @@ def test_password_hash_and_jwt_are_not_plaintext(db) -> None:
     ))
     token, expires = create_access_token(user)
     assert token and expires > datetime.now(expires.tzinfo)
+
+
+def test_authenticated_password_change_requires_current_password(db) -> None:
+    session, client, _, portfolio, _ = db
+    user = create_user(session, UserCreateRequest(
+        email="password-change@example.com", password="OriginalPassword#2026", display_name="Password User",
+        role="client_user", client_id=client.id, portfolio_ids=[portfolio.id],
+    ))
+    with pytest.raises(HTTPException) as wrong:
+        change_password(session, user, PasswordChangeRequest(current_password="WrongPassword#2026", new_password="NewPassword#2026"))
+    assert wrong.value.status_code == 401
+    change_password(session, user, PasswordChangeRequest(current_password="OriginalPassword#2026", new_password="NewPassword#2026"))
+    assert authenticate(session, user.email, "NewPassword#2026").id == user.id
+
+
+def test_platform_admin_recovery_changes_only_active_admin(db) -> None:
+    session, *_ = db
+    admin = AppUser(
+        email="recover-admin@example.com", display_name="Recover Admin",
+        password_hash=hash_password("OriginalAdmin#2026"), role="platform_admin",
+    )
+    session.add(admin); session.commit()
+    recover_platform_admin(session, AdminRecoveryRequest(email=admin.email, new_password="RecoveredAdmin#2026"))
+    assert authenticate(session, admin.email, "RecoveredAdmin#2026").id == admin.id
+    with pytest.raises(HTTPException) as missing:
+        recover_platform_admin(session, AdminRecoveryRequest(email="client@example.com", new_password="RecoveredAdmin#2026"))
+    assert missing.value.status_code == 404
 
 
 def test_client_and_portfolio_scope_cannot_cross_tenants(db) -> None:

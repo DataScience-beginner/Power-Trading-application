@@ -4,7 +4,7 @@ from fastapi import HTTPException
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from api.schemas.chatbot import BootstrapAdminRequest, UserCreateRequest, UserResponse
+from api.schemas.chatbot import AdminRecoveryRequest, PasswordChangeRequest, UserCreateRequest, UserResponse, BootstrapAdminRequest
 from api.security.chat_auth import hash_password, verify_password
 from database.chatbot_models import AppUser, UserPortfolioAccess
 from database.models import Client, Portfolio
@@ -81,3 +81,26 @@ def authenticate(db: Session, email: str, password: str) -> AppUser:
     if not user or not verify_password(password, user.password_hash):
         raise HTTPException(status_code=401, detail="Incorrect email or password")
     return user
+
+
+def change_password(db: Session, user: AppUser, payload: PasswordChangeRequest) -> None:
+    """Change an authenticated user's password after verifying the current secret."""
+    if not verify_password(payload.current_password, user.password_hash):
+        raise HTTPException(status_code=401, detail="Current password is incorrect")
+    if verify_password(payload.new_password, user.password_hash):
+        raise HTTPException(status_code=400, detail="New password must be different from the current password")
+    user.password_hash = hash_password(payload.new_password)
+    db.commit()
+
+
+def recover_platform_admin(db: Session, payload: AdminRecoveryRequest) -> None:
+    """Reset only an active platform administrator after service-key authorization."""
+    user = db.query(AppUser).filter(
+        AppUser.email == str(payload.email).lower(),
+        AppUser.role == "platform_admin",
+        AppUser.is_active.is_(True),
+    ).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Active platform administrator not found")
+    user.password_hash = hash_password(payload.new_password)
+    db.commit()

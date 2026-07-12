@@ -3,10 +3,10 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
-from api.schemas.chatbot import BootstrapAdminRequest, LoginRequest, TokenResponse, UserCreateRequest, UserResponse
+from api.schemas.chatbot import AdminRecoveryRequest, BootstrapAdminRequest, LoginRequest, PasswordChangeRequest, PasswordOperationResponse, TokenResponse, UserCreateRequest, UserResponse
 from api.security.ai_foundation import require_ai_foundation_access
 from api.security.chat_auth import create_access_token, get_current_user, require_admin
-from api.services.chat_auth_service import authenticate, bootstrap_admin, create_user, user_response
+from api.services.chat_auth_service import authenticate, bootstrap_admin, change_password, create_user, recover_platform_admin, user_response
 from database.chatbot_models import AppUser
 from database.config import get_db
 
@@ -64,3 +64,33 @@ async def register_user(
     _admin: AppUser = Depends(require_admin),
 ) -> UserResponse:
     return user_response(db, create_user(db, payload))
+
+
+@router.post(
+    "/change-password",
+    response_model=PasswordOperationResponse,
+    summary="Change authenticated user password",
+    description="Verifies the current password before replacing it with a new one-way hash.",
+)
+async def update_own_password(
+    payload: PasswordChangeRequest,
+    db: Session = Depends(get_db),
+    user: AppUser = Depends(get_current_user),
+) -> PasswordOperationResponse:
+    change_password(db, user, payload)
+    return PasswordOperationResponse(success=True, message="Password changed successfully. Sign in again on other devices.")
+
+
+@router.post(
+    "/recover-admin",
+    response_model=PasswordOperationResponse,
+    summary="Recover platform administrator password",
+    description="Allows locked-out founder recovery using the internal AI Foundation service credential; never returns password hashes.",
+)
+async def recover_admin_password(
+    payload: AdminRecoveryRequest,
+    db: Session = Depends(get_db),
+    _access: str = Depends(require_ai_foundation_access),
+) -> PasswordOperationResponse:
+    recover_platform_admin(db, payload)
+    return PasswordOperationResponse(success=True, message="Administrator password reset. You can now sign in.")

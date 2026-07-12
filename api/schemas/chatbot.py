@@ -31,6 +31,21 @@ class BootstrapAdminRequest(LoginRequest):
     display_name: str = Field(..., min_length=2, max_length=255)
 
 
+class PasswordChangeRequest(BaseModel):
+    current_password: str = Field(..., min_length=10, max_length=200)
+    new_password: str = Field(..., min_length=12, max_length=200)
+
+
+class AdminRecoveryRequest(BaseModel):
+    email: EmailStr
+    new_password: str = Field(..., min_length=12, max_length=200)
+
+
+class PasswordOperationResponse(BaseModel):
+    success: bool
+    message: str
+
+
 class UserCreateRequest(LoginRequest):
     display_name: str = Field(..., min_length=2, max_length=255)
     role: Literal["platform_admin", "client_user"]
