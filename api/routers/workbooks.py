@@ -16,6 +16,7 @@ from database.config import get_db
 from api.security.chat_auth import get_current_user
 from database.chatbot_models import AppUser
 from database.models import WorkbookResultRow, WorkbookUploadRecord
+from api.security.upload_security import max_upload_bytes, scan_file, validate_workbook
 
 
 router = APIRouter(tags=["workbooks"])
@@ -283,14 +284,8 @@ async def upload_workbook_v1(
     ),
 ) -> WorkbookUploadApiResponse:
     """Upload and parse a workbook."""
-    if not file.filename:
-        raise HTTPException(status_code=400, detail="File name is required.")
-    if not file.filename.lower().endswith(".xlsx"):
-        raise HTTPException(status_code=400, detail="Only .xlsx workbooks are supported.")
-
-    content = await file.read()
-    if not content:
-        raise HTTPException(status_code=400, detail="Uploaded file is empty.")
+    content = await file.read(max_upload_bytes() + 1)
+    validate_workbook(file.filename, content)
 
     sheet_summaries, parsed_rows, workbook_month = _parse_workbook_rows(file.filename, content)
     workbook_id = str(uuid4())
@@ -298,6 +293,11 @@ async def upload_workbook_v1(
     workbook_dir.mkdir(parents=True, exist_ok=True)
     stored_path = workbook_dir / f"{workbook_id}.xlsx"
     stored_path.write_bytes(content)
+    try:
+        scan_file(stored_path)
+    except Exception:
+        stored_path.unlink(missing_ok=True)
+        raise
 
     upload = WorkbookUploadRecord(
         id=workbook_id,

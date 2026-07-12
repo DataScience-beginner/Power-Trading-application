@@ -36,6 +36,7 @@ from api.routers import (
     workbooks,
 )
 from database.config import init_db
+from api.security.http_security import ApiSecurityMiddleware
 
 
 @asynccontextmanager
@@ -92,6 +93,7 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type", "X-AI-Foundation-Key"],
 )
+app.add_middleware(ApiSecurityMiddleware)
 
 # Mount static files - check multiple possible locations
 frontend_dir = Path(__file__).parent.parent / "frontend"

@@ -19,6 +19,9 @@ Read [../../compliance/control_matrix.md](../../compliance/control_matrix.md) wh
 - Run Python and npm dependency audits.
 - Verify tenant and portfolio authorization at API boundaries.
 - Confirm production secrets are unavailable to DEV/TEST jobs.
+- Verify upload validation, quarantine cleanup, malware-scan mode, and macro policy.
+- Verify rate limits and security headers are enabled in each deployed environment.
+- Review pinned CI actions, CodeQL results, Dependabot updates, and dependency audit evidence.
 - Preserve evidence for findings, exceptions, remediation owner, and due date.
 
 ## Forbidden actions

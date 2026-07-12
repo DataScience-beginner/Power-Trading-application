@@ -17,6 +17,9 @@ This is the lightweight control register for the DEV → TEST → PROD delivery 
 | Recovery | External encrypted PostgreSQL dump and restore runbook | Backup checksum/location | Operations owner | PROD |
 | Availability | Health checks, restart policy, post-deploy smoke | Railway and workflow logs | Deployment Agent | Deploy |
 | AI governance | Tool allowlist, evidence, confidence, tenant scope | AI test/audit record | AI Governance Agent | AI changes |
+| API abuse resistance | Scoped rate limits, security headers and API no-store responses | Security control tests and deployment variables | Security Compliance Agent | DEV/TEST |
+| Upload safety | Type/signature/archive validation, quarantine names, macro policy and optional AV scan | Upload security tests and scanner evidence | Security Compliance Agent | DEV/TEST |
+| Supply-chain integrity | Pinned workflow actions, dependency audits, CodeQL and Dependabot | Workflow results and dependency updates | Security Compliance Agent | Merge |
 
 ## Review cadence
 

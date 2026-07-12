@@ -10,6 +10,8 @@ from sqlalchemy.orm import Session
 
 from database import services as db_services
 from database.config import get_db
+from api.security.upload_security import max_upload_bytes, scan_file, validate_workbook
+from uuid import uuid4
 from parsers.DOR_Parser import GDAMTemplateParser
 from parsers.SCH_Parser import SCHTemplateParser
 
@@ -99,23 +101,18 @@ async def upload_file(
     print(f"Size: {file.size if hasattr(file, 'size') else 'unknown'}")
     print(f"{'=' * 60}\n")
 
-    filename_lower = file.filename.lower()
-    if not (filename_lower.endswith(".xls") or filename_lower.endswith(".xlsx")):
-        print(f"❌ REJECTED: Invalid file extension for {file.filename}")
-        raise HTTPException(
-            status_code=400,
-            detail="Invalid file type. Only .xls and .xlsx files are supported.",
-        )
-
-    print(f"✅ File type validation passed: {file.filename}")
-
     try:
-        temp_file = OUTPUT_DIR / f"temp_{file.filename}"
+        content = await file.read(max_upload_bytes() + 1)
+        validate_workbook(file.filename, content)
+        quarantine_dir = OUTPUT_DIR / "quarantine"
+        quarantine_dir.mkdir(parents=True, exist_ok=True)
+        temp_file = quarantine_dir / f"{uuid4()}{Path(file.filename).suffix.lower()}"
         print(f"💾 Saving to temp location: {temp_file}")
 
         with open(temp_file, "wb") as f:
-            content = await file.read()
             f.write(content)
+
+        scan_file(temp_file)
 
         print(f"✅ File saved successfully ({len(content)} bytes)")
 
@@ -139,7 +136,7 @@ async def upload_file(
             print(f"   - Buy Transactions: {len(parsed_data['buy_transactions'])}")
             print(f"   - Sell Transactions: {len(parsed_data['sell_transactions'])}")
 
-        output_filename = f"{Path(file.filename).stem}_parsed_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        output_filename = f"{uuid4()}_parsed.json"
         output_file = OUTPUT_DIR / output_filename
 
         print(f"💾 Saving parsed data to: {output_filename}")
@@ -393,4 +390,3 @@ async def delete_file(filename: str) -> dict[str, Any]:
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error deleting file: {str(e)}") from e
-

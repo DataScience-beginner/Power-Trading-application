@@ -189,6 +189,12 @@ class EnergyScheduleContractTests(unittest.TestCase):
         self.assertIn("clearAuthSession", hook)
         self.assertIn("useIdleLogout", app_shell)
 
+    def test_security_control_modules_exist(self) -> None:
+        self.assertTrue((ROOT / "api/security/http_security.py").exists())
+        self.assertTrue((ROOT / "api/security/upload_security.py").exists())
+        self.assertIn("ApiSecurityMiddleware", read("api/main.py"))
+        self.assertIn("CLAMAV_SCAN_REQUIRED", read(".env.example"))
+
 
 class AgentGovernanceContractTests(unittest.TestCase):
     def test_required_agents_are_registered(self) -> None:
