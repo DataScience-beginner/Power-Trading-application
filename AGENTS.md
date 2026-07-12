@@ -23,6 +23,9 @@ Current active agents:
 ```text
 agents/codebase-qc/
 agents/testing-qa/
+agents/deployment-governance/
+agents/security-compliance/
+agents/release-management/
 ```
 
 ## Mission

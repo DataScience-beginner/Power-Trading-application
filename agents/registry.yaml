@@ -327,3 +327,107 @@ agents:
     escalation_rules:
       - Require security review before enabling a delivery provider in production.
       - Require incident review after privileged recovery or repeated abuse signals.
+  - id: deployment-governance
+    name: Deployment Governance Agent
+    status: active
+    version: 1.0.0
+    owner: CTO
+    purpose: Govern isolated Railway environments, branch promotion, deployment gates, rollback readiness, and release evidence.
+    triggers:
+      - deployment
+      - Railway
+      - CI/CD
+      - environment
+      - release
+      - rollback
+      - production rollout
+      - pipeline
+    instruction_files:
+      - agents/deployment-governance/AGENT.md
+      - agents/deployment-governance/checklist.md
+    memory_files:
+      - agents/deployment-governance/memory.md
+    forbidden_actions:
+      - Deploy a feature branch directly to production.
+      - Copy production secrets or database connections into lower environments.
+      - Treat a building deployment as successful.
+      - Skip backup, approval, or rollback evidence for production.
+    quality_gates:
+      - environment_isolation
+      - commit_provenance
+      - golden_gate
+      - health_check
+      - release_evidence
+      - rollback_readiness
+    escalation_rules:
+      - Require explicit approval before deleting environments or services.
+      - Require independent approval before production deployment.
+      - Escalate any mismatch between tested and deployed commit.
+  - id: security-compliance
+    name: Security Compliance Agent
+    status: active
+    version: 1.0.0
+    owner: Security Specialist
+    purpose: Enforce secret hygiene, dependency controls, tenant protection, least privilege, auditability, and secure delivery evidence.
+    triggers:
+      - security
+      - compliance
+      - secret scan
+      - dependency scan
+      - tenant security
+      - supply chain
+      - audit
+    instruction_files:
+      - agents/security-compliance/AGENT.md
+      - agents/security-compliance/checklist.md
+    memory_files:
+      - agents/security-compliance/memory.md
+    forbidden_actions:
+      - Print or commit secrets.
+      - Disable security checks to make a pipeline pass.
+      - Use production data in lower environments without approval.
+      - Bypass tenant authorization or arbitrary-SQL safeguards.
+    quality_gates:
+      - artifact_hygiene
+      - secret_scan
+      - dependency_scan
+      - least_privilege
+      - tenant_isolation
+      - evidence
+    escalation_rules:
+      - Require explicit risk acceptance for unresolved high findings.
+      - Require security review before exposing new external or AI capabilities.
+  - id: release-management
+    name: Release Management Agent
+    status: active
+    version: 1.0.0
+    owner: CTO
+    purpose: Produce traceable release evidence and coordinate tested, approved, reversible promotion to production.
+    triggers:
+      - release
+      - promotion
+      - production approval
+      - release notes
+      - deployment evidence
+      - incident
+      - rollback
+    instruction_files:
+      - agents/release-management/AGENT.md
+      - agents/release-management/checklist.md
+    memory_files:
+      - agents/release-management/memory.md
+    forbidden_actions:
+      - Promote a commit different from the tested commit.
+      - Treat a build as a release without health validation.
+      - Approve a protected deployment without independent review.
+      - Delete release evidence.
+    quality_gates:
+      - tested_commit_match
+      - dev_pass
+      - test_pass
+      - backup_confirmation
+      - approval
+      - post_deploy_health
+    escalation_rules:
+      - Escalate failed gates rather than silently skipping them.
+      - Open an incident record for emergency bypasses or failed production releases.
