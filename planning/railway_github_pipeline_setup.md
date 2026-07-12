@@ -12,6 +12,8 @@ Create these GitHub deployment environments:
 | `staging` | `staging` | none |
 | `production` | `V2` | Cofounder |
 
+Until the cofounder account is available, validate the approval evidence safely with `.github/workflows/release_candidate.yml`. That workflow uses synthetic data and explicitly does not deploy production. Follow [../compliance/cofounder_onboarding.md](../compliance/cofounder_onboarding.md) when the account is ready.
+
 Configure branch protection or rulesets:
 
 ### `develop`

@@ -1,0 +1,71 @@
+name: Release Candidate Validation
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_branch:
+        description: Branch or commit to validate with synthetic data
+        required: true
+        default: staging
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-candidate-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: Mock-data release validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out requested source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.source_branch }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend-react/package-lock.json
+
+      - name: Install validation dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements-dev.txt
+          cd frontend-react && npm ci
+
+      - name: Run rigorous synthetic-data validation
+        env:
+          ENVIRONMENT: release-candidate
+          AUTO_LOAD_MOCK_DATA: "true"
+          ENABLE_DEMO_PROVISIONING: "true"
+          ENABLE_DATABASE_RESET: "false"
+        run: python scripts/quality/golden_test.py --mode rigorous
+
+      - name: Write explicit non-production evidence
+        run: |
+          {
+            echo "approval_mode=mock-data-validation"
+            echo "production_deploy=false"
+            echo "source_branch=${{ inputs.source_branch }}"
+            echo "commit_sha=$GITHUB_SHA"
+            echo "generated_at_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          } > release-candidate-evidence.txt
+
+      - name: Upload release-candidate evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-candidate-${{ github.sha }}
+          path: release-candidate-evidence.txt
