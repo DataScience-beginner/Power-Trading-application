@@ -30,6 +30,7 @@ ENV/
 .env
 .env.*
 !.env.example
+!.env.login.example
 !frontend-react/.env.example
 
 # IDEs
