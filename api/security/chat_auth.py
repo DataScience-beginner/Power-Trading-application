@@ -8,7 +8,7 @@ import secrets
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from jose import JWTError, jwt
+import jwt
 from sqlalchemy.orm import Session
 
 from database.chatbot_models import AppUser, UserPortfolioAccess
@@ -68,7 +68,7 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         session_id = payload.get("jti")
         if not user_id:
             raise error
-    except JWTError as exc:
+    except jwt.PyJWTError as exc:
         raise error from exc
     user = db.query(AppUser).filter(AppUser.id == user_id, AppUser.is_active.is_(True)).first()
     if not user:
