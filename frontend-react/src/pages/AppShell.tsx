@@ -18,7 +18,9 @@ import { useAppDispatch } from '../hooks/useAppStore';
 import { fetchTransactions, fetchAnalytics, setFilter } from '../store/dashboardSlice';
 import NewDashboard from './NewDashboard';
 import ChatAssistant from '../components/chat/ChatAssistant';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
+import { useIdleLogout } from '../hooks/useIdleLogout';
+import { clearAuthSession } from '../security/session';
 
 const allowedPages: AppPage[] = [
   'dashboard',
@@ -36,12 +38,20 @@ const allowedPages: AppPage[] = [
 
 const AppShell: FC = () => {
   const accessToken = sessionStorage.getItem('innowatt_access_token');
+  const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [calculateDialogOpen, setCalculateDialogOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState<AppPage>('dashboard');
   const dispatch = useAppDispatch();
+
+  const logout = () => {
+    clearAuthSession();
+    navigate('/client/login', { replace: true });
+  };
+
+  useIdleLogout(logout, Boolean(accessToken));
 
   useEffect(() => {
     const applyPageFromUrl = () => {
@@ -96,6 +106,7 @@ const AppShell: FC = () => {
         onUploadCenterClick={() => handlePageChange('uploadCenter')}
         onExportClick={() => handlePageChange('reports')}
         onAdminClick={() => handlePageChange('adminDatabase')}
+        onLogout={logout}
       />
       <Sidebar
         open={sidebarOpen}

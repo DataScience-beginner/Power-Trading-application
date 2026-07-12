@@ -32,6 +32,7 @@ interface NavbarProps {
   onAdminClick?: () => void;
   onUploadCenterClick?: () => void;
   onExportClick?: () => void;
+  onLogout?: () => void;
 }
 
 const Navbar: FC<NavbarProps> = ({
@@ -42,6 +43,7 @@ const Navbar: FC<NavbarProps> = ({
   onAdminClick,
   onUploadCenterClick,
   onExportClick,
+  onLogout,
 }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -169,7 +171,7 @@ const Navbar: FC<NavbarProps> = ({
           >
             <MenuItem onClick={handleClose}>Profile</MenuItem>
             <MenuItem onClick={handleClose}>Settings</MenuItem>
-            <MenuItem onClick={handleClose}>Logout</MenuItem>
+            <MenuItem onClick={() => { handleClose(); onLogout?.(); }}>Logout</MenuItem>
           </Menu>
         </Box>
       </Toolbar>

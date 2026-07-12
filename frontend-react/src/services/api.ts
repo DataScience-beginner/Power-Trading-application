@@ -20,6 +20,7 @@ import type {
 import type { AssistantAnswer, MarketExplanation, QualityPolicy, QualityRun } from '../types/aiInsights';
 import type { AuthToken, ChatAnswer, ChatConversation, ChatUser } from '../types/chatbot';
 import type { DemoProvisionResult, SolarForecast } from '../types/forecasting';
+import { clearAuthSession } from '../security/session';
 
 class ApiService {
   private api: AxiosInstance;
@@ -37,6 +38,10 @@ class ApiService {
       (response) => response,
       (error: AxiosError) => {
         console.error('API Error:', error.response?.data || error.message);
+        if (error.response?.status === 401 && sessionStorage.getItem('innowatt_access_token')) {
+          clearAuthSession();
+          if (!window.location.pathname.includes('/login')) window.location.assign('/client/login?reason=session-expired');
+        }
         return Promise.reject(error);
       }
     );

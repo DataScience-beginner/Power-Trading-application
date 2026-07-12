@@ -180,6 +180,15 @@ class EnergyScheduleContractTests(unittest.TestCase):
             with self.subTest(file=relative_path):
                 self.assertTrue((ROOT / relative_path).exists())
 
+    def test_frontend_session_auto_logout_contract_exists(self) -> None:
+        session = read("frontend-react/src/security/session.ts")
+        hook = read("frontend-react/src/hooks/useIdleLogout.ts")
+        app_shell = read("frontend-react/src/pages/AppShell.tsx")
+        self.assertIn("VITE_AUTO_LOGOUT_ENABLED", session)
+        self.assertIn("VITE_IDLE_TIMEOUT_MINUTES", session)
+        self.assertIn("clearAuthSession", hook)
+        self.assertIn("useIdleLogout", app_shell)
+
 
 class AgentGovernanceContractTests(unittest.TestCase):
     def test_required_agents_are_registered(self) -> None:
