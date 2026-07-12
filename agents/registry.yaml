@@ -431,3 +431,40 @@ agents:
     escalation_rules:
       - Escalate failed gates rather than silently skipping them.
       - Open an incident record for emergency bypasses or failed production releases.
+  - id: identity-onboarding-testing
+    name: Identity Onboarding Testing Agent
+    status: active
+    version: 1.0.0
+    owner: Testing QA and Security Specialists
+    purpose: Validate role login, invited-client onboarding, email/SMS verification, activation, recovery, session revocation, and tenant isolation.
+    triggers:
+      - signup
+      - onboarding
+      - email verification
+      - SMS OTP
+      - phone verification
+      - identity testing
+      - login testing
+      - auth regression
+    instruction_files:
+      - agents/identity-onboarding-testing/AGENT.md
+      - agents/identity-onboarding-testing/checklist.md
+    memory_files:
+      - agents/identity-onboarding-testing/memory.md
+    forbidden_actions:
+      - Send test messages through production providers.
+      - Use production data or credentials in tests.
+      - Return OTPs from production APIs.
+      - Bypass verification with direct application database flag changes.
+    quality_gates:
+      - role_portal_separation
+      - invite_scope_validation
+      - email_verification
+      - sms_verification
+      - activation_state
+      - otp_abuse_controls
+      - tenant_isolation
+      - session_revocation
+    escalation_rules:
+      - Require security review before enabling real client SMS/email delivery.
+      - Escalate any credential, OTP, tenant, or session leakage immediately.

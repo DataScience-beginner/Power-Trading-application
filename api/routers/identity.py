@@ -4,8 +4,10 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from api.schemas.chatbot import TokenResponse
-from api.schemas.identity import RecoveryConfirmRequest, RecoveryConfirmResponse, RecoveryRequest, RecoveryRequestResponse, RoleLoginRequest
-from api.services.identity_service import confirm_recovery, request_recovery, role_login
+from api.schemas.identity import OnboardingInviteRequest, OnboardingInviteResponse, OnboardingStatusResponse, OnboardingVerifyRequest, OnboardingVerifyResponse, RecoveryConfirmRequest, RecoveryConfirmResponse, RecoveryRequest, RecoveryRequestResponse, RoleLoginRequest
+from api.security.chat_auth import require_admin
+from api.services.identity_service import confirm_recovery, invite_client, onboarding_status, request_recovery, role_login, verify_onboarding
+from database.chatbot_models import AppUser
 from database.config import get_db
 
 
@@ -27,3 +29,18 @@ async def recovery_request(payload: RecoveryRequest, db: Session = Depends(get_d
 async def recovery_confirm(payload: RecoveryConfirmRequest, db: Session = Depends(get_db)) -> RecoveryConfirmResponse:
     confirm_recovery(db, payload)
     return RecoveryConfirmResponse(success=True, message="Password reset successfully. Sign in again.")
+
+
+@router.post("/onboarding/invite", response_model=OnboardingInviteResponse, status_code=201, summary="Invite a client user", description="Creates an inactive client-scoped identity and sends mock or configured email/SMS verification challenges.")
+async def onboarding_invite(payload: OnboardingInviteRequest, db: Session = Depends(get_db), _admin: AppUser = Depends(require_admin)) -> OnboardingInviteResponse:
+    return invite_client(db, payload)
+
+
+@router.post("/onboarding/verify", response_model=OnboardingVerifyResponse, summary="Verify onboarding channel", description="Consumes a single-use email or SMS challenge, sets the initial password, and activates the user after required channels pass.")
+async def onboarding_verify(payload: OnboardingVerifyRequest, db: Session = Depends(get_db)) -> OnboardingVerifyResponse:
+    return verify_onboarding(db, payload)
+
+
+@router.get("/onboarding/{user_id}", response_model=OnboardingStatusResponse, summary="Get onboarding status", description="Returns non-secret verification and activation status for an onboarding identity.")
+async def onboarding_status_route(user_id: str, db: Session = Depends(get_db), _admin: AppUser = Depends(require_admin)) -> OnboardingStatusResponse:
+    return onboarding_status(db, user_id)

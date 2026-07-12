@@ -8,11 +8,38 @@ import smtplib
 import requests
 
 
+MOCK_OUTBOX: list[dict[str, str]] = []
+
+
+def clear_mock_outbox() -> None:
+    """Clear in-memory mock messages between local or test runs."""
+    MOCK_OUTBOX.clear()
+
+
+def mock_outbox() -> list[dict[str, str]]:
+    """Return a copy of mock messages without exposing provider credentials."""
+    return [dict(message) for message in MOCK_OUTBOX]
+
+
 class IdentityDeliveryService:
     def send(self, channel: str, destination: str, code: str) -> str:
+        if os.getenv("IDENTITY_DELIVERY_MODE", "provider") == "mock":
+            MOCK_OUTBOX.append({
+                "channel": channel,
+                "destination": destination,
+                "message": self._message(channel, code),
+                "code": code,
+            })
+            return "mocked"
         if channel == "email":
             return self._email(destination, code)
         return self._sms(destination, code)
+
+    @staticmethod
+    def _message(channel: str, code: str) -> str:
+        if channel == "email":
+            return f"Your Innowatt verification code is {code}. It expires in 10 minutes."
+        return f"Innowatt verification code: {code}. Expires in 10 minutes."
 
     def _email(self, destination: str, code: str) -> str:
         host = os.getenv("SMTP_HOST")

@@ -26,6 +26,7 @@ agents/testing-qa/
 agents/deployment-governance/
 agents/security-compliance/
 agents/release-management/
+agents/identity-onboarding-testing/
 ```
 
 ## Mission

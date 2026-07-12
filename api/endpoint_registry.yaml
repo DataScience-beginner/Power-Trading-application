@@ -470,7 +470,7 @@ domains:
       - Admin and client portals share one identity service but enforce database roles server-side.
       - Recovery responses resist account enumeration; codes are hashed, single-use, rate-limited, and expire in ten minutes.
       - Password recovery revokes active sessions and records security events.
-      - Email SMTP and SMS webhook delivery fail closed until environment credentials are configured.
+      - Email SMTP and SMS webhook delivery fail closed until environment credentials are configured; mock delivery is explicit for local and TEST.
     endpoints:
       - method: POST
         path: /api/v1/identity/login
@@ -492,6 +492,27 @@ domains:
         safety: controlled_write
         chatbot_tool: false
         request_model_present: true
+        response_model_present: true
+      - method: POST
+        path: /api/v1/identity/onboarding/invite
+        name: invite_client_user
+        safety: controlled_write
+        chatbot_tool: false
+        request_model_present: true
+        response_model_present: true
+      - method: POST
+        path: /api/v1/identity/onboarding/verify
+        name: verify_onboarding_channel
+        safety: controlled_write
+        chatbot_tool: false
+        request_model_present: true
+        response_model_present: true
+      - method: GET
+        path: /api/v1/identity/onboarding/{user_id}
+        name: onboarding_status
+        safety: read_only
+        chatbot_tool: false
+        request_model_present: false
         response_model_present: true
       - method: GET
         path: /api/v1/chat/conversations

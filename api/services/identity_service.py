@@ -10,12 +10,21 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from api.schemas.chatbot import TokenResponse
-from api.schemas.identity import RecoveryConfirmRequest, RecoveryRequest, RoleLoginRequest
+from api.schemas.identity import (
+    OnboardingInviteRequest,
+    OnboardingInviteResponse,
+    OnboardingStatusResponse,
+    OnboardingVerifyRequest,
+    OnboardingVerifyResponse,
+    RecoveryConfirmRequest,
+    RecoveryRequest,
+    RoleLoginRequest,
+)
 from api.security.chat_auth import create_access_token, hash_password, jwt_secret, verify_password
 from api.services.chat_auth_service import user_response
 from api.services.identity_delivery_service import IdentityDeliveryService
 from database.chatbot_models import AppUser
-from database.identity_models import AuthSession, IdentityProfile, RecoveryChallenge, SecurityEvent
+from database.identity_models import AuthSession, IdentityProfile, OnboardingChallenge, RecoveryChallenge, SecurityEvent
 
 
 def _now() -> datetime:
@@ -58,6 +67,120 @@ def role_login(db: Session, payload: RoleLoginRequest) -> TokenResponse:
     _event(db, "login", "success", f"login-{secrets.token_hex(8)}", user, user.email, portal=payload.portal)
     db.commit()
     return TokenResponse(access_token=token, expires_at=expires_at, user=user_response(db, user))
+
+
+def _verification_code() -> str:
+    return f"{secrets.randbelow(1_000_000):06d}"
+
+
+def _valid_client_scope(db: Session, client_id: int, portfolio_ids: list[int]) -> None:
+    from database.models import Client, Portfolio
+
+    if not db.query(Client.id).filter(Client.id == client_id).first():
+        raise HTTPException(status_code=404, detail="Client not found")
+    valid = {row.id for row in db.query(Portfolio).filter(Portfolio.id.in_(portfolio_ids), Portfolio.client_id == client_id).all()}
+    if valid != set(portfolio_ids):
+        raise HTTPException(status_code=400, detail="One or more portfolios are outside the client scope")
+
+
+def _create_onboarding_challenge(db: Session, user: AppUser, channel: str, destination: str, delivery: IdentityDeliveryService) -> str:
+    recent = db.query(OnboardingChallenge).filter(
+        OnboardingChallenge.user_id == user.id,
+        OnboardingChallenge.channel == channel,
+        OnboardingChallenge.created_at >= _now() - timedelta(minutes=15),
+    ).count()
+    if recent >= 3:
+        return "rate_limited"
+    code = _verification_code()
+    challenge = OnboardingChallenge(
+        user_id=user.id,
+        channel=channel,
+        code_hash=_digest(code),
+        expires_at=_now() + timedelta(minutes=10),
+        delivery_status="pending",
+    )
+    db.add(challenge)
+    db.flush()
+    try:
+        challenge.delivery_status = delivery.send(channel, destination, code)
+    except Exception:
+        challenge.delivery_status = "failed"
+    return challenge.delivery_status
+
+
+def invite_client(db: Session, payload: OnboardingInviteRequest, delivery: IdentityDeliveryService | None = None) -> OnboardingInviteResponse:
+    """Create an inactive client user and send email plus optional SMS verification."""
+    _valid_client_scope(db, payload.client_id, payload.portfolio_ids)
+    email = str(payload.email).lower()
+    if db.query(AppUser).filter(AppUser.email == email).first():
+        raise HTTPException(status_code=409, detail="A user with this email already exists")
+    user = AppUser(
+        email=email,
+        display_name=payload.display_name,
+        password_hash=hash_password(secrets.token_urlsafe(32)),
+        role="client_user",
+        client_id=payload.client_id,
+        is_active=False,
+    )
+    db.add(user)
+    db.flush()
+    from database.chatbot_models import UserPortfolioAccess
+    for portfolio_id in payload.portfolio_ids:
+        db.add(UserPortfolioAccess(user_id=user.id, portfolio_id=portfolio_id))
+    profile = IdentityProfile(user_id=user.id, phone_e164=payload.phone_e164, must_change_password=True)
+    db.add(profile)
+    sender = delivery or IdentityDeliveryService()
+    email_status = _create_onboarding_challenge(db, user, "email", email, sender)
+    sms_status = _create_onboarding_challenge(db, user, "sms", payload.phone_e164, sender) if payload.phone_e164 else None
+    _event(db, "onboarding_invite", "accepted", f"invite-{secrets.token_hex(8)}", user, email, email_status=email_status, sms_status=sms_status)
+    db.commit()
+    return OnboardingInviteResponse(user_id=user.id, email=user.email, email_delivery_status=email_status, sms_delivery_status=sms_status)
+
+
+def verify_onboarding(db: Session, payload: OnboardingVerifyRequest) -> OnboardingVerifyResponse:
+    """Verify one channel, set the first password, and activate only when required channels pass."""
+    challenge = db.query(OnboardingChallenge).filter(
+        OnboardingChallenge.user_id == payload.user_id,
+        OnboardingChallenge.channel == payload.channel,
+        OnboardingChallenge.used_at.is_(None),
+    ).order_by(OnboardingChallenge.created_at.desc()).first()
+    if not challenge or challenge.expires_at < _now() or challenge.attempts >= challenge.max_attempts:
+        raise HTTPException(status_code=400, detail="Invalid or expired verification code")
+    challenge.attempts += 1
+    if not hmac.compare_digest(challenge.code_hash, _digest(payload.code)):
+        db.commit()
+        raise HTTPException(status_code=400, detail="Invalid or expired verification code")
+    user = db.query(AppUser).filter(AppUser.id == payload.user_id).first()
+    profile = db.query(IdentityProfile).filter(IdentityProfile.user_id == payload.user_id).first()
+    if not user or not profile:
+        raise HTTPException(status_code=400, detail="Invalid onboarding identity")
+    challenge.used_at = _now()
+    if payload.channel == "email":
+        profile.email_verified = True
+    else:
+        profile.phone_verified = True
+    user.password_hash = hash_password(payload.new_password)
+    profile.password_changed_at = _now()
+    profile.must_change_password = False
+    user.is_active = bool(profile.email_verified and (not profile.phone_e164 or profile.phone_verified))
+    _event(db, "onboarding_verify", "success", f"verify-{secrets.token_hex(8)}", user, user.email, channel=payload.channel, active=user.is_active)
+    db.commit()
+    return OnboardingVerifyResponse(
+        user_id=user.id,
+        email_verified=profile.email_verified,
+        phone_verified=profile.phone_verified,
+        active=user.is_active,
+        message="Verification completed. You can sign in." if user.is_active else "Verification completed. Complete the remaining required channel.",
+    )
+
+
+def onboarding_status(db: Session, user_id: str) -> OnboardingStatusResponse:
+    """Return non-secret onboarding status for an invited user."""
+    user = db.query(AppUser).filter(AppUser.id == user_id).first()
+    profile = db.query(IdentityProfile).filter(IdentityProfile.user_id == user_id).first() if user else None
+    if not user or not profile:
+        raise HTTPException(status_code=404, detail="Onboarding identity not found")
+    return OnboardingStatusResponse(user_id=user.id, email_verified=profile.email_verified, phone_verified=profile.phone_verified, active=user.is_active, must_change_password=profile.must_change_password)
 
 
 def request_recovery(db: Session, payload: RecoveryRequest, delivery: IdentityDeliveryService | None = None) -> None:

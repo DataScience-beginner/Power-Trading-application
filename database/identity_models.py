@@ -46,6 +46,24 @@ class RecoveryChallenge(Base):
     created_at = Column(DateTime, nullable=False, default=utc_now)
 
 
+class OnboardingChallenge(Base):
+    """Single-use email or SMS verification challenge for invited users."""
+
+    __tablename__ = "onboarding_challenges"
+    __table_args__ = (Index("ix_onboarding_lookup", "user_id", "channel", "created_at"),)
+
+    id = Column(String(36), primary_key=True, default=new_id)
+    user_id = Column(String(36), ForeignKey("app_users.id"), nullable=False, index=True)
+    channel = Column(String(20), nullable=False)
+    code_hash = Column(String(64), nullable=False)
+    attempts = Column(Integer, nullable=False, default=0)
+    max_attempts = Column(Integer, nullable=False, default=5)
+    expires_at = Column(DateTime, nullable=False)
+    used_at = Column(DateTime, nullable=True)
+    delivery_status = Column(String(30), nullable=False, default="pending")
+    created_at = Column(DateTime, nullable=False, default=utc_now)
+
+
 class AuthSession(Base):
     __tablename__ = "auth_sessions"
 

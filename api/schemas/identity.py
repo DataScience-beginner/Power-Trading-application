@@ -40,3 +40,44 @@ class RecoveryConfirmRequest(BaseModel):
 class RecoveryConfirmResponse(BaseModel):
     success: bool
     message: str
+
+
+class OnboardingInviteRequest(BaseModel):
+    """Admin-controlled invitation for a client-scoped user."""
+
+    email: EmailStr
+    display_name: str = Field(..., min_length=2, max_length=255)
+    client_id: int = Field(..., gt=0)
+    portfolio_ids: list[int] = Field(default_factory=list)
+    phone_e164: str | None = Field(None, pattern=r"^\+[1-9][0-9]{7,14}$")
+
+
+class OnboardingInviteResponse(BaseModel):
+    user_id: str
+    email: EmailStr
+    email_delivery_status: str
+    sms_delivery_status: str | None = None
+    message: str = "Invitation created. Complete the required verification steps."
+
+
+class OnboardingVerifyRequest(BaseModel):
+    user_id: str = Field(..., min_length=10, max_length=50)
+    channel: Literal["email", "sms"]
+    code: str = Field(..., pattern=r"^[0-9]{6}$")
+    new_password: str = Field(..., min_length=15, max_length=200)
+
+
+class OnboardingVerifyResponse(BaseModel):
+    user_id: str
+    email_verified: bool
+    phone_verified: bool
+    active: bool
+    message: str
+
+
+class OnboardingStatusResponse(BaseModel):
+    user_id: str
+    email_verified: bool
+    phone_verified: bool
+    active: bool
+    must_change_password: bool
