@@ -73,7 +73,10 @@ class ApiService {
 
   private authHeaders() {
     const token = sessionStorage.getItem('innowatt_access_token');
-    return token ? { Authorization: `Bearer ${token}` } : {};
+    // In cookie-only mode this is a marker, not a JWT. Sending it as a
+    // bearer token prevents the API from falling back to the HttpOnly cookie.
+    if (!token || token === 'cookie-session') return {};
+    return { Authorization: `Bearer ${token}` };
   }
 
   // Client endpoints

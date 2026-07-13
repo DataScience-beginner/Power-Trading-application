@@ -301,6 +301,12 @@ class AgentGovernanceContractTests(unittest.TestCase):
         self.assertIn("GROQ_API_KEY", provider)
         self.assertIn("deterministic fallback", provider)
 
+    def test_cookie_auth_does_not_send_marker_as_bearer_token(self) -> None:
+        """Protect the cookie-only login flow from JWT/cookie mode drift."""
+        frontend_api = read("frontend-react/src/services/api.ts")
+        self.assertIn("if (!token || token === 'cookie-session') return {};", frontend_api)
+        self.assertIn("withCredentials: true", frontend_api)
+
     def test_root_agent_policy_references_registry(self) -> None:
         policy = read("AGENTS.md")
         self.assertIn("agents/registry.yaml", policy)
