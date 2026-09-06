@@ -207,6 +207,26 @@ domains:
         safety: read_only
         chatbot_tool: true
         response_model_needed: true
+      - method: GET
+        path: /api/energy-schedule/consumption
+        name: list_energy_schedule_consumption
+        safety: read_only
+        chatbot_tool: true
+        response_model_present: true
+      - method: POST
+        path: /api/energy-schedule/consumption
+        name: save_energy_schedule_consumption
+        safety: controlled_write
+        chatbot_tool: false
+        request_model_present: true
+        response_model_present: true
+      - method: POST
+        path: /api/energy-schedule/consumption/upload
+        name: upload_energy_schedule_consumption
+        safety: controlled_write
+        chatbot_tool: false
+        request_model_present: true
+        response_model_present: true
       - method: POST
         path: /api/calculate/energy-schedule
         name: calculate_energy_schedule
@@ -214,6 +234,28 @@ domains:
         chatbot_tool: false
         request_model_needed: true
         response_model_needed: true
+        note: Supports legacy date-only calculation and Excel-conversion v1 with portfolio/year/month/day/mode.
+      - method: GET
+        path: /api/energy-schedule/calculation-comparison
+        name: compare_energy_schedule_excel_calculation
+        safety: read_only
+        chatbot_tool: false
+        response_model_present: true
+        note: Includes daily parity-vs-corrected rows plus Savings Sheet and Slot Wise Consolidate equivalents for internal QA.
+      - method: GET
+        path: /api/energy-schedule/calculation-trace
+        name: trace_energy_schedule_excel_calculation
+        safety: read_only
+        chatbot_tool: false
+        response_model_present: true
+        note: Internal QA trace from uploaded files and Energy Schedule DB fields to daily, Savings Sheet, and Slot Wise Consolidate outputs.
+      - method: GET
+        path: /api/energy-schedule/calculation-results
+        name: get_energy_schedule_calculation_results
+        safety: read_only
+        chatbot_tool: false
+        response_model_present: true
+        note: Reads persisted Excel-conversion v1 calculation rows for admin review/export workflows without recalculating.
 
   energy_calculations:
     target_router: api/routers/energy_calculations.py
@@ -261,6 +303,18 @@ domains:
         name: export_energy_schedule_pdf
         safety: read_only
         chatbot_tool: false
+      - method: GET
+        path: /api/reports/energy-schedule/excel-calculation
+        name: export_energy_schedule_excel_calculation
+        safety: read_only
+        chatbot_tool: false
+        note: Streams a client-ready Excel report from persisted Excel-conversion monthly summary rows.
+      - method: GET
+        path: /api/reports/energy-schedule/pdf-calculation
+        name: export_energy_schedule_pdf_calculation
+        safety: read_only
+        chatbot_tool: false
+        note: Streams a client-ready PDF summary from persisted Excel-conversion monthly summary rows.
 
   security_governance:
     target_router: api/routers/security_governance.py

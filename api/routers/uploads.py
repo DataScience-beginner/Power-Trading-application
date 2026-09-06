@@ -23,6 +23,15 @@ OUTPUT_DIR = PROJECT_ROOT / "output"
 OUTPUT_DIR.mkdir(exist_ok=True)
 
 
+def _safe_upload_workbook_name(filename: str | None) -> str:
+    """Return a parser-friendly temp filename that preserves market/report tokens."""
+    original_name = Path(filename or "upload.xlsx").name
+    suffix = Path(original_name).suffix.lower()
+    stem = Path(original_name).stem
+    safe_stem = "".join(ch if ch.isalnum() or ch in ("-", "_") else "_" for ch in stem)[:120]
+    return f"{uuid4()}_{safe_stem}{suffix}"
+
+
 @router.post(
     "/api/data/bulk-upload",
     response_model=dict[str, Any],
@@ -106,7 +115,7 @@ async def upload_file(
         validate_workbook(file.filename, content)
         quarantine_dir = OUTPUT_DIR / "quarantine"
         quarantine_dir.mkdir(parents=True, exist_ok=True)
-        temp_file = quarantine_dir / f"{uuid4()}{Path(file.filename).suffix.lower()}"
+        temp_file = quarantine_dir / _safe_upload_workbook_name(file.filename)
         print(f"💾 Saving to temp location: {temp_file}")
 
         with open(temp_file, "wb") as f:

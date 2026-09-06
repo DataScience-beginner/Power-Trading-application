@@ -104,6 +104,113 @@ export interface EnergyScheduleFilter {
   end_date?: string;
 }
 
+export interface ExcelDailyOutput {
+  trading_date: string;
+  day?: number;
+  is_complete: boolean;
+  missing_inputs: string[];
+  b44_iex_price: number | string | null;
+  b45_iex_price_per_unit: number | string | null;
+  b46_eb_price: number | string | null;
+  b47_eb_price_per_unit: number | string | null;
+  cost_saving: number | string | null;
+  within_tolerance?: boolean;
+}
+
+export interface ExcelSavingsSheet {
+  rows: unknown[];
+  totals: Record<string, number | string | null>;
+}
+
+export interface ExcelSlotWiseRow {
+  slot: string;
+  consumption_kwh: number;
+  iex_delivered_kwh: number;
+  balance_kwh: number;
+}
+
+export interface ExcelCalculationTrace {
+  source_files: Array<{
+    id: number;
+    trading_date: string;
+    report_type: string;
+    main_category: string;
+    sub_category: string;
+    original_filename: string;
+    transaction_count: number;
+  }>;
+  energy_schedule_days: Array<Record<string, any>>;
+  consumption_inputs: Array<Record<string, any>>;
+  daily_outputs: ExcelDailyOutput[];
+  savings_sheet: ExcelSavingsSheet;
+  slot_wise_consolidate: { rows: ExcelSlotWiseRow[] };
+}
+
+export interface ExcelCalculationTraceResponse {
+  success: boolean;
+  portfolio_id: number;
+  year: number;
+  month: number;
+  day?: number | null;
+  count: number;
+  trace: ExcelCalculationTrace;
+}
+
+export interface ExcelCalculationRunResponse {
+  success: boolean;
+  mode: 'parity' | 'corrected' | 'compare';
+  portfolio_id: number;
+  year: number;
+  month: number;
+  day?: number | null;
+  days_processed: number;
+  results: unknown[];
+}
+
+export interface ExcelSavedCalculationRow {
+  id: number;
+  calculation_date: string;
+  day: number;
+  calculation_type?: string | null;
+  calculated_at?: string | null;
+  updated_at?: string | null;
+  total_scheduled_mwh: number;
+  total_cost: number;
+  net_profit_loss: number;
+  calculation_data?: Record<string, any> | null;
+}
+
+export interface ExcelSavedCalculationResultsResponse {
+  success: boolean;
+  portfolio_id: number;
+  year: number;
+  month: number;
+  mode: 'parity' | 'corrected' | 'compare';
+  day?: number | null;
+  count: number;
+  latest_calculated_at?: string | null;
+  monthly_summary?: ExcelSavedCalculationRow | null;
+  results: ExcelSavedCalculationRow[];
+}
+
+export interface EnergyScheduleConsumptionEntry {
+  portfolio_id: number;
+  consumption_date: string;
+  c1_kwh: number;
+  c2_kwh: number;
+  c4_kwh: number;
+  c5_kwh: number;
+  base_tariff_per_unit?: number | null;
+  source?: string;
+  notes?: string | null;
+}
+
+export interface EnergyScheduleConsumptionResponse {
+  success: boolean;
+  count: number;
+  records: EnergyScheduleConsumptionEntry[];
+}
+
 export interface MonthlyTrend {
   month: string;
   energy_savings: number;

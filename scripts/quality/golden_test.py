@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import shutil
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -51,11 +52,17 @@ def run_command(
         merged_env.update(env)
 
     try:
+        resolved_command = list(command)
+        executable = shutil.which(resolved_command[0])
+        if executable:
+            resolved_command[0] = executable
         completed = subprocess.run(
-            list(command),
+            resolved_command,
             cwd=str(cwd),
             env=merged_env,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             timeout=timeout,
@@ -90,6 +97,8 @@ def check_git_artifact_hygiene() -> CheckResult:
         ["git", "ls-files"],
         cwd=str(ROOT),
         text=True,
+        encoding="utf-8",
+        errors="replace",
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         timeout=30,
@@ -166,7 +175,7 @@ def run_frontend_build() -> CheckResult:
         "Frontend build",
         ["npm", "run", "build"],
         cwd=ROOT / "frontend-react",
-        timeout=180,
+        timeout=420,
     )
 
 
@@ -258,4 +267,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

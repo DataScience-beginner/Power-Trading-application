@@ -16,6 +16,11 @@ import type {
   CTUChargesCalculation,
   NLDCFeesCalculation,
   EnergySavingsCalculation,
+  EnergyScheduleConsumptionEntry,
+  EnergyScheduleConsumptionResponse,
+  ExcelCalculationRunResponse,
+  ExcelSavedCalculationResultsResponse,
+  ExcelCalculationTraceResponse,
 } from '../types/energySchedule';
 import type { AssistantAnswer, MarketExplanation, QualityPolicy, QualityRun } from '../types/aiInsights';
 import type { AuthToken, ChatAnswer, ChatConversation, ChatUser } from '../types/chatbot';
@@ -160,6 +165,129 @@ class ApiService {
     }
     
     const response = await this.api.post(`/calculate/energy-schedule?${params.toString()}`);
+    return response.data;
+  }
+
+  async runExcelEnergyScheduleCalculation(params: {
+    portfolioId: number;
+    year: number;
+    month: number;
+    day?: number | null;
+    mode?: 'parity' | 'corrected' | 'compare';
+  }): Promise<ExcelCalculationRunResponse> {
+    const response = await this.api.post<ExcelCalculationRunResponse>('/calculate/energy-schedule', {
+      portfolio_id: params.portfolioId,
+      year: params.year,
+      month: params.month,
+      day: params.day || undefined,
+      mode: params.mode || 'compare',
+    });
+    return response.data;
+  }
+
+  async getExcelEnergyScheduleTrace(params: {
+    portfolioId: number;
+    year: number;
+    month: number;
+    day?: number | null;
+  }): Promise<ExcelCalculationTraceResponse> {
+    const query = new URLSearchParams({
+      portfolio_id: String(params.portfolioId),
+      year: String(params.year),
+      month: String(params.month),
+    });
+    if (params.day) query.append('day', String(params.day));
+    const response = await this.api.get<ExcelCalculationTraceResponse>(
+      `/energy-schedule/calculation-trace?${query.toString()}`
+    );
+    return response.data;
+  }
+
+  async getExcelEnergyScheduleSavedResults(params: {
+    portfolioId: number;
+    year: number;
+    month: number;
+    day?: number | null;
+    mode?: 'parity' | 'corrected' | 'compare';
+  }): Promise<ExcelSavedCalculationResultsResponse> {
+    const query = new URLSearchParams({
+      portfolio_id: String(params.portfolioId),
+      year: String(params.year),
+      month: String(params.month),
+      mode: params.mode || 'compare',
+    });
+    if (params.day) query.append('day', String(params.day));
+    const response = await this.api.get<ExcelSavedCalculationResultsResponse>(
+      `/energy-schedule/calculation-results?${query.toString()}`
+    );
+    return response.data;
+  }
+
+  async downloadExcelEnergyScheduleReport(params: {
+    portfolioId: number;
+    year: number;
+    month: number;
+    mode?: 'parity' | 'corrected' | 'compare';
+  }): Promise<Blob> {
+    const query = new URLSearchParams({
+      portfolio_id: String(params.portfolioId),
+      year: String(params.year),
+      month: String(params.month),
+      mode: params.mode || 'compare',
+    });
+    const response = await this.api.get(`/reports/energy-schedule/excel-calculation?${query.toString()}`, {
+      responseType: 'blob',
+    });
+    return response.data;
+  }
+
+  async downloadPdfEnergyScheduleReport(params: {
+    portfolioId: number;
+    year: number;
+    month: number;
+    mode?: 'parity' | 'corrected' | 'compare';
+  }): Promise<Blob> {
+    const query = new URLSearchParams({
+      portfolio_id: String(params.portfolioId),
+      year: String(params.year),
+      month: String(params.month),
+      mode: params.mode || 'compare',
+    });
+    const response = await this.api.get(`/reports/energy-schedule/pdf-calculation?${query.toString()}`, {
+      responseType: 'blob',
+    });
+    return response.data;
+  }
+
+  async getEnergyScheduleConsumption(params: {
+    portfolioId: number;
+    startDate?: string;
+    endDate?: string;
+  }): Promise<EnergyScheduleConsumptionResponse> {
+    const query = new URLSearchParams({ portfolio_id: String(params.portfolioId) });
+    if (params.startDate) query.append('start_date', params.startDate);
+    if (params.endDate) query.append('end_date', params.endDate);
+    const response = await this.api.get<EnergyScheduleConsumptionResponse>(
+      `/energy-schedule/consumption?${query.toString()}`
+    );
+    return response.data;
+  }
+
+  async saveEnergyScheduleConsumption(record: EnergyScheduleConsumptionEntry): Promise<EnergyScheduleConsumptionResponse> {
+    const response = await this.api.post<EnergyScheduleConsumptionResponse>('/energy-schedule/consumption', {
+      records: [record],
+    });
+    return response.data;
+  }
+
+  async uploadEnergyScheduleConsumption(portfolioId: number, file: File): Promise<EnergyScheduleConsumptionResponse> {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await this.api.post<EnergyScheduleConsumptionResponse>(
+      `/energy-schedule/consumption/upload?portfolio_id=${portfolioId}`,
+      formData,
+      { headers: { 'Content-Type': 'multipart/form-data' } }
+    );
     return response.data;
   }
 

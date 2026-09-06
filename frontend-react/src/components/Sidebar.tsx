@@ -27,6 +27,7 @@ import {
   Psychology as PsychologyIcon,
   AutoAwesome as AutoAwesomeIcon,
   Security as SecurityIcon,
+  FactCheck as FactCheckIcon,
 } from '@mui/icons-material';
 import { useAppDispatch, useAppSelector } from '../hooks/useAppStore';
 import { fetchClients } from '../store/dashboardSlice';
@@ -37,6 +38,7 @@ export type AppPage =
   | 'marketSnapshot'
   | 'uploadCenter'
   | 'energySchedule'
+  | 'energyCalculationReview'
   | 'analytics'
   | 'reports'
   | 'aiPredict'
@@ -156,6 +158,20 @@ const Sidebar: FC<SidebarProps> = ({ open, onPortfolioSelect, currentPage, onPag
               <ListItemText primary="Energy Schedule" />
             </ListItemButton>
           </ListItem>
+
+          {isAdmin && (
+            <ListItem disablePadding>
+              <ListItemButton
+                selected={currentPage === 'energyCalculationReview'}
+                onClick={() => onPageChange('energyCalculationReview')}
+              >
+                <ListItemIcon>
+                  <FactCheckIcon color={currentPage === 'energyCalculationReview' ? 'primary' : 'inherit'} />
+                </ListItemIcon>
+                <ListItemText primary="Calculation Review" />
+              </ListItemButton>
+            </ListItem>
+          )}
 
           <ListItem disablePadding>
             <ListItemButton

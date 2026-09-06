@@ -4,6 +4,7 @@ import Navbar from '../components/Navbar';
 import Sidebar, { type AppPage } from '../components/Sidebar';
 import Dashboard from './Dashboard';
 import EnergySchedule from './EnergySchedule';
+import EnergyCalculationReview from './EnergyCalculationReview';
 import Analytics from './Analytics';
 import Reports from './Reports';
 import AIPredict from './AIPredict';
@@ -29,6 +30,7 @@ const allowedPages: AppPage[] = [
   'marketSnapshot',
   'uploadCenter',
   'energySchedule',
+  'energyCalculationReview',
   'analytics',
   'reports',
   'aiPredict',
@@ -141,6 +143,9 @@ const AppShell: FC = () => {
           />
         )}
         {currentPage === 'energySchedule' && <EnergySchedule />}
+        {currentPage === 'energyCalculationReview' && (
+          isAdmin ? <EnergyCalculationReview /> : <Navigate to="/client/login" replace />
+        )}
         {currentPage === 'analytics' && <Analytics />}
         {currentPage === 'reports' && <Reports />}
         {currentPage === 'aiPredict' && <AIPredict />}

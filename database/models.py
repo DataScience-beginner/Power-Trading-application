@@ -13,7 +13,7 @@ Hierarchy:
   MONTHLY_CALCULATION (stores calculation results, 31 days per month)
 """
 
-from sqlalchemy import Column, Integer, String, Float, Date, DateTime, ForeignKey, Text, JSON, Enum
+from sqlalchemy import Column, Integer, String, Float, Date, DateTime, ForeignKey, Text, JSON, Enum, UniqueConstraint
 from sqlalchemy.orm import relationship
 from database.config import Base
 from datetime import datetime
@@ -227,7 +227,7 @@ class MonthlyCalculation(Base):
     # Month information
     year = Column(Integer, index=True, nullable=False)
     month = Column(Integer, index=True, nullable=False)  # 1-12
-    day = Column(Integer, index=True, nullable=False)    # 1-31
+    day = Column(Integer, index=True, nullable=False)    # 1-31 for daily rows, 0 for month summary rows
     calculation_date = Column(Date, index=True, nullable=False)
     
     # Calculation type/name
@@ -388,6 +388,38 @@ class EnergyScheduleDay(Base):
     
     def __repr__(self):
         return f"<EnergyScheduleDay(id={self.id}, date={self.trading_date}, complete={self.is_complete})>"
+
+
+class EnergyScheduleConsumption(Base):
+    """
+    Stores client-provided consumption inputs for the Excel-conversion calculation.
+
+    These values correspond to the Consumption Details sheet buckets C1, C2,
+    C4, and C5. They are kept separate from uploaded DOR/SCH market data so the
+    manual client input path remains auditable.
+    """
+    __tablename__ = "energy_schedule_consumption"
+    __table_args__ = (
+        UniqueConstraint("portfolio_id", "consumption_date", name="uq_energy_schedule_consumption_day"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    portfolio_id = Column(Integer, ForeignKey("portfolios.id"), nullable=False, index=True)
+    consumption_date = Column(Date, nullable=False, index=True)
+    c1_kwh = Column(Float, default=0.0)
+    c2_kwh = Column(Float, default=0.0)
+    c4_kwh = Column(Float, default=0.0)
+    c5_kwh = Column(Float, default=0.0)
+    base_tariff_per_unit = Column(Float, nullable=True)
+    source = Column(String, default="manual")
+    notes = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.now)
+    updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
+
+    portfolio = relationship("Portfolio")
+
+    def __repr__(self):
+        return f"<EnergyScheduleConsumption(portfolio={self.portfolio_id}, date={self.consumption_date})>"
 
 
 # ==================== TABLE 8: WORKBOOK UPLOADS ====================

@@ -11,11 +11,21 @@ from api.report_generator import (
     generate_daily_trading_pdf,
     generate_energy_schedule_pdf,
 )
+from api.services.energy_excel_calculation_service import CALCULATION_VERSION
+from api.services.energy_excel_report_service import (
+    generate_energy_excel_calculation_report,
+    generate_energy_pdf_calculation_report,
+)
 from database.config import get_db
-from database.models import DailyFile, EnergyScheduleDay, EnergyScheduleMonth, Portfolio, Transaction
+from database.models import DailyFile, EnergyScheduleDay, EnergyScheduleMonth, MonthlyCalculation, Portfolio, Transaction
 
 
 router = APIRouter(tags=["reports"])
+
+
+def _safe_report_filename(value: str) -> str:
+    """Return a filesystem/header-safe report filename token."""
+    return "".join(char if char.isalnum() or char in ("-", "_") else "_" for char in value)
 
 
 @router.get(
@@ -153,3 +163,76 @@ async def download_energy_schedule_pdf(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error generating PDF: {str(e)}") from e
 
+
+@router.get(
+    "/api/reports/energy-schedule/excel-calculation",
+    summary="Export saved energy schedule Excel calculation report",
+    description="Generates a clean Excel report from the latest saved Excel-conversion monthly summary.",
+)
+async def download_energy_schedule_excel_calculation(
+    portfolio_id: int,
+    year: int,
+    month: int,
+    mode: str = "compare",
+    db: Session = Depends(get_db),
+) -> StreamingResponse:
+    """Generate a presentable Excel report from saved backend calculation results."""
+    if mode not in {"parity", "corrected", "compare"}:
+        raise HTTPException(status_code=400, detail="mode must be parity, corrected, or compare")
+
+    monthly_summary = db.query(MonthlyCalculation).filter(
+        MonthlyCalculation.portfolio_id == portfolio_id,
+        MonthlyCalculation.year == year,
+        MonthlyCalculation.month == month,
+        MonthlyCalculation.calculation_type == f"{CALCULATION_VERSION}:monthly:{mode}",
+    ).first()
+    if not monthly_summary:
+        raise HTTPException(status_code=404, detail="Run and save the monthly calculation before exporting the report.")
+
+    portfolio = db.query(Portfolio).filter(Portfolio.id == portfolio_id).first()
+    report_buffer = generate_energy_excel_calculation_report(monthly_summary, portfolio)
+    portfolio_token = _safe_report_filename(portfolio.portfolio_code if portfolio else f"portfolio_{portfolio_id}")
+    filename = f"Energy_Schedule_Savings_{portfolio_token}_{year}_{month:02d}.xlsx"
+
+    return StreamingResponse(
+        report_buffer,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f"attachment; filename={filename}"},
+    )
+
+
+@router.get(
+    "/api/reports/energy-schedule/pdf-calculation",
+    summary="Export saved energy schedule PDF calculation report",
+    description="Generates a clean PDF summary from the latest saved Excel-conversion monthly summary.",
+)
+async def download_energy_schedule_pdf_calculation(
+    portfolio_id: int,
+    year: int,
+    month: int,
+    mode: str = "compare",
+    db: Session = Depends(get_db),
+) -> StreamingResponse:
+    """Generate a presentable PDF report from saved backend calculation results."""
+    if mode not in {"parity", "corrected", "compare"}:
+        raise HTTPException(status_code=400, detail="mode must be parity, corrected, or compare")
+
+    monthly_summary = db.query(MonthlyCalculation).filter(
+        MonthlyCalculation.portfolio_id == portfolio_id,
+        MonthlyCalculation.year == year,
+        MonthlyCalculation.month == month,
+        MonthlyCalculation.calculation_type == f"{CALCULATION_VERSION}:monthly:{mode}",
+    ).first()
+    if not monthly_summary:
+        raise HTTPException(status_code=404, detail="Run and save the monthly calculation before exporting the report.")
+
+    portfolio = db.query(Portfolio).filter(Portfolio.id == portfolio_id).first()
+    report_buffer = generate_energy_pdf_calculation_report(monthly_summary, portfolio)
+    portfolio_token = _safe_report_filename(portfolio.portfolio_code if portfolio else f"portfolio_{portfolio_id}")
+    filename = f"Energy_Schedule_Savings_{portfolio_token}_{year}_{month:02d}.pdf"
+
+    return StreamingResponse(
+        report_buffer,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"attachment; filename={filename}"},
+    )

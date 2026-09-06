@@ -54,7 +54,7 @@ Thumbs.db
 backend/data/cache/
 
 # Output
-output/*.json
+output/*
 !output/.gitkeep
 
 # Frontend/package artifacts
