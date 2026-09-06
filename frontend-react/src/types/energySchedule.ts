@@ -211,6 +211,27 @@ export interface EnergyScheduleConsumptionResponse {
   records: EnergyScheduleConsumptionEntry[];
 }
 
+export interface EnergyWorkflowStatus {
+  success: boolean;
+  portfolio_id: number;
+  year: number;
+  month: number;
+  mode: 'parity' | 'corrected' | 'compare';
+  period: {
+    start_date: string;
+    end_date: string;
+    calendar_days: number;
+    workflow_days: number;
+  };
+  steps: {
+    uploads: Record<string, any>;
+    energy_schedule: Record<string, any>;
+    consumption: Record<string, any>;
+    calculation: Record<string, any>;
+    reports: Record<string, any>;
+  };
+}
+
 export interface MonthlyTrend {
   month: string;
   energy_savings: number;

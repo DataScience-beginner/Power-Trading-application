@@ -29,6 +29,7 @@ from api.services.energy_excel_report_service import (
     generate_energy_excel_calculation_report,
     generate_energy_pdf_calculation_report,
 )
+from api.services.energy_schedule_workflow_service import build_workflow_status
 from database.config import Base
 from database.models import Client, EnergyScheduleConsumption, MonthlyCalculation, Portfolio
 
@@ -182,6 +183,11 @@ def test_consumption_upsert_and_month_calculation_persist_separately() -> None:
         assert trace["consumption_inputs"][0]["present"] is True
         assert "savings_sheet" in trace
         assert "slot_wise_consolidate" in trace
+
+        workflow = build_workflow_status(db, portfolio.id, 2026, 8)
+        assert workflow["steps"]["consumption"]["stored_days"] == 1
+        assert workflow["steps"]["calculation"]["monthly_summary_present"] is True
+        assert workflow["steps"]["reports"]["excel_available"] is True
     finally:
         db.close()
         Base.metadata.drop_all(engine)
@@ -233,6 +239,9 @@ def test_energy_excel_endpoints_are_registered_in_openapi() -> None:
         "/api/energy-schedule/calculation-comparison",
         "/api/energy-schedule/calculation-trace",
         "/api/energy-schedule/calculation-results",
+        "/api/energy-schedule/workflow-status",
+        "/api/energy-schedule/rebuild",
+        "/api/energy-schedule/workflow-demo-seed",
         "/api/calculate/energy-schedule",
         "/api/reports/energy-schedule/excel-calculation",
         "/api/reports/energy-schedule/pdf-calculation",

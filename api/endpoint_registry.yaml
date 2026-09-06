@@ -227,6 +227,29 @@ domains:
         chatbot_tool: false
         request_model_present: true
         response_model_present: true
+      - method: GET
+        path: /api/energy-schedule/workflow-status
+        name: get_energy_schedule_workflow_status
+        safety: read_only
+        chatbot_tool: false
+        response_model_present: true
+        note: Admin guided workflow readiness across uploads, Energy Schedule validation, consumption, calculation, and reports.
+      - method: POST
+        path: /api/energy-schedule/rebuild
+        name: rebuild_energy_schedule_workflow
+        safety: controlled_write
+        chatbot_tool: false
+        request_model_needed: true
+        response_model_present: true
+        note: Rebuilds Energy Schedule rows from uploaded DOR/SCH data for one portfolio month.
+      - method: POST
+        path: /api/energy-schedule/workflow-demo-seed
+        name: seed_energy_schedule_workflow_demo
+        safety: controlled_write
+        chatbot_tool: false
+        request_model_needed: true
+        response_model_present: true
+        note: Admin-only synthetic seed for guided workflow testing; marks generated rows as demo data.
       - method: POST
         path: /api/calculate/energy-schedule
         name: calculate_energy_schedule

@@ -21,6 +21,7 @@ import type {
   ExcelCalculationRunResponse,
   ExcelSavedCalculationResultsResponse,
   ExcelCalculationTraceResponse,
+  EnergyWorkflowStatus,
 } from '../types/energySchedule';
 import type { AssistantAnswer, MarketExplanation, QualityPolicy, QualityRun } from '../types/aiInsights';
 import type { AuthToken, ChatAnswer, ChatConversation, ChatUser } from '../types/chatbot';
@@ -181,6 +182,50 @@ class ApiService {
       month: params.month,
       day: params.day || undefined,
       mode: params.mode || 'compare',
+    });
+    return response.data;
+  }
+
+  async getEnergyScheduleWorkflowStatus(params: {
+    portfolioId: number;
+    year: number;
+    month: number;
+    mode?: 'parity' | 'corrected' | 'compare';
+  }): Promise<EnergyWorkflowStatus> {
+    const query = new URLSearchParams({
+      portfolio_id: String(params.portfolioId),
+      year: String(params.year),
+      month: String(params.month),
+      mode: params.mode || 'compare',
+    });
+    const response = await this.api.get<EnergyWorkflowStatus>(`/energy-schedule/workflow-status?${query.toString()}`);
+    return response.data;
+  }
+
+  async rebuildEnergySchedule(params: {
+    portfolioId: number;
+    year: number;
+    month: number;
+  }): Promise<any> {
+    const response = await this.api.post('/energy-schedule/rebuild', {
+      portfolio_id: params.portfolioId,
+      year: params.year,
+      month: params.month,
+    });
+    return response.data;
+  }
+
+  async seedEnergyScheduleWorkflowDemo(params: {
+    portfolioId: number;
+    year: number;
+    month: number;
+    days?: number;
+  }): Promise<any> {
+    const response = await this.api.post('/energy-schedule/workflow-demo-seed', {
+      portfolio_id: params.portfolioId,
+      year: params.year,
+      month: params.month,
+      days: params.days || 3,
     });
     return response.data;
   }

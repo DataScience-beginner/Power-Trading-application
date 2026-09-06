@@ -39,6 +39,7 @@ export type AppPage =
   | 'uploadCenter'
   | 'energySchedule'
   | 'energyCalculationReview'
+  | 'energyWorkflow'
   | 'analytics'
   | 'reports'
   | 'aiPredict'
@@ -56,8 +57,8 @@ interface SidebarProps {
 }
 
 const Sidebar: FC<SidebarProps> = ({ open, onPortfolioSelect, currentPage, onPageChange }) => {
-  // Only show admin menu if JWT is present
-  const isAdmin = Boolean(localStorage.getItem('admin_jwt') || sessionStorage.getItem('admin_jwt'));
+  const storedUser = sessionStorage.getItem('innowatt_user');
+  const isAdmin = storedUser ? JSON.parse(storedUser).role === 'platform_admin' : false;
   const dispatch = useAppDispatch();
   const { clients } = useAppSelector((state) => state.dashboard);
   const [openClients, setOpenClients] = useState(true);
@@ -169,6 +170,20 @@ const Sidebar: FC<SidebarProps> = ({ open, onPortfolioSelect, currentPage, onPag
                   <FactCheckIcon color={currentPage === 'energyCalculationReview' ? 'primary' : 'inherit'} />
                 </ListItemIcon>
                 <ListItemText primary="Calculation Review" />
+              </ListItemButton>
+            </ListItem>
+          )}
+
+          {isAdmin && (
+            <ListItem disablePadding>
+              <ListItemButton
+                selected={currentPage === 'energyWorkflow'}
+                onClick={() => onPageChange('energyWorkflow')}
+              >
+                <ListItemIcon>
+                  <FactCheckIcon color={currentPage === 'energyWorkflow' ? 'primary' : 'inherit'} />
+                </ListItemIcon>
+                <ListItemText primary="Calculation Workflow" />
               </ListItemButton>
             </ListItem>
           )}

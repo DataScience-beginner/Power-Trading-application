@@ -30,6 +30,12 @@ from api.services.energy_excel_calculation_service import (
     run_calculation,
     upsert_consumption,
 )
+from api.services.energy_schedule_workflow_service import (
+    build_workflow_status,
+    rebuild_workflow_energy_schedule,
+    seed_workflow_mock_data,
+)
+from api.security.chat_auth import require_admin
 from database.config import get_db
 from database.energy_schedule_crud import get_all_daily_entries, get_all_month_sheets
 from database.energy_schedule_service import calculator
@@ -223,6 +229,69 @@ async def upload_energy_schedule_consumption(
         raise
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Could not parse consumption upload: {str(e)}") from e
+
+
+@router.get(
+    "/api/energy-schedule/workflow-status",
+    response_model=dict[str, Any],
+    summary="Get Energy Schedule workflow status",
+    description="Returns admin workflow readiness across upload, Energy Schedule validation, consumption, calculation, and reports.",
+)
+async def get_energy_schedule_workflow_status(
+    portfolio_id: int,
+    year: int,
+    month: int,
+    mode: str = "compare",
+    db: Session = Depends(get_db),
+) -> dict[str, Any]:
+    """Return a guided admin workflow status for one portfolio month."""
+    if mode not in {"parity", "corrected", "compare"}:
+        raise HTTPException(status_code=400, detail="mode must be parity, corrected, or compare")
+    return build_workflow_status(db, portfolio_id=portfolio_id, year=year, month=month, mode=mode)
+
+
+@router.post(
+    "/api/energy-schedule/rebuild",
+    response_model=dict[str, Any],
+    summary="Rebuild Energy Schedule from uploads",
+    description="Builds or refreshes Energy Schedule rows from uploaded DOR and SCH data for the selected portfolio month.",
+)
+async def rebuild_energy_schedule_workflow(
+    request_data: dict[str, Any] = Body(...),
+    db: Session = Depends(get_db),
+) -> dict[str, Any]:
+    """Refresh Energy Schedule rows for every uploaded date in a month."""
+    try:
+        portfolio_id = int(request_data["portfolio_id"])
+        year = int(request_data["year"])
+        month = int(request_data["month"])
+    except (KeyError, TypeError, ValueError) as exc:
+        raise HTTPException(status_code=400, detail="portfolio_id, year, and month are required") from exc
+    return rebuild_workflow_energy_schedule(db, portfolio_id=portfolio_id, year=year, month=month)
+
+
+@router.post(
+    "/api/energy-schedule/workflow-demo-seed",
+    response_model=dict[str, Any],
+    summary="Seed Energy Schedule workflow demo data",
+    description="Creates controlled synthetic upload, Energy Schedule, and consumption rows for admin workflow testing.",
+)
+async def seed_energy_schedule_workflow_demo(
+    request_data: dict[str, Any] = Body(...),
+    db: Session = Depends(get_db),
+    _admin: Any = Depends(require_admin),
+) -> dict[str, Any]:
+    """Seed a small synthetic dataset for the guided workflow page."""
+    try:
+        portfolio_id = int(request_data["portfolio_id"])
+        year = int(request_data["year"])
+        month = int(request_data["month"])
+        days = int(request_data.get("days", 3))
+    except (KeyError, TypeError, ValueError) as exc:
+        raise HTTPException(status_code=400, detail="portfolio_id, year, month, and optional numeric days are required") from exc
+    if days < 1 or days > 31:
+        raise HTTPException(status_code=400, detail="days must be between 1 and 31")
+    return seed_workflow_mock_data(db, portfolio_id=portfolio_id, year=year, month=month, days=days)
 
 
 @router.post(
